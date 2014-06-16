@@ -1,0 +1,13 @@
+/**
+\mainpage MDBM C API Documentation
+\section general General information
+
+The above <a href="modules.html">Modules</a> link contains the API
+  - <a href="modules.html">Modules</a> splits the API
+    into several functional groups for easier logical reference.
+  - The entire API is also available as a single page by using
+    the Files -> mdbm.h link.  This page has the
+    logical groups appended together.
+  - The <a href="annotated.html">Classes</a>
+    link does not contains C++ classes; it contains C structs.
+*/

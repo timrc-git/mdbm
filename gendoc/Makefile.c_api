@@ -1,0 +1,38 @@
+#
+# Generates C API HTML documentation
+#
+# The RTFM doxygen plugin does the build in the checkout directory,
+# which is the parent of this directory.  Consequently, the file
+# references in DOXYFILE are relative to the parent directory, and
+# doxygen must be invoked with the parent directory as the working
+# directory.
+
+TOPDIR=$(shell pwd)/..
+include $(TOPDIR)/Makefile.base
+default-make-target: all
+
+
+all:: docs
+
+# DOCSDIR must aggree with DOXYFILE HTML_OUTPUT (relative to parent directory).
+DOCSDIR    = html
+DOXYFILE  ?= doxygen.conf
+DOCS_INDEX = $(DOCSDIR)/index.html
+
+$(DOCS_INDEX): $(DOXYFILE) README top.dox
+	if [ ! -d $(DOCSDIR) ]; then mkdir -p $(DOCSDIR); fi
+	cd .. && doxygen gendoc/$(DOXYFILE)
+
+.PHONY: docs
+docs:	$(DOCS_INDEX)
+
+clean::
+	$(RM) *~
+	$(RM) -r $(DOCSDIR)
+
+.PHONY: docs-clean
+docs-clean: clean
+
+.PHONY: docs-force
+docs-force: clean
+	$(MAKE) -f Makefile.c_api clean docs

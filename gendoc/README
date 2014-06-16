@@ -1,0 +1,1176 @@
+#!/usr/local/bin/perl
+
+print <<EOF
+MDBM is a fast dbm clone originally based on Ozan Yigit's sdbm.
+
+EOF
+;
+
+### Whenever you update a Version entry, remember to update the
+### date on the version line.  Also, add your user-id to the change.
+###
+### The input of this file should be treated as reStructuredText (reST):
+###   - Avoid using asterisks ("*") because they are used for reST
+###     italics/bold rendering.  If a warning is generated during
+###     document generation, prepend a double backslash ("\\") before
+###     the offending asterisk.
+###   - When making sublists (2nd level bulleted items), the 2nd level
+###     indentation must be 4 space from the 1st level bullet.
+###       - Example -- this is an indented 2nd level bullet.
+###         Because the 1st level bullet line is multiple lines,
+###         this will produce a benign error:
+###         ex., release_notes.txt:107: ERROR: Unexpected indentation.
+###
+### This README file resides in gendoc/README because the
+### reStructuredText publishing method (a PHP plugin) requires
+### that the checkout directory and build directory be the same.
+### The top-level README is symlink'd to this file for convenient
+### access.
+
+print <<EOF
+MDBM Version 4 is a significant improvement to version 3 by optionally using
+pthreads instead of ylock.  Additionally, all y* package dependencies
+(i.e. ysys, yax, ycore) are optional.
+
+Version 4.3.0 (04/11/2014, carney)
+  - [BUG 6866014] Add mdbm_test_build.pl to mdbm_tools
+  - [BUG 6885383] Add frequency distribution analysis scripts
+
+Version 4.2.5 (04/07/2014, crowdert)
+  - [BUG 6878887] Ignore deleted entries in mdbm_preload. Add mpreload to mash commands.
+
+Version 4.2.4 (04/01/2014, carney)
+  - [BUG 6866485] Extend mdbm_export to emit records size information without data.
+
+Version 4.2.3 (08/14/2013, crowdert)
+  - [BUG 6524877] Added mdbm_reset_all_locks command to reset lockfiles after a power failure.
+
+Version 4.2.2 (08/14/2013, crowdert)
+  - [BUG 6463775] Make signal defer flag use atomic inc/dec.
+  - [BUG 6479189] Enforce max page size limitation of 16MB-64bytes(16777152) - kislikm.
+  - [BUG 5273139] Enforce limits on pre-split size.
+  - [BUG 5280242] Enforce limits on spill-size.
+  - [BUG 6526912] Remove mdbm_compress command-line util -kislikm
+
+Version 4.2.1 (08/01/2013)
+  - [BUG 6347269] mdbm_delete_lockfiles should remove stale ylock arena entries.
+  - [BUG 6425222] add mdbm_internal to function names that caused or might cause
+                  name collisions.
+
+Version 4.2.0 (06/14/2013)
+  - Separate out functions needed by plugins so that the use of RTLD_LOCAL
+    (e.g. Java JNI) won't break the ylock-plugin.
+
+Version 4.1.6 (03/20/2013)
+  - Delay ylock plugin loading to prevent registration failure in apache.
+
+Version 4.1.5 (02/08/2013)
+  - [BUG 6089389] Take out exclusive lock instead of write lock in mdbm_dup_handle.
+
+Version 4.1.4 (01/15/2013, crowdert)
+  - Fixed truncate_db() use of an (invalid) remapped header variable.
+  - Merged trunk changes (up to revision 22225) into V4.
+  - Excised vestigial V2 conversion code.
+  - [BUG 6061776] 64 bit mdbm_replace command line util core dumps with large MDBMs
+    (2GB or more) because it is mapped HEADER_ONLY but the directory is copied. (kislikm)
+
+Version 4.1.3 (01/15/2013, crowdert)
+  - Merged trunk changes (up to revision 22055) into V4.
+
+Version 4.1.2 (11/26/2012, kislikm)
+  - [BUG 5969052] implement mdbm_count_pages() and mdbm_count_records().
+
+Version 4.1.1 (11/26/2012, crowdert)
+  - [BUG 5956125] Fixed plugin leak on close.
+
+Version 4.1.0 (11/12/2012, crowdert)
+  - [BUG 5943497] Fixed permissions issues with ylock plugin.
+  - Added MDBM_SINGLE_ARCH flag for users to indicate they don't need mixed-arch
+    access, and get the faster pthreads-based locking.
+  - Added "fat" 32/64-bit support.
+  - Added plugable locking (i.e. mdmb_ylock_plugin).
+    pthreads is included by default, but doesn't allow for mixed 32/64-bit access
+    to the same file (due to pthreads limitations).
+
+Version 4.0.6 (08/07/2012, crowdert)
+  - NOTE: Yroots/images older than 6.2-20120514 DO NOT properly support robust
+    locks. However yinst/yicf don't allow the granularity needed to specify this.
+  - Moved lockfiles to /tmp/.mlock-named/<mdbm-path>._int_ for compatibility where
+    the location of the mdbm file is not writable.
+
+Version 4.0.5 (06/27/2012, crowdert)
+  - Set minimum OS version to 6.2. Earlier versions of pthreads have issues with
+    robust mutexes not recovering from abnormal exits (abort, crash, etc.)
+
+Version 4.0.4 (06/27/2012, crowdert)
+  - no longer "replaces" older mdbm packages.
+
+Version 4.0.3 (01/19/2012, crowdert)
+  - added "NO_AUTO_REQUIRES=yes" to yicf to prevent system openssl dependency.
+
+Version 4.0.2 (01/19/2012, crowdert)
+  - Fixed an erroneous return value from mdbm_open().
+
+Version 4.0.1 (01/19/2012, crowdert)
+  - Removed dependence on openssl_tps package.
+  - Added stubs for legacy limit_size functions to ease migration.
+  - Added "yinst replaces mdbm-3.9999.9999" to ease migration.
+  - Added MDBM_API_VERSION define (=4) to help users know what
+    they are compiling against.
+  - Removed MDBM_CREATE_V2.
+  - Disabled 32-bit builds for RHEL6.
+
+Version 4.0.0 (01/19/2012, crowdert)
+  - Initial version.
+  - Added MDBM_LOCK_ANY flag to open with whatever locking mode exists.
+    Shared and partition mode flags can be given as a suggested default.
+  - Added mdbm_get_lockmode() to query the current locking mode.
+EOF
+;
+
+print <<EOF
+
+MDBM Version 3 is a complete rewrite borrowing on the concepts from
+the original MDBM.
+
+Version 3.37.0 (04/17/2013)
+  - [BUG 6099293] Print version of yinst in mdbm_environment.sh
+  - [BUG 6258025] Add RHEL package environment information to mdbm_environment.sh
+
+Version 3.36.2 (04/15/2013)
+  - [BUG 6222973] Unable to upgrade existing mdbm from 3.26 to 3.36.
+    Make mdbm_create call mdbm_fsync to ensure that the file is sync'd
+    to disk.  This avoids waiting for a hugetlbfs delayed system sync.
+    When creating an hugetlbfs mdbm, force an fsync of the header.
+    Use mmap instead of pread to get the magic number for files in
+    hugetlbfs.  hugetlbfs reads are known not to work in kernel version
+    2.6.11.  hugetlbfs doesn't fully support read-write access
+    until kernel 2.6.25.  For interim kernel versions (ex., 2.6.18,
+    assume that reads do not work, so mmap must be used).
+
+Version 3.36.1 (02/08/2013)
+  - [BUG 6089389] Take out exclusive lock instead of write lock in mdbm_dup_handle.
+
+Version 3.36.0 (02/08/2013)
+  - [BUG 5916060] Disable the temporary LEGO_ROLLBACK feature
+    introduced in 3.35.0. (carney)
+  - [BUG 6061776] 64 bit mdbm_replace command line util core dumps with large MDBMs
+    (2GB or more) because it is mapped HEADER_ONLY but the directory is copied. (kislikm)
+
+
+Version 3.35.1 (01/07/2013)
+  - [BUG 5688486] Refactor mdbm headers to sync up public headers
+    (mdbm_dev and documentation) with actual development headers. (carney)
+    This change does not introduce any real differences, but it did
+    affect many files after renaming fundamental files.  The v3 headers
+    instead of the v2 headers match the public files names.
+    The component build now runs unit tests.
+    The new/include/mdbm/ directory was removed.
+    Renamed mdbm/include files:
+
+      * mdbm.h -> old_mdbm.h, mdbm.c -> old_mdbm.c
+      * new_mdbm.h -> mdbm.h, new_mdbm.c -> mdbm.c
+
+  - [BUG 5999799] Cannot store large objects into a dynamic-growth mdbm. (carney)
+    Add dynamic-growth mdbm large object unit tests.
+    Does not reproduce Lego's failure case.
+    Move large object documentation from Tips twiki to concepts.rst.
+  - [BUG 6014455] Add mdbm_delete_lockfiles command line util whose
+    purpose is to delete all of an MDBM's lock files.               (kislikm)
+
+Version 3.35.0 (11/05/2012)
+  - [BUG 5953069] Allow lockmode to be specified in mdbm_export.
+  - [BUG 5916060] As a Lego SE, I want to be able to rollback during
+    MDBM v2 to v3 migration to provide uninterrupted service.
+    Added temporary environment variables for Lego rollback. (carney)
+  - [BUG 5583214] Implement smart locking API that uses mdbm_open flags to determine
+    locking type: mdbm_lock_smart,mdbm_unlock_smart,mdbm_trylock_smart. (kislikm)
+
+Version 3.34.1 (11/05/2012)
+  - [BUG 5902509] Remove tps_openssl_dev-0.9.8k_11 from mdbm binary package
+    dependedencies.  Remove tps_openssl-0.9.8k_11 from mdbm_dev package
+    dependedencies. (carney)
+
+Version 3.34.0 (11/01/2012)
+  - [BUG 5817902] Added new API mdbm_preload() for reading every 4K bytes
+    to force all pages into memory (sbaby)
+  - [BUG 5833868] Added new API mdbm_lock_pages() and mdbm_unlock_pages
+    to lock some or all of MDBM's pages into RAM memory using mlock(). (kislikm)
+  - [BUG 5902509] Lower tps_openssl minimum version for Broadband
+    partner Verizon compatibility.  The minimum version has been lowered
+    from tps_openssl-0.9.8o_2 to tps_openssl-0.9.8k_11. (carney)
+
+Version 3.33.2 (08/22/2012, carney)
+  - [BUG 5688486] Move API documentation into new_mdbm.h and create API groups (carney)
+
+Version 3.33.1 (06/27/2012, mlakes)
+  - [BUG 5648770] Windowed mode is disabled on RHEL6 (and 4-on-6) due to changes in
+    remap_file_pages() (kislikm)
+  - [BUG 5648334] Support v2->v3 file format upgrade in mdbm_replace (crowdert)
+
+Version 3.33.0 (06/01/2012, mlakes)
+  - [BUG 5617110] Added mdbm_get_config and mdbm_convert_v2_to_v3.pl to convert v2 to v3 DB.
+  - Added mdbm_compare to output differences between 2 mdbms.
+  - Added new public API mdbm_get_hash_value and new internal API mdbm_get_partition_number
+  - [BUG 5555987] Add mdbm package conflicts clause to avoid ysys robust mmutex packages (carney)
+  - [BUG 5283034] Correctly handle mdbm_get_magic_number() calls for V2 MDBMs (kislikm)
+  - [BUG 5550568] new API: mdbm_get_hash_value
+  - [BUG 5545200] new internal API: mdbm_get_partition_number
+
+Version 3.32.1 (04/23/2012, carney)
+  - [BUG 5539120] Backout r18803 on new_mdbm.c
+
+Version 3.32.0 (04/17/2012, crowdert)
+  - Added delete option to mdbm_import for zero-length values.
+  - [BUG 5530788] Lower ysys dependency from ysys-2.28 to ysys-2.26 (carney)
+  - [BUG 5530815] Change default creation file format from v2 to v3 (carney)
+
+Version 3.31.2 (03/15/2012, carney)
+  - [BUG 5267466] Add check to enforce that mdbm_open() of a V3 MDBM with
+    MDBM_O_CREAT also requires MDBM_O_RDWR.  Allow mdbm_open opened with
+    MDBM_O_RDONLY|MDBM_O_CREAT to create an MDBM (if one is not present),
+    and open it in read-only mode. (kislikm)
+
+Version 3.31.1 (02/09/2012, carney)
+  - [BUG 5354707] ynet_dbutil -3 cannot be run twice without rm -rf /tmp/.ylock-\\*.
+    Change open_locks for the mode of a named mutex file.  If an
+    mdbm's permission has read access, the corresponding `ugo' permission
+    on the mutex file will also have write access.
+
+Version 3.31.0 (02/03/2012, crowdert)
+  - [BUG 5332961] Forced stats header fields to be fixed size, independent
+    of platform. They were introduced in 3.28.1.
+    NOTE: Any V3 MDBMs created by 32-bit MDBM libraries 3.28 to 3.30
+    will be incompatible with new libraries and pre-3.28 libraries.
+    They should be recreated from scratch, or by using mdbm_export (V3.28)
+    and a newer version of mdbm_import.
+
+Version 3.30.0 (01/20/2012, crowdert)
+  - [BUG 5318830] Removed Windowed-Min mode. It was not being used by any users,
+    and is fundamentally broken on RHEL6 due to it's inability to coalesce and
+    re-fragment mmaped chunks in remap_file_pages().
+
+Version 3.33.1 (06/27/2012, mlakes)
+  - [BUG 5648770] Windowed mode is disabled on RHEL6 (and 4-on-6) due to changes in
+    remap_file_pages() (kislikm)
+  - [BUG 5648334] Support v2->v3 file format upgrade in mdbm_replace (crowdert)
+
+Version 3.33.0 (06/01/2012, mlakes)
+  - [BUG 5617110] Added mdbm_get_config and mdbm_convert_v2_to_v3.pl to convert v2 to v3 DB.
+  - Added mdbm_compare to output differences between 2 mdbms.
+  - Added new public API mdbm_get_hash_value and new internal API mdbm_get_partition_number
+  - [BUG 5555987] Add mdbm package conflicts clause to avoid ysys robust mmutex packages (carney)
+  - [BUG 5283034] Correctly handle mdbm_get_magic_number() calls for V2 MDBMs (kislikm)
+  - [BUG 5550568] new API: mdbm_get_hash_value
+  - [BUG 5545200] new internal API: mdbm_get_partition_number
+
+Version 3.32.1 (04/23/2012, carney)
+  - [BUG 5539120] Backout r18803 on new_mdbm.c
+
+Version 3.32.0 (04/17/2012, crowdert)
+  - Added delete option to mdbm_import for zero-length values.
+  - [BUG 5530788] Lower ysys dependency from ysys-2.28 to ysys-2.26 (carney)
+  - [BUG 5530815] Change default creation file format from v2 to v3 (carney)
+
+Version 3.31.2 (03/15/2012, carney)
+  - [BUG 5267466] Add check to enforce that mdbm_open() of a V3 MDBM with
+    MDBM_O_CREAT also requires MDBM_O_RDWR.  Allow mdbm_open opened with
+    MDBM_O_RDONLY|MDBM_O_CREAT to create an MDBM (if one is not present),
+    and open it in read-only mode. (kislikm)
+
+Version 3.31.1 (02/09/2012, carney)
+  - [BUG 5354707] ynet_dbutil -3 cannot be run twice without rm -rf /tmp/.ylock-\\*.
+    Change open_locks for the mode of a named mutex file.  If an
+    mdbm's permission has read access, the corresponding ugo permission
+    on the mutex file will also have write access.
+
+Version 3.31.0 (02/03/2012, crowdert)
+  - [BUG 5332961] Forced stats header fields to be fixed size, independent
+    of platform. They were introduced in 3.28.1.
+    NOTE: Any V3 MDBMs created by 32-bit MDBM libraries 3.28 to 3.30
+    will be incompatible with new libraries and pre-3.28 libraries.
+    They should be recreated from scratch, or by using mdbm_export (V3.28)
+    and a newer version of mdbm_import.
+
+Version 3.30.0 (01/20/2012, crowdert)
+  - [BUG 5318830] Removed Windowed-Min mode. It was not being used by any users,
+    and is fundamentally broken on RHEL6 due to it's inability to coalesce and
+    re-fragment mmaped chunks in remap_file_pages().
+
+Version 3.29.1 (01/12/2012, carney)
+  - [BUG 5270055] Consecutive calls to mdbm_import does not update
+    values to the existing key when the data is in cdb format.
+    A `-S' option was added to mdbm_import to specify a numeric
+    storage flag for mdbm_store (insert, replace, insert_dup, modify).
+
+Version 3.29.0 (12/21/2011, carney)
+  - [BUG 5033658] mdbm_open performance improvement.
+    Refactor out significant functionality of mdbm_open into
+    check_hugetlbfs and get_magic_number for profiling purposes.
+    mdbm_get_magic_number added to public API, which is intended for testing purposes.
+  - Fix new_mdbm.h typo, change extern mdbm_get_stat to mdbm_get_stats.
+  - [BUG 4784613] yphp_mdbm segmentation faults with mdbm-3.26.4.55.
+    regtests/test-4784613.cc added to reproduce the crash in split_page.
+  - [BUG 5250025] mdbm_import does not accept k/m as suffix for page size.
+    For mdbm_import, the units for the default db size is now in MB
+    instead of bytes.
+  - [BUG 5264717] Requirements for the .protect symbolic link used by mdbm_open()
+    to determine whether to enable protection or not have been relaxed: the
+    symlink no longer needs to be owned by root.  The previous code did not enforce
+    the requirement that the file must be a symlink, but now it does that. (kislikm)
+  - [BUG 5212828] Segfault in mdbm_store (carney)
+    regtests/test-512828.cc added to reproduce the crash in split_page.
+
+Version 3.28.1 (11/03/2011, carney)
+  - [BUG 4919056] Track mdbm last read, write, and delete time.
+    Remove bogus assert(sizeof(time_t) = 8).
+  - [BUG 4784613] yphp_mdbm segmentation faults with mdbm-3.26.4.55
+    Add regression test test-4784613.cc
+
+Version 3.28.0 (10/25/2011, carney)
+  - [BUG 4739922] mdbm_stat should display an cache type (LRU, LFU, GDSF)
+  - [BUG 4585940] mdbm_stat prints Hash func = 5/FNV while mdbm is
+    created with mdbm_create -h 0/CRC-32.
+  - [BUG 4844568] Help option (-h) mdbm_compress is not available
+  - [BUG 4919056] Track mdbm last read, write, and delete time.
+    See new functions: mdbm_get_stat_counter, mdbm_get_stat_time, and
+    mdbm_reset_stat_operations.
+
+Version 3.27.1 (10/14/2011, carney)
+  - Move mdbm_environment from top directory to the bin directory.
+  - [BUG 4883332] mdbm_import fails with the option to limit large object size.
+    The program's -y option was documented incorrectly.
+  - [BUG 4888620] mdbm should expose the get_version function
+  - [BUG 4887617] mdbm_check should allow the version of an mdbm to be specified
+  - [BUG 4846762] Maple object cache cannot allocate storage frequently
+    on FEs, causing MDBM errors and perf degrdation due to Maple configure.
+    This fix displays warnings when using mdbm_limit_size_new for v3 format
+    mdbms.  mdbm v3 files should use mdbm_limit_size_v3, and not
+    mdbm_limit_size_new.  However, to provide a better v2 to v3
+    migration experience, mdbm_limit_size_new has been modified:
+
+      * Display a warning messsage
+      * If the page size is not over 64KB, use the v2 shake data format
+      * If the page size is over 64KB, use the v3 shake data format
+
+Version 3.27.0 (10/02/2011, carney)
+  - [BUG 4704915] mdbm_open uses clashing O_FSYNC and MDBM_OPEN_WINDOWED flags.
+    When packages are ported to RHEL6, users must scan for mdbm_open calls and
+    change from open flags O_XXX to MDBM_O_XXX.  This will avoid a collision
+    between O_FSYNC and MDBM_OPEN_WINDOWED. (2011-07-27, arnej)
+  - mdbm_environment.sh added for gathering information for bug reporting.
+  - For mdbm_dev, add dependencies on ysys_dev and ylock_dev to ensure that
+    they stay in sync with their installed corresponding binary packages.
+  - Update doxygen configuration from 1.2.15 to 1.5.8.
+  - Release Notes are now MDBM_BUILD dependent.
+  - [BUG 4821002] Help documentation of mdbm_replace has incorrect sequnce of command line options
+  - [BUG 4821618] Fix array overrun and corruption from v3 stats function.
+  - [BUG 4838668] mdbm_sync gives an error "invalid option" for -L
+  - [BUG 4840488] Compilation was failed because of
+    "/usr/bin/ld: warning: libcrypto.so.4, needed by /home/y/lib64/libmdbm.so,
+    may conflict with libcrypto.so.108" on rhel.5.4.
+    Starting with mdbm-3.27.0.65, libmdbm.so is linked with tps_openssl
+    instead of the system's openssl.
+  - [BUG 4846762] Maple object cache cannot allocate storage frequently
+    on FEs, causing MDBM errors and perf degrdation due to Maple
+    configure.
+    The root cause is that mdbmv3 apps with page size over 64KB are using
+    mdbm_limit_size_new instead of mdbm_limit_size_v3.  This results in
+    the shake function being called with mdbm_shake_data (16-bit sizes)
+    instead of mdbm_shake_data_v3.  The shake fails to find space, and
+    that object cannot be inserted.
+  - [BUG 4867680] 400M fixed size mdbm using 2G of address space
+    Add options -D and -S to mdbm_trunc to establish a size limits on the mdbm.
+    There is no option to preserve large objects attribute.
+    Log an error if the new limit size is smaller than the existing size.
+  - [BUG 4637883] Named mutexes must be opened using same "mode" as underlying mdbm
+  - [BUG 4723272] Support environment variable to turn on mdbm protection globally.
+    Environment variable MDBM_PROTECT_PATH_REGEX may be used to define a
+    POSIX Extended Regular Expression that is matched against the mdbm's realpath.
+    If there is a match, the mdbm protect feature is enabled.  Setting
+    MDBM_PROTECT_PATH_REGEX=. enables the protect feature for any mdbm.
+
+Version 3.26.4 (07/22/2011, carney)
+  - [FIX BUG 4511494] Corrections and fixes to File_MDBM.pm's pod
+  - [FIX BUG 4597969] MDBM V3 causes mdbm_popen to return old value after mdbm_replace
+
+Version 3.26.3 (05/20/2011, rr)
+  - [FIX BUG 4558462] Add missing mdbm3_config.h header to dev package.
+
+Version 3.26.2 (05/19/2011, rr)
+  - [BUG 4550018] Fix default mdbm_check level (-d 3) for v3 dbs; fix mdbm_check exit code
+
+Version 3.26.1 (05/03/2011, rr)
+  - [FIX BUG 4511240] Add lock upgrade during page-split (w/ deadlock avoidance) for correctness.
+  - Retry failed store to backing-store in case of possible page-split partition conflict.
+
+Version 3.26.0 (04/28/2011, rr)
+  - [BUG 4504900] Use full db locking function when protecting handle/db.
+		  Track locked partition (instead of page) and improve conflict logging.
+		  Return success when backing-store fetch succeeds even if cache refill fails.
+  - Add mdbm_digest utility.
+  - Add windowing support to utilities.
+  - [FIX BUG 4503448] Fix v3 mdbm_fetch return val when fetch fails.
+  - Add mdbm_lock_reset() to reset db lock and allow return from part/rw locks to db locks.
+
+Version 3.25.3 (04/26/2011, rr)
+  - Fix for overzealous mprotect when mapped in header-only mode.
+
+Version 3.25.2 (04/18/2011, rr)
+  - Fix SEGV in del_entry when deleting large-object in windowed-mode.
+  - Fix incomplete value mapping of large-object in windowed-mode.
+
+Version 3.25.1 (04/18/2011, rr)
+  - [FIX BUG 4480191] Disallow sethash/set_alignment/set_cachemode when db not empty.
+  - [FIX BUG 4480023] Handle deleted entries properly in mdbm_iterate.
+  - Fix windowed and windowed-min mode page iteration in a bunch of places.
+  - Fix db check code which was iterating the entries on each page incorrectly.
+  - Include page number in mdbm_dump output for lob chunks.
+  - Make v2 compact calls conditional.
+
+Version 3.25.0 (03/16/2011, rr)
+  - Log the lock state when a locking error is detected.
+  - Bump the ysys dependency to support threaded locking correctly.
+
+Version 3.24.1 (03/14/2011, rr)
+  - [FIX BUG 4397460] Fix corruption caused by update of large object.
+  - [FIX BUG 4397471] Fix mmap error due to bad dir size calculation in windowed mode.
+  - More locking cleanup (partition conflicts when using plocks for backing store).
+  - Add missing mdbm_bench backing-store config options.
+  - mdbm_bench main proc/thread waits for all child procs/threads to finish before exiting.
+
+Version 3.24.0 (03/10/2011, rr)
+  - [FIX BUG 4391578] [BUG 4388269]
+      Overhaul backing-store lock management to streamline and avoid lock-ordering
+      issues.  Backing-store locks are now always taken alongside the tier-1 locks.
+      This improves the consistency guarantees as well as avoiding unintentional
+      deadlocks.
+  - [FIX BUG 4380791] Add mdbm_create -s option to specify main db size.
+
+Version 3.23.6 (02/23/2011, rr)
+  - [FIX BUG 4353743] Fix locking error during mdbm_dup_handle().
+  - Fix partitioned/rw locking modes to make exclusive locks work with threads.
+
+Version 3.23.5 (02/15/2011, rr)
+  - [FIX BUG 4331169] Fix some mdbm_stat -u metrics; add many new ones.
+  - Fix internal directory handling during db growth.
+  - Fix extraneous unlock error when calling mdbm_fetch_dup_r with no lock held.
+  - Add missing locking to mdbm_fetch utility.
+
+Version 3.23.4 (01/19/11, rr)
+  - Fix hang in window allocator (when window is too small).
+
+Version 3.23.3 (01/10/11, rr)
+  - [FIX BUG 4248986] Ignore cache refill errors due to large objects fetched from backing.
+
+Version 3.23.2 (01/10/11, rr)
+  - [FIX BUG 4248297] Fix mdbm_first/next with windowed mode and large objects.
+  - Add -v (verbose) and -w (windowed) options to mdbm_fetch.
+
+Version 3.23.1 (12/15/10, rr)
+  - [FIX BUG 4213782] Use db-level lock to protect attribute-setting functions
+  - Rewrite internal lock to used second named lock (instead of ylock arena mutex hack).
+
+Version 3.23.0 (12/13/10, rr)
+  - [FIX BUG 4195889] Support mdbm_replace when used with dup'ed handles.
+  - Switch to named mutex to improve robustness of mdbm_replace operation.
+
+Version 3.22.0 (12/02/10, rr)
+  - [FIX BUG 4134447] Add mdbm_dup_handle() for sharing of mappings across threads.
+  - Add mdbm_get_cachemode().
+  - [FIX BUG 4143244] Add cache-store rstats to track actual stores to cache db.
+
+Version 3.21.6 (11/11/10, rr)
+  - [FIX BUG 681782] Make mdbm_set_alignment more explicit.
+  - [FIX BUG 1100780] Clarify doc on mdbm_store_r datum pointers.
+  - [FIX BUG 2476296] Point to twiki doc from package.
+  - [FIX BUG 3981675] Make mdbm_close no-op if passed NULL (matches v2 behavior)
+  - [FIX BUG 4017582] abort() on window allocation failures (fail fast)
+  - [FIX BUG 4116544] Fix mdbm_import to accept dbsize >= 2G
+  - Fix bug in windowed mode which could fail to fetch a record which existed in the db
+
+Version 3.21.5 (11/01/10, rr)
+  - [BUG 4106371] Revert v2 locking to 2.32.0 to support multi-threaded access via mdbm_lock.
+  - Fix v3 check errno when db problem is detected (was EBADF, not EFAULT).
+  - Fix v3 mdbm_check return code.
+
+Version 3.21.4 (09/30/10)
+  - Add window size and max window used stats to get_window_stats.
+  - [BUG 4013936] Fix window metadata initialization.
+
+Version 3.21.3 (09/29/10)
+  - [BUG 4013936] Simplify window allocator to avoid fragmentation issues.
+
+Version 3.21.2 (09/21/10)
+  - [FIX BUG 4003422] Grab db lock for top-level db functions to ensure proper protect behavior.
+  - [FIX BUG 3885569] Ensure that db passed to mdbm_init_rstats is a v3 db.
+
+Version 3.21.0 (08/11/10)
+  - Attempt lock upgrade if necessary for defrag chunk allocation (large obj, oversized page, etc.)
+  - Revise Makefiles (coverage/docs)
+
+Version 3.20.6 (08/07/10, rr)
+  - Stats bugs:  Add missing overhead bytes to page stats.
+
+Version 3.20.5 (08/02/10, rr)
+  - Windowing bug:  Fix missing page map call in find_defrag_free_chunk().
+  - Windowing bug:  Fix window page leak when dealing with oversized pages.
+
+Version 3.20.4 (07/26/10, rr)
+  - [BUG 3729155] Fix misplaced get_window_page assertion().
+
+Version 3.20.3 (07/22/10, rr)
+  - [BUG 3729155] Rework window page allocation to track in-use pages
+
+Version 3.20.2 (06/10/10, rr)
+  - [FIX BUG 3729346] Add window size checks that take into account large object requirements.
+
+Version 3.20.1 (06/10/10, rr)
+  - [BUG 3724876] Bypass some per-entry checking for deleted entries.
+  - [BUG 3724876] Fix mdbm_stat crash when db size is >= 1TB.
+  - [FIX BUG 3727737] Fix crash in store when using MDBM_CACHE_MODIFY.
+  - [FIX BUG 3716553] Force a minimum of 2 pages in window to prevent split_page crash.
+  - Fix mdbm_bench threaded (-t) mode.
+
+Version 3.20.0 (05/24/10, rr)
+  - Add -u (utilization) option to mdbm_stat for v3 databases.
+  - Revise random key generation in mdbm_bench.
+  - Add 4th level to check_db which verifies key hash in page directory.
+  - Add missing mdbm_copy utility to package.
+
+Version 3.19.0 (04/21/10, rr)
+  - Add MDBM_CACHE_MODIFY flag to mdbm_store() to enable cache-pollution avoidance.
+
+Version 3.18.3 (04/19/10, rr)
+  - Minor code tweaks to silence compiler warnings.
+  - Use MDBM_REPLACE to insert keys in mdbm_bench in sequential-key mode.
+
+Version 3.18.2 (04/14/10, rr)
+  - [FIX BUG 3552158] Fix directory protection broken in 3.18.0.
+  - Tweak get_window_page length processing to avoid incorrect page mappings.
+
+Version 3.18.1 (03/26/10, rr)
+  - Bypass auto-check-on-lock-owner-death if running windowed.
+  - Bypass internal lock if opened without locking.
+  - Disable unnecessary first-page memory protection.
+
+Version 3.18.0 (03/24/10, rr)
+  - Add windowed-min mode (MDBM_OPEN_WINDOWED_MIN) for minimum footprint windowing.
+  - Fix memory leak in window management code.
+  - Add missing mdbm_stats.h to mdbm_dev.
+
+Version 3.17.5 (03/10/10, rr)
+  - [FIX BUG 3437353] Fix corner case in freeing large objects during purge.
+
+Version 3.17.4 (03/10/10, rr)
+  - [FIX BUG 3465383] Fix locking around db integrity check triggered by lock-owner death.
+  - [FIX BUG 3465414] Fix protect mode when windowing enabled.
+  - [FIX BUG 3465421] Fix auto-switch from db locking mode to partitioned locks.
+  - [FIX BUG 3465425] Fix detection of lock-owner death when using shared lock.
+  - Add support for size suffixes in mdbm_bench (e.g., -p 128k).
+
+Version 3.17.3 (03/08/10, rr)
+  - [FIX BUG 3437353] Fix mdbm_purge to free all large-objects during purge.
+  - [FIX BUG 3457932] Fix page stats when page includes large-objects.
+  - [FIX BUG 3458802] Fix error/crash issues with large-objects and windowed-mode.
+
+Version 3.17.2 (02/24/10, rr)
+  - [FIX BUG 3415090] Fix mprotect error/SEGV when opening header-only (i.e., mdbm_replace).
+
+Version 3.17.1 (02/11/10, rr)
+  - Add column headers to mdbm_bench output.
+  - Fix -M/-W checking in mdbm_bench.
+  - Rework non-rstats benchmark output.
+  - Update mdbm_rstats usage message.
+  - Set a long default for mdbm_rstats -s option.
+  - [FIX BUG 3380591] Separate internal lock from db lock to avoid lock ordering issues.
+
+Version 3.16.2 (02/10/10, rr)
+  - Fix RHEL build.
+
+Version 3.16.1 (02/09/10, rr)
+  - [FIX BUG 3353497] mdbm_bench checks that -W option is given if -M option is given.
+  - [FIX BUG 3358194] Move file stat in mdbm_replace_db to fix replacement of v2 dbs.
+  - [FIX BUG 3338296] Emit warning from mdbm_limit_size* if <5% space allocated for large-obj.
+  - [FIX BUG 3334756] Use realpath for opening mmutex file.
+  - Add MDBM_NO_DIRTY open flag to disable dirty-bit management.
+  - Rework write testing in mdbm_bench.
+
+Version 3.16.0 (02/03/10, rr)
+ - Add time histogram support to realtime stats.
+ - Add diskstats (-D) to mdbm_bench for RHEL.
+ - Add mlockall (-0) option to mdbm_bench.
+ - Add support for hugetlbfs-backed mdbm's on RHEL.
+ - Add support for cache-eviction of large objects.
+
+Version 3.15.0 (01/20/10, rr)
+ - Drop i386-freebsd6-gcc3 x86_64-freebsd6-gcc3 support
+
+Version 3.14.0 (01/13/10, rr)
+ - [FIX BUG 3199041] Add no-lock options (usu. -L) to all utilities.
+ - Redo locking recursion change to support threaded locking via db-lock (not partitioned/rw).
+ - [FIX BUG 3312015] Fix v2 stat crash when no-lock option used.
+ - Rework cache eviction to properly handle clean-func refusals/failures.
+ - Use atomic ops to update realtime stats.
+ - Fix RHEL5 compile issues.
+ - Fix window sizes >=4GB.
+ - Use non-blocking (no prefault) remap when windowing an entire db page (store optimization).
+ - Add cache eviction to realtime stats.
+
+Version 3.13.0 (01/05/10, rr)
+ - Add windowing support for accessing larger-than-address-space/larger-than-RAM db's.
+ - Add mdbm-based backing store support.
+ - Add locking stats to runtime stats.
+ - [FIX BUG 3199041] Add MDBM_OPEN_NOLOCK support to v3 to bypass all locking.
+ - Add support to mdbm_bench for configuring backing store
+ - Generate mdbm_bench keys dynamically in sequential-key-mode to reduce bloat.
+ - Add -b (windowed), -P (read-only), -V (check values) options to mdbm_bench.
+
+Version 3.12.0 (12/11/09, rr)
+ - [BUG 3199041] Add MDBM_OPEN_NOLOCK support to v2 to bypass all locking.
+ - [FIX BUG 3236690] Fix missing unlock in v2 mdbm_sethash function.
+ - Revise rstats interface so monitors don't need to open db.
+ - Rework mdbm_bench rate and timing calculations.
+ - Fix mdbm_stat overflow in number of pages.
+ - Add missing locking in some mdbm_set* functions.
+ - Fix -L (nolock) option for mdbm_stat.
+ - Fix O_DIRECT alignment handling for write.
+
+Version 3.11.2 (12/03/09, rr)
+ - Fix corruption when 0-sized large object is moved during defrag.
+ - Avoid storing small sized values as large objects.
+ - Fix no-lock option of mdbm_check
+ - Add more tests to mdbm_regtest and additional rework.
+
+Version 3.11.1 (12/01/09, rr)
+ - Fix locking recursion problem (introduced in 3.11.0).
+ - Shrink oversized pages when they become empty.
+ - Lots of regtest fixes.
+ - Fix error in val.dsize returned by mdbm_store_r when alignment > 0.
+
+Version 3.11.0 (11/25/09, rr)
+ - [FIX BUG 3208259] Add MDBM_DEMAND_PAGING flag to v3 header to support v2 feature.
+ - [FIX BUG 2383183] Update doc link.
+ - Add mdbm_protect() to add/remove memory protection.
+ - Add automatic protection-follows-locking (checks existence of /path/to/dbfilename.protect)
+ - Add mdbm_set_backingstore() and file-based implementation for cachemode backing store.
+ - Add mdbm_init_rstats() and mdbm_rstats util for runtime stats collection/monitoring.
+ - Change db-level locking recursion to better detect misbehaving locks.
+
+Version 3.10.3 (10/19/09, rr)
+ - Cleanup v3 internal locking.
+ - Enhance mdbm_bench for better timing.
+ - Fix a few 64-bit compile warnings.
+ - Fix header handling for v3 replace.
+ - Increase verbosity for post-crash integrity check.
+ - Fix mdbm_create initial db size handling.
+ - Improve mdbm_check usage.
+ - [FIX BUG 3100302] Fix v3 mdbm_sync.
+ - [FIX BUG 3033284] Fix doc for shake data.
+ - [BUG 3056394] Add another page-level sanity check.
+
+Version 3.10.2 (10/19/09, rr)
+ - Fix v2 shake(v2) large object processing.
+
+Version 3.10.1 (09/28/09, rr)
+ - Fix v2 shake processing: was failing to free large objects.
+
+Version 3.10.0 (08/04/09, rr)
+ - Add mdbm_fcopy function for copying live v3 db's.
+ - Add mdbm_copy utility.
+ - Add mdbm_digest utility for generating db digests.
+ - Fix mdbm_dev replaces rule to properly replace mdbm_dev v2.
+ - Add -S (step) option to mdbm_bench.
+ - Support up to 512 procs in mdbm_bench.
+ - Fix source compatibility issue between v2 datum & kvpair and v3.
+
+Version 3.9.1 (06/18/09, rr)
+ - Rewrite v2/v3 header-only mapping to address various crashes.
+ - Fix mdbm_bench large db support.
+ - Add logfile support to mdbm_bench.
+ - Fix compilation against recent yahoo_cfg_dev.
+
+Version 3.9.0 (05/29/09, rr)
+ - Remove spurious log message during open
+ - Add -o option to mdbm_bench for logging results.
+
+Version 3.8.3 (05/15/09, rr)
+ - [FIX BUG 2758516] Fix SEGV when evicting dirty cache entry.
+ - [FIX BUG 2758557] Fix errors in handling cache mode.
+
+Version 3.8.2 (05/14/09, rr)
+ - Tweak page 0 guard size.
+
+Version 3.8.1 (05/13/09, rr)
+ - Fix size calculation on page 0 guard.
+
+Version 3.8.0 (05/05/09, rr)
+ - mprotect the slack space in page 0 to electric-fence the directories.
+ - Fix two errors in free_chunk() code.
+ - Run full db check on v3 db's when previous lock-owner died.
+
+Version 3.7.0 (04/28/09, rr)
+ - [FIX BUG 2715933] Support MDBM_CLEAN flag to mdbm_store which marks cache entry clean.
+ - [FIX BUG 2715880] Correct value ptr/size in mdbm_clean callback.
+
+Version 3.6.1 (04/27/09, rr)
+ - [FIX BUG 2709019] Skip over deleted page entries in mdbm_clean.
+ - [FIX BUG 2660531] Fix set_cachemode arg checking to allow MDBM_CACHEMODE_EVICT_CLEAN_FIRST
+
+Version 3.6.0 (03/30/09, rr)
+ - Add mdbm_fetch_info function to return cache metadata along with value.
+
+Version 3.5.3 (03/19/09, rr)
+ - Fix mdbm_lock() when db is opened read-only (introduced in 3.5.0).
+
+Version 3.5.2 (03/12/09, rr)
+ - [FIX BUG 2593601] Fix header check on newly-created dbs.
+ - Fix size value formatting in v3 mdbm_stat.
+
+Version 3.5.1 (02/26/09, rr)
+ - [FIX BUG 2562157] Add replaces rule to mdbm_dev to make v3 compatible with v2 prereqs.
+
+Version 3.5.0 (02/26/09, rr)
+ - Add support for write-back caching.
+ - Fix mdbm_bench multi-proc accounting.
+ - Fix mdbm_dump (v3) error reporting.
+
+Version 3.4.4 (12/04/08, rr)
+ - Fix iterate over deleted large objects.
+
+Version 3.4.3 (12/04/08, rr)
+ - Fix db header check in remap (correct broken fix in 3.4.2).
+
+Version 3.4.2 (12/03/08, rr)
+ - Fix db header check during mdbm_open.
+
+Version 3.4.1 (12/02/08, rr)
+ - [FIX BUG 2395961] Fix double-free of large-object chunk during store(REPLACE).
+ - Add missing support for HEADER_ONLY
+ - The following are from 2.32.1:
+ - [FIX BUG 2280031] Reset bogus replace indicator if db file hasn't changed.
+ - [FIX BUG 2289521] Suppress db checks in mdbm_open if opening with HEADER_ONLY.
+ - [FIX BUG 725835] Act correctly on db check failure.
+ - [FIX BUG 1432655] Doc clarifications.
+ - [FIX BUG 1118707] mdbm_set_alignment value clarification.
+
+Version 3.4.0 (10/07/08, rr)
+ - [FIX BUG 2255972] (from 2.32.0) Add MDBM_DEMAND_PAGING open flag to suppress madvise(WILLNEED).
+ - Improved db consistency checking support.
+
+Version 3.3.3 (09/04/08, rr)
+ - Enable v3 sanity-checking via MDBM_SANITY_CHECK env var.
+
+Version 3.3.2 (08/04/08, rr)
+ - [FIX BUG 2105548] Fix v2 large-obj arena corruption with LARGE object.
+
+Version 3.3.1 (05/19/08, rr)
+ - Fix >2G support in v3.
+ - Update usage in mdbm_bench.
+
+Version 3.3.0 (05/15/08, rr)
+ - [FIX BUG 1802587] Add mdbm_purge utility
+ - Add mdbm_create utility.
+ - [FIX BUG 1795900] Update mdbm_trunc messaging when open fails.
+
+Version 3.2.1 (05/13/08, rr)
+ - Rework v3 locking to avoid upgrade/downgrade accounting problems.
+
+Version 3.2.0 (03/27/08, rr)
+ - Add mdbm_create utility.
+ - Revise mdbm_stat v3 output.
+ - Add mdbm_get_errno function.
+ - Define MDBM_VERSION macro.
+ - Restore missing headers and MDBM_HASH_* defines from v2.
+ - Remove 32-bit dbsize restriction from 64-bit lib.
+
+Version 3.1.1 (02/21/08, rr)
+ - Fix dynamic db expansion.
+
+Version 3.1.0 (02/13/08, rr)
+ - Add v3 support to mdbm_import (-2, -3, and -Z options).
+
+Version 3.0.1 (02/05/08, rr)
+ - Add replaces for mdbm version 2 (fully-compatible).
+
+Version 3.0.0 (02/05/08, rr)
+ - Version 3 is a complete mdbm rewrite.  It uses a different db format than V1/V2;
+   however, it fully supports the older db format and by default will create only
+   old-format db's.  You must include the MDBM_CREATE_V3 flag on the mdbm_open call
+   to create a new-format db and run the new code.
+
+EOF
+;
+
+if ($ENV{MDBM_BUILD} eq '2') {
+print <<EOF
+Version 2.34.1 (when, rr)
+ - Redo locking recursion change to support threaded locking via db-lock (not partitioned).
+
+Version 2.34.0 (12/10/09, rr)
+ - [BUG 3199041] Add MDBM_OPEN_NOLOCK support to v2 to bypass all locking.
+
+Version 2.33.3 (12/10/09, rr)
+ - Fix missing unlock recursion changes.
+
+Version 2.33.2 (12/10/09, rr)
+ - [FIX BUG 3236690] Fix missing unlock in v2 mdbm_sethash function.
+ - Change db-level locking recursion to better detect misbehaving locks.
+
+Version 2.33.1 (11/19/09, rr)
+ - Add mdbm_protect() function to add/remove memory protection.
+ - Add automatic protection-follows-locking (checks existence of /path/to/dbfilename.protect)
+
+Version 2.32.1 (10/23/08, rr)
+ - [FIX BUG 2280031] Reset bogus replace indicator if db file hasn't changed.
+ - [FIX BUG 2289521] Suppress db checks in mdbm_open if opening with HEADER_ONLY.
+ - [FIX BUG 725835] Act correctly on db check failure.
+ - [FIX BUG 1432655] Doc clarifications.
+ - [FIX BUG 1118707] mdbm_set_alignment value clarification.
+
+Version 2.32.0 (10/02/08, rr)
+ - Same as 2.31.1 but bump version to properly reflect added capability.
+
+Version 2.31.1 (10/02/08, rr)
+ - [FIX BUG 2255972] Add MDBM_DEMAND_PAGING open flag to suppress madvise(WILLNEED).
+
+Version 2.31.0 (09/11/08, rr)
+ - Add mdbm_create utility.
+ - Add mdbm_get_errno function.
+ - [FIX BUG 1802587] Add mdbm_purge utility
+ - [FIX BUG 1795900] Update mdbm_trunc messaging when open fails.
+ - Update usage in mdbm_bench.
+ - [FIX BUG 2105548] Fix v2 large-obj arena corruption with LARGE object.
+
+Version 2.30.5 (12/21/07, rr)
+ - [FIX BUG 1626374] Revise 2.30.4 fix to handle RHEL munmap oddity.
+
+Version 2.30.4 (12/20/07, rr)
+ - [FIX BUG 1626374] Revise 2.30.2 fix to avoid clobbering the db-to-be-replaced mapping.
+
+Version 2.30.3 (12/17/07, rr)
+ - Update cached db size so remap unmaps full db (mdbm_restore fix).
+
+Version 2.30.2 (12/06/07, rr)
+ - [FIX BUG 1626374] Use special header-only open mode to allow 32-bit mdbm_replace of 2G mdbm.
+
+Version 2.30.1 (11/26/07, rr)
+ - [FIX BUG 1583468] Add missing large-object size-change checks to avoid fetch/iterate crashes.
+
+Version 2.30.0 (11/13/07, rr)
+ - Add 64-bit RHEL4 (x86_64-rhel4-gcc3) support.
+
+Version 2.29.9 (04/03/07, rr)
+ - [FIX BUG 1127355] Remove broken tree-walk avoidance code in getpage()
+
+Version 2.29.8 (03/19/07, rtroll)
+ - [Bug 1096344] Large object arena initialization fix
+
+Version 2.29.7 (03/09/07, rtroll)
+ - [Bug 1089426] Added mdbm_get_value_loc
+ - [Bug 1077290] mdbm_stat and XM bug fixes
+ - [Bug 1077407] mdbm_dump displays XM offsets correctly
+
+Version 2.29.6 (12/21/06, rtroll)
+ - [FIX BUG 889881] Don't count page holes in mdbm_stat histograms
+ - mdbm_restore now emits warnings if the save file is missing; or
+   if the destination mdbm exists.  This will help stop users from
+   corrupting the save file if they call mdbm_restore with the
+   arguments reversed.
+
+Version 2.29.5 (12/06/06, rr)
+ - Rework db-level locking to improve concurrency support.
+
+Version 2.29.4 (11/13/06, rtroll)
+ - Probable fix for bug bug causing failure of XM pages after mdbm_truncate
+
+Version 2.29.3 (10/19/06, rr)
+ - Clean up (and don't strand) the partitioned lock when open fails.
+
+Version 2.29.2 (09/21/06, rr)
+ - [FIX BUG 818421] Fix shake when partitioned locks are enabled.
+
+Version 2.29.1 (07/18/06, rr)
+ - [FIX BUG 740098] Don't truncate db file in mdbm_open until exclusive lock is held.
+
+Version 2.29.0 (07/10/06, rr)
+ - Allow splits in partitioned locking mode as long as exclusive lock is held.
+ - Implicitly switch to partitioned locks if they're being used by another process.
+ - Remove hideous ifdef/typedef for ysys_mmutex_t which causes header ordering problems.
+
+Version 2.28.9 (06/29/06, rtroll)
+ - mdbm_stat now counts INOs in utilization statistics
+ - mdbm_stat now provides post-compress free bytes per page as well
+
+Version 2.28.8 (06/29/06, rtroll)
+ - mdbm_dev requires ycore_dev, needed for compilation of mdbm code
+ - [702160] - mdbm_import supports same page sizes as mdbm
+ - [710333] - mdbm_check now returns non-0 upon check failure
+
+Version 2.28.7 (05/25/06, rr)
+ - Don't prematurely close db file during replace.
+ - Add jenkins hash.
+ - Minor no-op change to xm_remap.
+
+Version 2.28.6 (05/01/06, rr)
+ - Fix crash when shake page makes multiple iterations.
+
+Version 2.28.5 (04/21/06, rr)
+ - Remove openssl dependency.
+
+Version 2.28.4 (04/03/06, rr)
+ - Fix version confusion.
+ - Build using yahoo_cfg_dev-2.8.1 compiler options.
+ - Revise page-checking and debug output.
+
+Version 2.28.3 (03/16/06, rr)
+ - [FIX BUG 600542] Use memmove in putpair (may overlap during page gc).
+
+Version 2.28.2 (03/14/06, rr)
+ - [FIX BUG 598595] Fix intermittent wrong-page store with large-objects enabled.
+ - [FIX BUG 598611] Fix val.dsize returned from store with large-objects enabled.
+ - Allow NULL shake func to limit db size without having to shake full pages.
+ - Limit db size in mdbm_bench.
+ - Fail mdbm_open (EINVAL) if partitioned locks and large objects combined.
+ - Disable page splits if partitioned locks enabled.
+ - Add -L (large objects) option to mdbm_bench (default no large objects).
+ - Add mdbm_get_page and mdbm_dump_page funcs for debugging.
+ - Add -p option to mdbm_dump to dump a single page.
+
+Version 2.28.1 (03/13/06, rr)
+ - Fix mdbm_bench which leads to supposedly missing keys.
+
+Version 2.28.0 (03/09/06, rr)
+ - Add mdbm_bench to package.
+ - Add mdbm_get_{size,limit_size,page_size,hash,alignment} functions.
+
+Version 2.27.0 (03/03/06, rtroll)
+ - Added missing "mdbm_fetch_dup_r()" to header
+ - Fixed maxsplit functionality - now tracked per process, not per db.
+ - mdbm_delete_r patch
+
+Version 2.26.0 (02/01/06, rr)
+ - Don't allow new page-lock if a page is already locked.
+ - Add mdbm_tryplock().
+ - Reimplement mdbm_delete_r to avoid using getnext() (conflict with plocks).
+ - Fix mdbm_unlock return value (was returning 0 instead of 1 on success).
+
+Version 2.25.0 (1/08/06, rtroll)
+ - Added XM safety feature, ensuring existing XM data will not
+   be stomped on by 64-bit machines
+ - 64-bit Version
+ - [Bug 506348] mdbm_stat no longer counts page holes
+ - [Bug 519936] Add partitioned locking [rr]
+ - [Bug 421562] mdbm_dev now requires ycore_dev
+ - [Bug 413155] mdbm_shake doc update: number of passes
+ - [Bug 415720] mdbm_shake doc update: urgency type
+ - [Bug 415957] mdbm_shake doc update: use of new_shake_fn
+
+Version 2.24.9 (07/29/05, rtroll)
+ - [Bug 407838] mdbm_replace no longer closes mdbm
+ - Fixed mdbm_replace bug that may have caused mdbm_replace'd
+   mdbm's to remain locked.
+
+Version 2.24.8 (06/08/05, rtroll)
+ - [Bug 363580] mdbm_save/mdbm_restore now handles files with large
+   obects enabled
+
+Version 2.24.7 (04/22/05, rtroll)
+ - Use <inttypes.h> in an attempt to get around problems compiling
+   mdbm + boost.
+ - Added '-s' (sync) flag to mdbm_trunc
+
+Version 2.24.6 (04/21/05, rtroll)
+ - Moved mdbm command docs to mdbm package (instead of mdbm_dev)
+ - Actually included mdbm_fetch, mdbm_trunc, mdbm_sync
+ - Added ability to presize db to mdbm_trunc cmd
+
+Version 2.24.5 (03/28/05, rtroll)
+ - Added documentation for mdbm utilities
+   - [Bug 302583] mdbm_save/mdbm_restore
+   - [Bug 302588] mdbm_export/mdbm_import
+ - [Bug 334751] Added mdbm_fetch, mdbm_trunc, mdbm_sync
+
+Version 2.24.4 (03/22/05, rtroll)
+ - [rr] Remove unneeded pthread_self() reference.
+ - [Bug 310076] stat_page() no longer counts deleted records.
+
+Version 2.24.3 (02/09/05, rtroll)
+ - Fix ssl linking for rhel
+ - rhel package no longer contains lib32/ entries
+
+Version 2.24.2 (02/08/05, rtroll)
+ - mdbm_fetch_dup_r() now set's errno if no records are found
+ - Initial linux port
+
+Version 2.24.1 (01/31/05, rtroll)
+ - Patch to mdbm_fetch_dup_r()
+
+Version 2.24.0 (01/31/05, rtroll)
+ - Added mdbm_fetch_dup_r()
+ - [Bug 294350]: .yicf's now have bug-product present.
+ - Updated FAQ with information about NFS.
+
+Version 2.23.2 (01/10/05, rtroll)
+ - [Bug 57394]: Full pages (in a full db with large object support)
+   now spill largest object over to XM, in additionion to current
+   object.  It's now possible to turn a page into nothing but XM
+   pointers.
+
+Version 2.23.1 (12/28/04, rtroll)
+ - Now extracts version number from changelog
+ - Massive documentation update
+
+Version 2.23.0 (11/09/04, rr)
+ - Add mdbm_fsync (locked, synchronous file sync)
+
+Version 2.22.2 (11/01/04, rtroll)
+ - Fixed mdbm_restore bug
+
+Version 2.22.1 (10/27/04, rr)
+ - Enable gcc3
+
+Version 2.22.0 (10/25/04, rr)
+ - Fix error in truncate which screws up page hashing.
+ - Trunc db file to 0 if initial presplit fails.
+ - Don't strand db mapping if open fails.
+ - Use madvise to keep pages around.
+ - Don't set shake function in limit_size_new if db is already too big.
+ - gcc3 compatibility and fat package support.
+
+Version 2.21.6 (10/01/04, rr)
+ - Cleanup error messaging.
+
+Version 2.21.5 (09/22/04, rr)
+ - Add missing unlocks in error cases (limit_size, set_alignment, lock/trylock).
+ - Return error if unlock called when not locked.
+ - Check for db replacement in trylock.
+
+Version 2.21.4 (09/16/04, rtroll)
+ - [Bug 218353] Fixed bug triggered when collapsing deleted items on a
+   non-header page when the first key size was the same as the # of
+   ino's on the page; and it was examined for reclaimation.
+
+Version 2.21.3 (09/15/04, rtroll)
+ - Fixed bug surrounding recycling in db's with large-object support enabled
+
+2.21.2 (09/09/04, rr) Check for replacement in mdbm_lock.
+2.21.1 (09/08/04, rr) Explicitly unlock db's in replace; enhance dump output
+2.21.0 (rr) Add mdbm_trylock
+	    Revise dump_pages output
+	    Don't lock db during open unless initializing it.
+-- (rtroll) Initial AMD64 Port
+            Now correctly returns an error when page is entirely full
+	    of XM_OBJ_PTR's, and can't be split.
+	    Now correctly returns an error when page is full and can't
+	    be split.
+	    Handles ftruncate() failure.
+	    No longer able to attempt to allocate more XM pages than
+	    can be tracked. (XM_MAX_PAGES)
+            xm_alloc() no longer corrupts pagelist when reallocating
+	    pages if there were no pages available.
+2.20.1 (rr) Handle EINTR on ylock wait.
+2.20.0 (rr) Add MDBM_MODIFY flag to mdbm_store.
+2.19.1 (rr) Fix purge to preserve header in first page.
+2.19.0 (rr) Add mdbm_purge to clear all pages.
+2.18.3 (rr) Free lock if open fails.
+2.18.2 (rr) Fix mdbm_delete_r off-by-one.
+2.18.1 (rr) Fixes to unrolling and new-shake.
+2.18.0 (rr)
+  Add mdbm_limit_size_new (new shake interface).
+  [BUG 149335] Fix FMR in mdbm_stat_all_page.
+  chk_page needs to ignore 0-length keys (new quick-delete method).
+  Unroll the page iteration routines.
+  Fix large-object pointer size miscalc (possible page corruption).
+  Better error handling in save.
+  Add quick path for reusing deleted entries.
+
+2.17.1 (rr) save/restore initial fixes.
+2.17.0 (rr from krt) Add mdbm_save/restore.
+
+2.16.1 (rr) Fix handle delete of first and last items on page.
+
+2.16.0 (rr) Change delete to do delayed garbage collection.
+
+2.15.3 (rr) Fix bogus xm_alloc during a small-object replace
+
+2.15.2 (rr) Resize the mmap in mdbm_truncate to avoid address space leak.
+
+2.15.1 (rr) Fix store(replace) bugs with large objects (bad replace, leak)
+
+2.15.0 (rr) Add mdbm_prune()
+
+2.14.11 (rr)
+  Fix free-list termination error when expanding large-object heap.
+  Fix large-object and entry count stats.
+
+2.14.10 (rr)
+  Fix missing xm_remap when large object heap is grown in another proc.
+  Fix large object free list when growing heap.
+  Fix replace filename when absolute path.
+
+2.14.9 (rr)
+  [BUG 111421] Fix store-replace fencepost error in large object mode.
+
+2.14.8 (rr)
+  [BUG 109281] Fix large-object coalescing.
+
+2.14.7 (rr)
+  [BUG 109103] Fix SEGV when db split fails in large-object mode
+  [BUG 109093] Fix same-sized small-object MDBM_REPLACE in large-object mode
+  	       Make ylock_mutex_create self-configuring based on
+2.14.6 (rr) Create mutex with -1 offset to use flock (support for linuxthreads)
+2.14.5 (rr) Close mutex inside mdbm_close (to allow ylock cleanup)
+2.14.4 (rr) Fix header initialization in mdbm_truncate.
+
+2.14.3 (rr)
+  [BUG 102879] Fix nasty locking error (N procs could think they have the lock)
+
+2.14.2 (rr) Fix mdbm_stats output
+
+2.14.1 (rr) Fix store with MDBM_RESERVE
+
+2.12.0 (rr) Add mdbm_replace
+	    Add MdbmBase::dbopen() and ::mdbm.
+
+2.11.2 (rr) Fix locking error with pre-split during open
+2.11.1 (rr) Fix pre-split during open
+
+2.10.1
+  [BUG 54003] Fix large-object value translation for first/next funcs.
+
+2.9.0
+  Add page overflow support for large-object dbs
+
+2.8.0
+  [BUG 56517] Fix ENOMEM failure during split (left db unmapped)
+  [BUG 54903] Add mdbm_get_stats()
+
+2.7.1
+  [BUG 53188] Fix mdbm_open race condition.
+  [BUG 53189] Fix ylocking after db split.
+  Fix broken storing of large-objects.
+  Some improvement in logging of error conditions.
+
+2.7.0
+  Add large-object support.
+  Add MDBM_RESERVE flag for zero-copy store.
+  Fix mmap resize leakage.
+
+2.6.1
+  mdbm_cxx.h: Make MdbmKey/Value char* specializations inline
+  mdbm_dump: Fix buffer overrun.
+
+Modified by Larry McVoy at SGI to use mmap for much faster file
+access, further enhanced by John Schimmel, Andrew Chang, Ariel Faigon
+and others.
+
+Modified by Ariel Faigon at Yahoo! - add FNV hash and make it the default
+hash used added better test program.
+
+Modified by Rick Reed at Yahoo! to use ylock mutexes (from ycore
+package) with other optimizations/enhancements.
+
+EOF
+;
+}

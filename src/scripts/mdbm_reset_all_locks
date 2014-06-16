@@ -1,0 +1,22 @@
+#!/bin/bash
+
+BIN_BASE=/usr/local/bin
+mlock=$(BIN_BASE)/mdbm_lock
+mlock64=$(BIN_BASE)64/mdbm_lock
+
+for l in `/usr/bin/find /tmp/.mlock-named -type f | /bin/grep "_int_$"`; do
+  # extract mdbm name from lock name
+  d=`/bin/echo $l | /bin/sed -e 's/^\/tmp\/.mlock-named//' | /bin/sed -e 's/._int_$//'`
+  #echo "Resetting lockfile for db $d"
+
+  # pull mutex size from header
+  sz=`/usr/bin/xxd $l | /usr/bin/head -n1 | /usr/bin/cut -d' ' -f4 | /usr/bin/head -c2`
+
+  # mutex size is 32-byte (20-hex) for 32-bit, 48-byte (30-hex) for 64-bit
+  if [[ "x$sz" == "x20" ]]; then
+    $(mlock) -r $d
+  else
+    $(mlock64) -r $d
+  fi
+done
+

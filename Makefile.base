@@ -1,0 +1,178 @@
+
+# define a default target (expected to be in each makefile that includes us)
+# otherwise, the first explicit rule defined here would arbitrarily be the default
+default: default-make-target
+
+############################################################
+##        Configuration section                           ##
+############################################################
+# Uncomment to disable TSC (TimeStamp Counter) clock source.
+DISABLE_TSC=1
+# Linux always uses Linux openssl. Also enable 64-bit off_t
+COMP_FLAGS += -DUSE_OPENSSL -D_FILE_OFFSET_BITS=64
+# NOTE: we need to check RHEL6 or greater for robust-pthreads
+COMP_FLAGS += -DALLOW_MLOCK_RESET -DHAVE_ROBUST_PTHREADS
+# readline support is for mash only
+LINK_READLINE=-lreadline
+LDADD += -lm -lpthread -lcrypto
+LIBDIR=/usr/local/lib64
+INCDIR=/usr/local/include
+PERL=perl
+# command for building reST documentation
+SPHINXBUILD   = /usr/bin/sphinx-build
+INSTALL=install
+
+# assume 64-bit, comment out for 32-bit
+# TODO auto-detect
+ARCH_SUFFIX=64
+# where to install files:
+#PREFIX=/usr/local
+PREFIX=/tmp/install
+PERL_PREFIX=/tmp/install
+############################################################
+
+ifeq ($(strip $(YROOT_NAME)),)
+# do nothing
+else
+# '-' because we don't care if it doesn't exist
+-include $(TOPDIR)/yahoo/Makefile.base
+endif
+
+
+# Makefile debugging helper. Use `make echo_FOO' to display `FOO = $(FOO)'.
+echo_%:
+	@echo "$* = ${$*}"
+
+# Makefile debugging helper. Can also be used during package
+# generation to extract information from the build environment.
+# Use `make value_FOO' to display `$(FOO)'.
+value_%:
+	@echo "${$*}"
+
+
+make-recursive-%::
+	$(foreach DIR,$(SUBDIRS), make -C $(DIR) $(patsubst make-recursive-%,%,$@) && ) /bin/true
+
+# automaticly perform some actions recursively
+default-make-target: make-recursive-default-make-target
+clean:: make-recursive-clean
+test:: make-recursive-test
+valg:: make-recursive-valg
+profile::
+	make MODE=profile make-recursive-default-make-target
+test-prof::
+	make MODE=profile make-recursive-test
+test-fast:: 
+	make FAST=1 make-recursive-test
+valg-fast::
+	make FAST=1 make-recursive-valg
+test-prof-fast::
+	make MODE=profile FAST=1  make-recursive-test
+
+
+install:: default-make-target make-recursive-install
+
+OBJDIR_BASE=object
+OBJDIR_PROF=$(OBJDIR_BASE).prof
+
+ifeq ($(MODE),profile)
+  OBJDIR=$(OBJDIR_PROF)
+  COMP_FLAGS += -pg
+else
+  OBJDIR=$(OBJDIR_BASE)
+endif
+LOCAL_LDADD = -L$(TOPDIR)/src/lib/$(OBJDIR)
+COMP_FLAGS +=  -g -O2 -I/usr/include -I$(INCDIR) -I$(TOPDIR)/include -I. -Wall -fPIC 
+
+# get gcc version (space-separated components)
+GCC_VER_SPC=$(shell gcc -dumpversion | tr '.' ' ')
+# turn it into an integer, zero-padding minor and patch versions to 4 digits
+GCC_VER_INT=$(shell printf "%d%04d%04d" $(GCC_VER_SPC))
+# compare to minimum version 4.8.0
+GCC_GTE_48=$(shell expr $(GCC_VER_INT) \>= 400080000)
+
+PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings
+# stop dead on warnings...
+PEDANTIC += -Werror
+
+# why doesn't gcc turn -Wunreachable-code on from -Wall....
+#   it turns out that gcc 4.4.6 (RHEL6) has false positives, 4.8.2 works
+ifeq ("$(GCC_GTE_48)", "1")
+PEDANTIC += -Wunreachable-code
+endif
+
+ifeq ($(DISABLE_TSC),1) 
+  COMP_FLAGS += -DDISABLE_TSC
+endif
+
+# Add common compiler flags to both C and C++
+CFLAGS += $(COMP_FLAGS)
+CXXFLAGS += $(COMP_FLAGS)
+
+
+# implicit rules to make object files from source
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(PEDANTIC) -c $< -o $@
+
+$(OBJDIR)/%.o: %.cc
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(PEDANTIC) -c $< -o $@
+
+#$(OBJDIR)/%.o: %.cpp
+#	@mkdir -p $(OBJDIR)
+#	$(CC) $(CFLAGS) $(PEDANTIC) -c $< -o $@
+
+# TODO ensure we have all gcov generated files
+CLEAN_OBJECTS=*.o *.d *.lib *.so *.xml *.gcov *.gcda
+CLEAN_OB_DIRS=. $(OBJDIR_BASE) $(OBJDIR_PROF)
+.PHONY: clean-objs
+clean-objs:
+	$(foreach DIR,$(CLEAN_OB_DIRS), rm -f $(foreach OB,$(CLEAN_OBJECTS),$(DIR)/$(OB));)
+
+
+
+# Because this routine is eval'd, it cannot use local variables.  Local
+# variable evaluation will produce the previous setting instead of the
+# new setting.
+# The double escaping of dollar signs `$$$$' is requied due to the
+# caller eval'ing the generated result.
+# $1 - exe name -- The caller must ensure that there is no whitespace
+# $2 - any extra object files to be built/linked
+# $3 - any extra build options
+define ExeTargetRules
+#.PHONY: $(OBJDIR)/$(1)
+$(OBJDIR)/$(1): $(COMMON_SOURCES:%.c=$(OBJDIR)/%.o) $(2) $(HEADERS) $(1).c
+	@mkdir -p $(OBJDIR)
+	@#@echo 'building '$(1)' from ('$$^') common=('$(COMMON_SOURCES:.cc=.o)')';
+	$(CC) $(CFLAGS) $(PEDANTIC) $(filter-out %.h %.hh,$$^) $(LDADD) $(3) -fPIC -o $(OBJDIR)/$(1)
+.PHONY: clean-exe-$(1)
+clean-exe-$(1):
+	$(foreach DIR,. $(OBJDIR_BASE) $(OBJDIR_PROF), rm -f $(DIR)/$(1);)
+.PHONY: run-$(1)
+run-$(1): $(OBJDIR)/$(1)
+	@echo; echo "###### Running " $(1) "######"; echo
+	$(LD_LIB_PATH) $(RUN_PREFIX) $(OBJDIR)/$(strip $1) $(RUN_ARGS)
+valg-$(1): $(OBJDIR)/$(1)
+	@echo; echo "###### Running " $(1) " (valgrind) ######"; echo 
+	$(LD_LIB_PATH) VALG=1 $(RUN_PREFIX) ./valgrind_runner.sh $(OBJDIR)/$(strip $1) $(RUN_ARGS)
+endef
+
+define CppExeTargetRules
+#.PHONY: $(OBJDIR)/$(1)
+$(OBJDIR)/$(1): $(COMMON_SOURCES:%.c=$(OBJDIR)/%.o) $(2) $(HEADERS) $(1).cc
+	@mkdir -p $(OBJDIR)
+	@#@echo 'building '$(1)' from ('$$^') common=('$(COMMON_SOURCES:.cc=.o)')';
+	$(CXX) $(CXXFLAGS) $(PEDANTIC) $(filter-out %.h %.hh,$$^) $(LDADD) $(3) -fPIC -o $(OBJDIR)/$(1)
+.PHONY: clean-exe-$(1)
+clean-exe-$(1):
+	$(foreach DIR,. $(OBJDIR_BASE) $(OBJDIR_PROF), rm -f $(DIR)/$(1);)
+.PHONY: run-$(1)
+run-$(1): $(OBJDIR)/$(1)
+	@echo; echo "###### Running " $(1) "######"; echo
+	$(LD_LIB_PATH) $(RUN_PREFIX) $(OBJDIR)/$(strip $1) $(RUN_ARGS)
+valg-$(1): $(OBJDIR)/$(1)
+	@echo; echo "###### Running " $(1) " (valgrind) ######"; echo 
+	$(LD_LIB_PATH) VALG=1 $(RUN_PREFIX) ./valgrind_runner.sh $(OBJDIR)/$(strip $1) $(RUN_ARGS)
+endef
+

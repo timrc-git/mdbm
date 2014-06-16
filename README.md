@@ -1,4 +1,4 @@
-mdbm
-====
+mdbm-os
+=======
 
-MDBM a very fast memory-mapped key/value store.
+Open Source fork of MDBM V4

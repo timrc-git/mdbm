@@ -1,0 +1,31 @@
+Tested on Fedora19 and RHEL6
+
+Requirements:
+  To build this, you will need at least the following:
+    gcc-c++        (c++ compiler)
+    openssl        (for hash functions)
+    openssl-devel  (development package for headers)
+    cppunit        (for unit testing)
+    cppunit-devel  (development package for headers)
+    readline       (for command-line emulation)
+    readline-devel (development package for headers)
+    valgrind       (for memory leak/error checking)
+
+  To build the documentation, you will also need:
+    python-sphinx  (sphinx documentation generator)
+    doxygen
+
+  To build the perl wrapper, you will need at least the following:
+    Perl 5.14 or newer
+    ExtUtils::MakeMaker
+
+Compilation:
+  Make sure the above requirements are installed on your machine.
+  Type 'make' or 'make all' in the root of the distribution to build.
+  You can do 'make test' (slow) or 'make test-fast' to test your build.
+  Then use 'make install' to install the libraries, executables, etc.
+
+NOTE:
+  You may need to edit the "Configuration section" of Makefile.base
+  for specific locations and options on your platform.
+  

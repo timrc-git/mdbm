@@ -1,0 +1,30 @@
+#  Copyright 2013 Yahoo! Inc.                                         #
+#  See LICENSE in the root of the distribution for licensing details. #
+
+#
+# based on the typemap for SDBM_File
+#################################### DBM SECTION
+#
+
+datum			T_DATUM
+gdatum			T_GDATUM
+MDBM_File		T_PTROBJ
+MDBM_ITER *		T_PTROBJ
+ShakeData		T_PTROBJ
+
+const char *		T_PV
+mdbm_ubig_t		T_IV
+uint64_t		T_IV
+
+INPUT
+T_DATUM
+	$var.dptr = SvPV($arg, PL_na);
+	$var.dsize = (int)PL_na;
+T_GDATUM
+	UNIMPLEMENTED
+
+OUTPUT
+T_DATUM
+	sv_setpvn($arg, $var.dptr, $var.dsize);
+T_GDATUM
+	sv_usepvn($arg, $var.dptr, $var.dsize);

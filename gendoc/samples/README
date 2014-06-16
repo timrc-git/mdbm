@@ -1,0 +1,27 @@
+This directory constains MDBM Code samples.
+-------------------------------------------
+
+mdbm_exclusive.cc - simple example code that performs store/fetch/delete using exclusive locks
+mdbm_partition.cc - example code that performs store/fetch/delete using partitioned locks
+mdbm_shared.cc    - example code that performs fetch using shared locks, store/delete by getting
+                    an exclusive locks, which is required for MDBM writes under shared locks.
+mdbm_windowed.cc  - example code that sets up windowed access to an MDBM, and then performs
+                    store/fetch/delete using exclusive locks.
+mdbm_cache.cc     - example code that illustrates how to use an MDBM as a (small) cache.
+mdbm_backstore.cc - example code that illustrates how to use an MDBM with a cache and backing
+                    store.
+
+-------------------------------------------
+You can compile them into an executable by:
+make executable_name
+
+For example:
+make mdbm_exclusive
+make mdbm_partition
+...
+
+to run:
+export LD_LIBRARY_PATH=<path_to-libmdbm.so>
+mdbm_exclusive
+mdbm_partition
+...

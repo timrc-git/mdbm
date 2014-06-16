@@ -1,0 +1,70 @@
+
+/* For help with cross-browser styles, check out
+   http://www.utoronto.ca/ian/books/xhtml2/exerpt/css-4a.html
+   The help page does not render well in Konqueror. hmm
+*/
+
+.navbar {
+ font-family: verdana, arial, helvetica, sans-serif;
+ color: black;
+ background: #ffff66;
+ color: black;
+ border-style: none none solid none;
+ border-width: thin;
+ padding: 2px;
+}
+
+A:hover { color: red }
+
+.hl {
+  color: black;
+  background: #ffff99 
+}
+
+.example {
+  color: black;
+  background: #ccf6f6;
+  padding: 0.75em;
+}
+
+.command {
+  color: #00ff00;
+  background: black;
+  padding: 0.75em;
+  border: 1px groove #00ff00;
+}
+
+pre.example, pre.deprecated {
+  /* The following is a workaround for the background
+     color on FreeBSD Netscape 4.x. Without this, the background
+     color only shows up where there is text (instead of a whole block). */
+  border: 1px solid white;
+  white-space: pre
+}
+
+.deprecated {
+  color: black;
+  background: #f6cccc;
+  padding: 0.75em;
+}
+
+.note {
+  color: black;
+  background: #ffddff;
+  padding: 0.50em;  
+  font-size: smaller;
+}
+
+H1, H2, H3, H4, H5, H6 {
+  font-family: verdana, arial, helvetica, sans-serif;
+  /* Netscape 4.x sucks! Cannot fix header margins...  margin-bottom: 0.5em; 
+     Need to use div instead, because div has default 0 margins. */
+}
+
+H1 { font-size: 180%; }
+H2 { font-size: 145%; }
+H3 { font-size: 125%; }
+H4 { font-size: 100%; }
+H5 { font-size: 85%; }
+H6 { font-size: 60%; }
+

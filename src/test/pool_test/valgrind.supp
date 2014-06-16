@@ -1,0 +1,35 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:ylock_init
+   fun:ylock_region_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   obj:/home/y/lib/libylock.so.1
+   fun:ylock_mutex_open
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   obj:/home/y/lib64/libylock.so.1
+   fun:ylock_mutex_open
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   obj:/home/y/lib64/libylock.so.1
+   obj:/home/y/lib64/libylock.so.1
+   obj:/home/y/lib64/libylock.so.1
+   fun:exit
+   fun:(below main)
+}

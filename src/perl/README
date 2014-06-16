@@ -1,0 +1,32 @@
+MDBM_File
+===========
+
+WHAT IS THIS
+    A perl interface to mdbm
+
+BUILDING THE PACKAGE
+    cd package
+    perl Makefile.PL
+    make
+    make test
+    (Note: the above will do the necessary perl build in this dir)
+
+INSTALLATION
+    make install
+
+DEPENDENCIES
+
+    This module requires mdbm
+
+COPYRIGHT, LICENCE, AND AUTHORS
+    Copyright 2013 Yahoo! Inc. 
+    See LICENSE in the root of the distribution for licensing details.
+
+    Authors include
+    2002 Alexander van Zoest, Yahoo!, Inc.
+    2003 Ariel Faigon, Yahoo!, Inc.
+    2003 Jeremy Zawodny, Yahoo!, Inc.
+    2004 Leif Hedstrom, Yahoo!, Inc.
+    2013 Steve Carney, Yahoo!, Inc.
+    2013 Tim Crowder, Yahoo!, Inc.
+    2013 Maxim Kislik, Yahoo!, Inc.

@@ -1,0 +1,15 @@
+Changes
+MANIFEST
+MDBM_File.pm
+MDBM_File.xs
+Makefile.PL
+README
+typemap
+t/01basic.t
+t/02constants.t
+t/03tiehash.t
+t/04functions.t
+t/05hashes.t
+t/06callbacks.t
+t/07replace.t
+META.yml                                 Module meta-data (added by MakeMaker)

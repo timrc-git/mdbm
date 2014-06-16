@@ -1,0 +1,76 @@
+Version 4.1.5 (2013.02.14)
+  - Will no longer use this file (perl/Changes) for tracking the version of perl_MDBM_File.
+  - Another merge of changes from V3 branch up to revision 22494.
+
+Version 4.0.2 (2013.01.23)
+  - Merged changes from V3 branch up to revision 22055.
+
+Version 3.1 (2/28/2013)
+  - [BUG 6116013] Fix replaces version range per yinst docs.
+
+Version 3.0 (11/28/2012)
+  - [BUG 5944233] Bump version to 3 so that there are distict major-version
+    specific packages that match the underlying MDBM major version.
+    Remove support for perl-5.8. (carney)
+
+2.1 Mon Mar  7 15:44:28 PST 2011 
+        - Updated Perl 5.10 support for RHEL.
+
+2.0 Tue Jun 16 07:41:14 PDT 2009
+	- Added support for iterators. There's now a new class, MDBM_Iter.
+	  Also support most of the _r APIs.
+	- Updated symbols with MDBM v3 support.
+	- Cleaned up the typemap, it was a mess.
+	- Updated unit tests.
+
+1.14 Thu Apr 2 14:59:13 PDT 2009
+	- Updated with a lot of missing MDBM functions.
+	- Support for page locking (not well tested yet).
+	- Lots of updates to unit tests.
+
+1.13 Tue Aug 16 13:34:58 PDT 2005 leif
+	- Fixes for replace_db().
+	- Fat perl support.
+
+1.12 Thu Aug 19 16:56:41 PDT 2004 leif/ariel
+	- leifh: fixes to mdbm_replace (was causing core dumps)
+	- leifh: add regression tests to mdbm_replace
+	- ariel: testing + added targets to top level Makefile so we
+	  can make the perl package & run the regression tests from the top.
+
+1.11 Wed Jun 30 11:31:31 PDT 2004 ariel
+	- Almost no one uses perl 5.8.x, remove the 5.8.x dependencies
+	  don't maintain a parallel 'test' version any longer
+	- re-release leif's changes (called here 1.10, but actually disted
+	  as 1.1-test) as 1.11 to override this ambiguity.
+
+1.10  Fri May  7 15:30:27 PDT 2004 - leifh
+	- Added proper MDBM_* constants
+	- Added shaker functionality, supporting a perl callback
+	- Added prune functionality, supporting a perl callback
+	- Added mdbm_replace_db()
+	- Rewrote the test suite
+	- Updated documentation
+
+1.00  Mon Sep  9 18:58:34 2002
+	- upgrade to perl 5.8.0
+	- upgrade to mdbm 2.5.0
+
+0.04  Mon Sep  9 18:58:34 2002
+        - changed default dbsize to '0' so mdbm will 
+          decide as suggested by Rick Reed.
+
+0.03  Wed Jul  3 01:25:28 2002
+        - added some more usage documentation
+        - now build against the mdbm_dev yinst package
+        - added more tests.
+
+0.02  Tue Jul  2 19:46:09 2002
+        - added default page and db sizes
+        - added C++ protection
+        - commented unavailable methods to XS.
+        - added locking additions in mdbm 2.4.0
+
+0.01  Wed May 22 16:32:52 2002 - sander
+	- original version; created by h2xs 1.21 with options
+		-A -n MDBM_File mdbm.h

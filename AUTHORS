@@ -1,0 +1,63 @@
+Based on:
+  mdbm - ndbm work-alike hashed database library based on sdbm which is
+  based on Per-Aake Larson's Dynamic Hashing algorithms.
+  BIT 18 (1978).
+ 
+  sdbm Copyright (c) 1991 by Ozan S. Yigit (oz@nexus.yorku.ca)
+ 
+  Modifications that:
+       . Allow 64 bit sized databases,
+       . used mapped files & allow multi reader/writer access,
+       . move directory into file, and
+       . use network byte order for db data structures.
+       . support fixed size db (with shake function support)
+       . selectable hash functions
+       . changed page layout to support data alignment
+       . support btree pre-split and tree merge/compress
+       . added a mdbm checker (cf fsck)
+       . add a statistic/profiler function (for tuning)
+       . support mdbm_firstkey(), mdbm_nextkey() call.
+  are:
+       mdbm Copyright (c) 1995, 1996 by Larry McVoy, lm@sgi.com.
+       mdbm Copyright (c) 1996 by John Schimmel, jes@sgi.com.
+       mdbm Copyright (c) 1996 by Andrew Chang awc@sgi.com
+ 
+  Modification that
+       support NT/WIN98/WIN95 WIN32 environment
+       support memory only (non-mmaped) database
+  are
+       mdbm Copyright (c) 1998 by Andrew Chang awc@bitmover.com
+
+  Modifications for:
+       . Large object storage
+       . Overflow pages 
+       . Windowed mode access 
+       . Hash-based intra-page scanning
+  By Rick Reed, Yahoo!, Inc.
+
+  Perl wrappers:
+    2002 Alexander van Zoest, Yahoo!, Inc.
+    2003 Ariel Faigon, Yahoo!, Inc.
+    2003 Jeremy Zawodny, Yahoo!, Inc.
+    2004 Leif Hedstrom, Yahoo!, Inc.
+    2013 Steve Carney, Yahoo!, Inc.
+    2013 Tim Crowder, Yahoo!, Inc.
+    2013 Maxim Kislik, Yahoo!, Inc.
+ 
+  Conversion from proprietary to PThreads based locking by Tim Crowder, Yahoo!, Inc.
+ 
+  Modifications for:
+       . Extensive documentation
+       . Many added tools
+       . Extensive unit/functional tests
+       . Many bug fixes (valgrind clean!)
+       . Performance enhancements
+  By
+       Steve Carney, Yahoo!, Inc.
+       Tim Crowder, Yahoo!, Inc.
+       Max Kislik, Yahoo!, Inc.
+       Mark Lakes, Yahoo!, Inc.
+       Simon Baby, Yahoo!, Inc.
+       Bhagyashri Mahule, Yahoo!, Inc.
+       Lakshmanan Suryanarayanan, Yahoo!, Inc.
+
