@@ -1,4 +1,4 @@
-mdbm-os
+mdbm
 =======
 
 MDBM is a super-fast memory-mapped key/value store.
