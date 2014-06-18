@@ -2,8 +2,7 @@
 # Makefile for MDBM Developer documentation
 #
 # This Makefile is only used in interactive development.
-# Documentation is published via RTFM with using the reStructuredText plugin.
-# The Developer Guide book is in RTFM, and set up to Auto Publish daily.
+# Documentation is published using the reStructuredText plugin.
 #
 
 # Examples -- compile examples to ensure that they are correct.
@@ -64,8 +63,6 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
 # The CONF file is executed, and is used to generate RELEASE_NOTES.
-# RELEASE_NOTES must be generated this way because the RTFM plugin
-# doesn't have a pre-processing step.
 CONF = conf.py
 RELEASE_NOTES = release_notes.txt
 

@@ -16,7 +16,7 @@ else
 perl=/usr/bin/perl
 fi
 
-# Because this script can be executed by an RTFM plugin, there is no
+# Because this script can be executed by an doc tool plugin, there is no
 # parent `make' process that set up the environment.  If MDBM_BUILD is
 # not defined, assume that v3 release notes need to be generated.
 if [ -z "$MDBM_BUILD" ]; then

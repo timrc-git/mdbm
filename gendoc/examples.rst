@@ -7,7 +7,7 @@ Examples
 ========
 
 .. TODO: In the following examples, the `include' directives use the ':literal:'
-   option instead of the `:code: c' option because RTFM servers are awaiting
+   option instead of the `:code: c' option because the doc tool servers are awaiting
    a future unscheduled upgrade to ypython26_sphinx-1.1.3, which will have the
    `:code: c' support.
 

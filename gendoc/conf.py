@@ -50,7 +50,7 @@ copyright = u'2012, Yahoo! Inc.'
 #
 # The short X.Y version.
 #
-# This has to be done in conf.py becuase the RTFM reST pluging invokes
+# This has to be done in conf.py becuase the doc tool reST pluging invokes
 # sphinx directly.  All preprocessing has to be done here.
 version = os.popen("grep -e '^Version' README | head -1 | awk '{ print $2; }'").read()
 
@@ -93,7 +93,7 @@ pygments_style = 'sphinx'
 #modindex_common_prefix = []
 
 # Produce the release notes.
-# This has to be done in conf.py becuase the RTFM reST pluging invokes
+# This has to be done in conf.py because the doc tool reST pluging invokes
 # sphinx directly.  All preprocessing has to be done here.
 release_notes = os.system("./generate-reST-release-notes.sh README release_notes.txt")
 

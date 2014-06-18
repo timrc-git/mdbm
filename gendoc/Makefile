@@ -17,7 +17,7 @@ developer.stamp: *.rst conf.py README
 
 
 # Unfortunately, the doxygen C API has to go in the top-level directory
-# because RTFM uses the checkout directory for the build directory.
+# because our doc tool uses the checkout directory for the build directory.
 #.PHONY: c-api
 # create a proxy timestamp to test against the document sources
 c-api: c-api.stamp

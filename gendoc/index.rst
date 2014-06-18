@@ -7,8 +7,8 @@
 MDBM Developer Guide
 ====================
 
-.. Use the :hidden: option in any reST book that you plan to generate using RTFM.
-   RTFM's template supplies a master TOC in the sidebar of every page in the book.
+.. Use the :hidden: option in any reST book that you plan to generate using the doc tool.
+   the doc tool's template supplies a master TOC in the sidebar of every page in the book.
    If you omit the :hidden: option,
    the index page will display the TOC twice:
    once in the sidebar and once in the main content area,
@@ -33,8 +33,8 @@ format,.
 Contents
 --------
 
-.. The Developer Guide and the C API are published separately via RTFM.
-   Separate publications is necessary because RTFM can run only 1 plugins (reST
+.. The Developer Guide and the C API are published separately via the doc tool.
+   Separate publications is necessary because the doc tool can run only 1 plugins (reST
    and doxygen) at a time.
 
 
@@ -76,7 +76,7 @@ The C API  documentation describes the core interface that is used by other wrap
    emacsen buffer-local ispell variables -- Do not delete.
 
    === content ===
-   LocalWords: Ozan PHP RTFM RTFM's TOC Yigit's api confval cxx dbm devel
+   LocalWords: Ozan PHP TOC Yigit's api confval cxx dbm devel
    LocalWords: emacsen faq gendoc html im maxdepth mdbm prolog reST rst sdbm svn
    LocalWords: toctree
 
