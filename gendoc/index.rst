@@ -3,8 +3,6 @@
 
 .. _master-index:
 
-This document is **Yahoo! Proprietary/Confidential.**
-Do not release the contents of this document outside of the company.
 
 MDBM Developer Guide
 ====================
