@@ -8,8 +8,12 @@ default: default-make-target
 ############################################################
 # Uncomment to disable TSC (TimeStamp Counter) clock source.
 DISABLE_TSC=1
-# Linux always uses Linux openssl. Also enable 64-bit off_t
-COMP_FLAGS += -DUSE_OPENSSL -D_FILE_OFFSET_BITS=64
+# Enable 64-bit off_t
+COMP_FLAGS += -D_FILE_OFFSET_BITS=64
+# For Linux, use openssl.
+COMP_FLAGS += -DUSE_OPENSSL
+# To provide internal MD5 and SHA1 hash functions
+#COMP_FLAGS += -DPROVIDE_SSL_HASHES
 # NOTE: we need to check RHEL6 or greater for robust-pthreads
 COMP_FLAGS += -DALLOW_MLOCK_RESET -DHAVE_ROBUST_PTHREADS
 # readline support is for mash only

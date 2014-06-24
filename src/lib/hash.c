@@ -288,13 +288,17 @@ mdbm_hash6(uint8_t *buf, int len)
     return __h;
 }
 
-/* Allow use of OpenSSL version of MD5.
- */
-#ifdef USE_OPENSSL
-# include <openssl/md5.h>
-#else /* USE_OPENSSL */
-# include <md5.h>
-#endif /* USE_OPENSSL */
+#ifndef PROVIDE_SSL_HASHES
+/* Allow use of OpenSSL version of MD5. */
+#  ifdef USE_OPENSSL
+#    include <openssl/md5.h>
+#  else /* USE_OPENSSL */
+#    include <md5.h>
+#  endif /* USE_OPENSSL */
+#else /* PROVIDE_SSL_HASHES */
+#  include "hash-ssl.c"
+#endif /* PROVIDE_SSL_HASHES */
+
 
 mdbm_ubig_t
 mdbm_hash7(uint8_t *buf, int len)
@@ -310,13 +314,14 @@ mdbm_hash7(uint8_t *buf, int len)
     return rv;
 }
 
-/* Allow use of OpenSSL version of SHA.
- */
-#ifdef USE_OPENSSL
-# include <openssl/sha.h>
-#else /* USE_OPENSSL */
-# include <sha.h>
-#endif /* USE_OPENSSL */
+/* Allow use of OpenSSL version of SHA. */
+#ifndef PROVIDE_SSL_HASHES
+#  ifdef USE_OPENSSL
+#    include <openssl/sha.h>
+#  else /* USE_OPENSSL */
+#    include <sha.h>
+#  endif /* USE_OPENSSL */
+#endif /* PROVIDE_SSL_HASHES */
 
 mdbm_ubig_t
 mdbm_hash8(uint8_t *buf, int len)
