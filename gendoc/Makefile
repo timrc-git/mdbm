@@ -27,8 +27,8 @@ c-api.stamp: ../include/*.h doxygen.conf
 clean::
 	$(MAKE) -f Makefile.reST clean
 	$(MAKE) -f Makefile.c_api clean
-	rm developer.stamp
-	rm c-api.stamp
+	rm -f developer.stamp
+	rm -f c-api.stamp
 
 .PHONY: docs-clean
 docs-clean: clean
