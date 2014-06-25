@@ -62,7 +62,7 @@ $(foreach exe, $(CPP_EXE), $(eval $(call CppExeTargetRules,$(exe))))
 clean :: clean-objs clean-exe-mash clean-exe-mdbm_bench clean-exe-mdbm_import \
   $(foreach exe, $(EXE), clean-exe-$(exe))
 
-EXE_DEST=$(PREFIX)/bin$(ARCH_SUFFIX)
+EXE_DEST=$(BIN_PREFIX)
 install:: build-exes
 	$(INSTALL) -d $(EXE_DEST)
 	$(INSTALL) -t $(EXE_DEST) $(EXES) $(CPPEXES) $(OBJDIR)/mdbm_bench $(OBJDIR)/mash

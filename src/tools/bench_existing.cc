@@ -27,7 +27,6 @@
 
 #include "bench_data_utils.hh"
 
-static const int MBYTE = 1024 * 1024;
 static const uint32_t ALLOCATE_EXTRA_BYTES = 10240;
 static uint32_t TotalOpsCount  = 2000000;  // Run 2M fetches/writes by default
 

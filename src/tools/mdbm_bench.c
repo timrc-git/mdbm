@@ -177,7 +177,7 @@ enum {
     ACCESS
 };
 
-
+/*
 static int PRIMES[] = {
     1,
     2,      3,      5,      7,     11,     13,     17,     19,     23,     29,
@@ -247,6 +247,7 @@ static int PRIMES[] = {
     4759,   4783,   4787,   4789,   4793,   4799,   4801,   4813,   4817,   4831,
     4861,   4871,   4877,   4889,   4903,   4909,   4919,   4931,   4933,   4937
 };
+*/
 
 
 static void
@@ -622,11 +623,11 @@ bench (struct mdbm_bench_config* config)
             }
         }
         mutex_unlock(&bench_stats->lock);
-
+/*
         if (proc >= sizeof(PRIMES)/sizeof(PRIMES[0])) {
             abort();
         }
-
+*/
         {
             uint32_t num_ops = 0;
             uint32_t num_reads = 0;
@@ -1516,6 +1517,7 @@ main (int argc, char** argv)
             MDBM_SHMEM_RDWR|MDBM_SHMEM_CREATE|MDBM_SHMEM_TRUNC, STATSSIZE, &init);
     if (!shm) {
         mdbm_logerror(LOG_ALERT,0,"mdbm_shmem_open(%s)",STATSFILE);
+        exit(1);
     }
     if (init) {
         memset(shm->base,0,STATSSIZE);

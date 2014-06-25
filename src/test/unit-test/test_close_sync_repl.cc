@@ -42,7 +42,7 @@
 using namespace std;
 
 static const int PAGESZ  = 8192;
-static const int STARTPOINT = 123;
+//static const int STARTPOINT = 123;
 static const int NUM_DATA_ITEMS = 45;
 static const char* PREFIX = "STUFF";
 static string TestPrefix = "MdbmCloseSyncUnitTest";
@@ -349,13 +349,13 @@ MdbmCloseSyncUnitTestBase::TestReplaceFileLarge()
 
     string prefix("ReplaceLarge"), filename;
     int flags = MDBM_O_CREAT | MDBM_O_RDWR | MDBM_DBSIZE_MB | MDBM_LARGE_OBJECTS | versionFlag;
-    int presize = (sizeof(int) == sizeof(int *)) ? 1024 : 2048;
+    int presize =  1024;
     MDBM *mdbm = EnsureTmpMdbm(prefix, flags, 0666, 4096, presize, &filename);   // Presize to 2GB
     InsertData(mdbm, DEFAULT_KEY_SIZE, 1024, 200, true);
     mdbm_close(mdbm);
 
     string replaceWith;  // Replace with slightly different file
-    presize = (sizeof(int) == sizeof(int *)) ? 1000 : 2000;
+    presize = 1000;
     MDBM *mdbm2 = EnsureTmpMdbm(prefix, flags, 0666, 4096, presize, &replaceWith);
     InsertData(mdbm2, DEFAULT_KEY_SIZE, 800, 250, true);
     mdbm_close(mdbm2);

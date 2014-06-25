@@ -1846,7 +1846,7 @@ int PthrLock::getHeldCount(int type, bool self) {
           return (type==hasType) ? locks.GetLocalCountTotal()-locks.GetLocalCount(-1) : 0;
       case MLOCK_INDEX     : 
           return (type==hasType) ? locks.GetLocalCountTotal()-locks.GetLocalCount(-1) : 0;
-      default: return 0;
+      default: break;
     };
   } else { // held by anyone
     switch (type) {
@@ -1856,7 +1856,7 @@ int PthrLock::getHeldCount(int type, bool self) {
           return (type==hasType) ? locks.GetLockCountTotal()-locks.GetLockCount(-1) : 0;
       case MLOCK_INDEX     : 
           return (type==hasType) ? locks.GetLockCountTotal()-locks.GetLockCount(-1) : 0;
-      default: return 0;
+      default: break;
     };
   }
   return 0;
@@ -1869,7 +1869,7 @@ int PthrLock::getHeldCount(int type, bool self, int index) {
       case MLOCK_EXCLUSIVE : return locks.GetLocalCount(-1);
       case MLOCK_SHARED    : return (type==hasType) ? locks.GetLocalCount(index) : 0;
       case MLOCK_INDEX     : return (type==hasType) ? locks.GetLocalCount(index) : 0;
-      default: return 0;
+      default: break;
     };
   } else { // held by anyone
     switch (type) {
@@ -1877,7 +1877,7 @@ int PthrLock::getHeldCount(int type, bool self, int index) {
       case MLOCK_EXCLUSIVE : return locks.GetLocalCount(-1);
       case MLOCK_SHARED    : return (type==hasType) ? locks.GetLocalCount(index) : 0;
       case MLOCK_INDEX     : return (type==hasType) ? locks.GetLocalCount(index) : 0;
-      default: return 0;
+      default: break;
     };
   }
   return 0;
@@ -1889,7 +1889,7 @@ int PthrLock::getCount(int type) {
     case MLOCK_EXCLUSIVE : return 1;
     case MLOCK_SHARED    : return hasType==type ? locks.GetPartCount() : 0;
     case MLOCK_INDEX     : return hasType==type ? locks.GetPartCount() : 0;
-    default: return -1;
+    default: break;
   };
   return -1;
 }

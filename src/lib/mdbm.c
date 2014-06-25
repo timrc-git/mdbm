@@ -426,19 +426,20 @@ check_guard_padding(MDBM *db, int printMsg)
         (db->guard_padding_4 != MDBM_GUARD_PADDING)) {
         if (printMsg) {
             char printbuf[40];
+            int left = sizeof(printbuf)-1;
 
             printbuf[0] = '\0';
             if (db->guard_padding_1 != MDBM_GUARD_PADDING) {
-                strncat(printbuf, "1 ", sizeof(printbuf));
+                strncat(printbuf, "1 ", left); left -=2;
             }
             if (db->guard_padding_2 != MDBM_GUARD_PADDING) {
-                strncat(printbuf, "2 ", sizeof(printbuf));
+                strncat(printbuf, "2 ", left); left -=2;
             }
             if (db->guard_padding_3 != MDBM_GUARD_PADDING) {
-                strncat(printbuf, "3 ", sizeof(printbuf));
+                strncat(printbuf, "3 ", left); left -=2;
             }
             if (db->guard_padding_4 != MDBM_GUARD_PADDING) {
-                strncat(printbuf, "4 ", sizeof(printbuf));
+                strncat(printbuf, "4 ", left); left -=2;
             }
             mdbm_logerror(LOG_ERR, 0, 
                 "%s: MDBM handle is damaged, user should check for array overrun errors, etc."
@@ -3866,8 +3867,10 @@ mdbm_allocate_handle()
     void* ret = calloc(1,sizeof(MDBM)); /* auto-zero's the memory */
 
     struct mdbm* db = (struct mdbm *) ret;
-    db->guard_padding_1 = db->guard_padding_2 = db->guard_padding_3 = db->guard_padding_4 =
-        MDBM_GUARD_PADDING;
+    if (db) {
+      db->guard_padding_1 = db->guard_padding_2 = MDBM_GUARD_PADDING; 
+      db->guard_padding_3 = db->guard_padding_4 = MDBM_GUARD_PADDING;
+    }
 
     return ret;
 }

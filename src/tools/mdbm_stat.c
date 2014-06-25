@@ -392,6 +392,10 @@ print_entry_count(MDBM *db)
     fprintf(stdout, "entries    = %llu\n", (unsigned long long) mdbm_count_records(db));
 }
 
+#define str_append(buf, suffix, len) \
+    strncat(buf,suffix,len);         \
+    len -= sizeof(suffix);
+
 
 int
 main(int argc, char** argv)
@@ -509,6 +513,7 @@ main(int argc, char** argv)
 
     if (header) {
         char flags_buf[128];
+        int left = sizeof(flags_buf);
         const char* magic;
         int align = hdr->h_dbflags & MDBM_ALIGN_MASK;
         time_t fetch_last_val = 0;
@@ -517,23 +522,23 @@ main(int argc, char** argv)
 
         flags_buf[0] = 0;
         if (align == MDBM_HFLAG_ALIGN_2) {
-            strncpy(flags_buf," align-16",sizeof(flags_buf));
+            str_append(flags_buf," align-16",left);
         } else if (align == MDBM_HFLAG_ALIGN_4) {
-            strncpy(flags_buf," align-32",sizeof(flags_buf));
+            str_append(flags_buf," align-32",left);
         } else if (align == MDBM_HFLAG_ALIGN_8) {
-            strncpy(flags_buf," align-64",sizeof(flags_buf));
+            str_append(flags_buf," align-64",left);
         }
 
         if (hdr->h_dbflags & MDBM_HFLAG_PERFECT) {
-            strncat(flags_buf," perfect",sizeof(flags_buf));
+            str_append(flags_buf," perfect",left);
         }
 
         if (hdr->h_dbflags & MDBM_HFLAG_REPLACED) {
-            strncat(flags_buf," replaced",sizeof(flags_buf));
+            str_append(flags_buf," replaced",left);
         }
 
         if (hdr->h_dbflags & MDBM_HFLAG_LARGEOBJ) {
-            strncat(flags_buf," largeobj",sizeof(flags_buf));
+            str_append(flags_buf," largeobj",left);
         }
 
         if (hdr->h_magic == _MDBM_MAGIC_NEW2) {

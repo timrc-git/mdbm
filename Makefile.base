@@ -32,6 +32,7 @@ ARCH_SUFFIX=64
 # where to install files:
 #PREFIX=/usr/local
 PREFIX=/tmp/install
+BIN_PREFIX=$(PREFIX)/bin
 PERL_PREFIX=/tmp/install
 ############################################################
 
@@ -149,7 +150,9 @@ define ExeTargetRules
 $(OBJDIR)/$(1): $(COMMON_SOURCES:%.c=$(OBJDIR)/%.o) $(2) $(HEADERS) $(1).c
 	@mkdir -p $(OBJDIR)
 	@#@echo 'building '$(1)' from ('$$^') common=('$(COMMON_SOURCES:.cc=.o)')';
-	$(CC) $(CFLAGS) $(PEDANTIC) $(filter-out %.h %.hh,$$^) $(LDADD) $(3) -fPIC -o $(OBJDIR)/$(1)
+	@# NOTE: we have to explicitly protect filter-out and ^ from immediate expansion
+	@#       with a double-dollar sign
+	$(CC) $(CFLAGS) $(PEDANTIC) $$(filter-out %.h %.hh,$$^) $(LDADD) $(3) -fPIC -o $(OBJDIR)/$(1)
 .PHONY: clean-exe-$(1)
 clean-exe-$(1):
 	$(foreach DIR,. $(OBJDIR_BASE) $(OBJDIR_PROF), rm -f $(DIR)/$(1);)
@@ -167,7 +170,9 @@ define CppExeTargetRules
 $(OBJDIR)/$(1): $(COMMON_SOURCES:%.c=$(OBJDIR)/%.o) $(2) $(HEADERS) $(1).cc
 	@mkdir -p $(OBJDIR)
 	@#@echo 'building '$(1)' from ('$$^') common=('$(COMMON_SOURCES:.cc=.o)')';
-	$(CXX) $(CXXFLAGS) $(PEDANTIC) $(filter-out %.h %.hh,$$^) $(LDADD) $(3) -fPIC -o $(OBJDIR)/$(1)
+	@# NOTE: we have to explicitly protect filter-out and ^ from immediate expansion
+	@#       with a double-dollar sign
+	$(CXX) $(CXXFLAGS) $(PEDANTIC) $$(filter-out %.h %.hh,$$^) $(LDADD) $(3) -fPIC -o $(OBJDIR)/$(1)
 .PHONY: clean-exe-$(1)
 clean-exe-$(1):
 	$(foreach DIR,. $(OBJDIR_BASE) $(OBJDIR_PROF), rm -f $(DIR)/$(1);)

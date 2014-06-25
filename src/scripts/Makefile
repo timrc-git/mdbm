@@ -8,7 +8,7 @@ SCRIPTS=                     \
   mdbm_environment.sh        \
   mdbm_reset_all_locks
 
-EXE_DEST=$(PREFIX)/bin$(ARCH_SUFFIX)
+EXE_DEST=$(BIN_PREFIX)
 install::
 	$(INSTALL) -d $(EXE_DEST)
 	$(INSTALL) -t $(EXE_DEST) $(SCRIPTS)

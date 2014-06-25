@@ -1155,14 +1155,14 @@ public:
     {
         string arg = onearg;
         Utils.FinalizePath(arg);
-        const int bufLen = 65535;
+        const int bufLen = 65536;
         char buf[bufLen];
         int fd = open(arg.c_str(), O_RDONLY);
         if (fd < 0) {
             fprintf(OutputFilePtr, "Cat could not open [%s], %s\n", arg.c_str(), strerror(errno));
             return (1);
         }
-        int bytes = pread(fd, buf, bufLen, 0);
+        int bytes = pread(fd, buf, bufLen-1, 0);
         fprintf(OutputFilePtr, "[%s] %d bytes: \n", arg.c_str(), bytes);
         if (bytes<=0) {
             fprintf(OutputFilePtr, "<empty>\n");
@@ -1768,7 +1768,7 @@ public:
                             value = args[++i];    // advance i
                         }
                         break;
-                    default:
+                    default: // NOTE: stack error check thinks this block is unreachable
                         char buffer[80];
                         snprintf(buffer, sizeof(buffer), "Invalid option type %d", optPtr->type);
                         errorMsg = buffer;

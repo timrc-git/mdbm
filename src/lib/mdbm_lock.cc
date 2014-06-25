@@ -453,7 +453,7 @@ do_lock_x(MDBM* db, int pageno, int nonblock, int check)
 
     for (;;) {
         int exclusive_nest = locks->getHeldCount(MLOCK_EXCLUSIVE, true);
-        int part_nest = locks->getHeldCount(MLOCK_INDEX, true);
+        int part_nest = locks->getHeldCount(MLOCK_INDEX, true)
                       + locks->getHeldCount(MLOCK_SHARED, true);
         int part_count = locks->getCount(MLOCK_INDEX)
                        + locks->getCount(MLOCK_SHARED);
@@ -532,7 +532,7 @@ do_lock_x(MDBM* db, int pageno, int nonblock, int check)
         if (do_check && check) {
             int nerr;
             exclusive_nest = locks->getHeldCount(MLOCK_EXCLUSIVE, true);
-            part_nest = locks->getHeldCount(MLOCK_INDEX, true);
+            part_nest = locks->getHeldCount(MLOCK_INDEX, true)
                       + locks->getHeldCount(MLOCK_SHARED, true);
 
             if (!exclusive_nest && !part_nest) {

@@ -151,7 +151,7 @@ class ComboOutputter : public CppUnit::Outputter
 private:
     // Test run results will be available here.  (Don't delete,
     // this object does not own this object.)
-    CppUnit::TestResultCollector* pResults;
+    //CppUnit::TestResultCollector* pResults; // stack thinks this is unused.
     // XML file to write to.
     ofstream xmlFile;
     // Responsible for writing XML results to xmlFile.

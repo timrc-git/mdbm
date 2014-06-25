@@ -306,11 +306,11 @@ void ReplaceFuncStressTestSuite::replace_func_stress_test_03() {
         exit(2);
       } else { //child
         // Do reads
-        for (int i = 0; i < 100; i++) {
+        //for (int i = 0; i < 100; i++) {
           int rc = checkRecord(old_mdbm, k, v);
           mdbm_close(old_mdbm);
           exit(rc == 0 ? 0 : 1);
-        }
+        //}
       }
     }
   } else { // (pid = 0)child process

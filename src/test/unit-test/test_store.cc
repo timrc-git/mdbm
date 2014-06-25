@@ -38,7 +38,7 @@ static const int PAGESZ_TSML  = 8192;   // For small object tests
 static const int PAGESZ_TLRG  = 1024;   // For large Object duplicate/missing key tests
 
 static const int NUM_DATA_ITEMS = 80;
-static const int MAX_NEG_TEST    = 7;   // For negative tests
+//static const int MAX_NEG_TEST    = 7;   // For negative tests
 static const int MAX_EASY_TEST   = 15;  // For large Object easy/negative tests
 
 static const int SMALL_OBJ_SIZE_LARGE_OBJ_TEST = 50;  // Small objects for 16MB tests

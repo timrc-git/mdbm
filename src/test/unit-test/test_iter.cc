@@ -654,7 +654,7 @@ void
 MdbmUnitTestIter::addkey(datum ky, std::set<int> &keySet)
 {
     int plen = strlen(KEY_PREFIX);
-    string msg = "Invalid key size " + ky.dsize;
+    string msg = string("Invalid key size ");// + ky.dsize;
     CPPUNIT_ASSERT_MESSAGE(msg, ky.dsize >= plen);
 
     msg = string("Invalid key ") + ky.dptr;

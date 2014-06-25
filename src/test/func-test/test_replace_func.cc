@@ -300,15 +300,14 @@ void TestReplaceFuncSuite::test_replace_func_03() {
       pid_t readerPid = fork();
       if (readerPid > 0) {//Parent
         // Do nothing
-      }
-      else if (readerPid < 0) {//Error
+      } else if (readerPid < 0) {//Error
         exit(2);
-      }else{ //child
+      } else { //child
         // Do reads
-        for (int i = 0; i < 100; i++) {
+        //for (int i = 0; i < 100; i++) {
           int rc = checkRecord(old_mdbm, k, v);
           exit(rc == 0 ? 0 : 1);
-        }
+        //}
       }
     }
   } else { // (pid = 0)child process

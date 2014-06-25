@@ -540,21 +540,25 @@ main(int argc, char** argv)
         return 1;
     }
 
-    if (LONG_MAX == INT_MAX && dbsize > (uint64_t)INT_MAX+1) {
+#if __x86_64__ // 64-bit
+    if (dbsize > (uint64_t)9223372036854775807LL) {
         fprintf(stderr, "DB size too large, size=%llu\n", (unsigned long long) dbsize);
         usage();
         return 1;
     }
+#else // 32-bit
+    if (dbsize > (uint64_t)INT_MAX) {
+        fprintf(stderr, "DB size too large, size=%llu\n", (unsigned long long) dbsize);
+        usage();
+        return 1;
+    }
+#endif
 
     if (opt_version == MDBM_CREATE_V3) {
         dbsize /= (1024*1024);
         flags |= MDBM_DBSIZE_MB;
     }
 
-    if (dbsize > (uint64_t)INT_MAX) {
-        fprintf(stderr, "DB size too large, size=%llu\n", (unsigned long long) dbsize);
-        usage();
-    }
 
     MDBM *db;
     if ((db = mdbm_open(mdbmFile, flags, 0666, pagesize, (int)dbsize)) == NULL) {
