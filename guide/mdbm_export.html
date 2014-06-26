@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mdbm_export &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="up" title="Program Utilities" href="utilities.html" />
+    <link rel="next" title="mdbm_fetch" href="mdbm_fetch.html" />
+    <link rel="prev" title="mdbm_dump" href="mdbm_dump.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mdbm_fetch.html" title="mdbm_fetch"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_dump.html" title="mdbm_dump"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="utilities.html" accesskey="U">Program Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mdbm-export">
+<span id="id1"></span><h1>mdbm_export<a class="headerlink" href="#mdbm-export" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_export [-hfc] [-o <em>outfile</em>] <em>infile.mdbm</em></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">mdbm_export</span></tt> exports an MDBM into a human-readable format file.</p>
+<p>By default, the output file is in Berkley DB&#8217;s db_dump format:</p>
+<blockquote>
+<div><a class="reference external" href="http://www.sleepycat.com/docs/utility/db_dump.html">http://www.sleepycat.com/docs/utility/db_dump.html</a></div></blockquote>
+<p>By using the <em>-c</em> flag, this format may be changed to cdb format:</p>
+<blockquote>
+<div><a class="reference external" href="http://cr.yp.to/cdb/cdbmake.html">http://cr.yp.to/cdb/cdbmake.html</a></div></blockquote>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span></kbd></td>
+<td>Shows help message</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-f</span></kbd></td>
+<td>Fast mode (don&#8217;t lock db while reading). Please use -L none</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-L <var>lockmode</var></span></kbd></td>
+<td>Locking mode - any, none, exclusive, partition, or shared</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-c</span></kbd></td>
+<td>Export cdb_dump format (default db_dump format)</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-o <var>outfile</var></span></kbd></td>
+<td>Write output to this file, instead of STDOUT.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="return-value">
+<h2>RETURN VALUE<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p>Returns 0 upon success, non-zero upon failure.</p>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>mdbm_export -c -o /tmp/foo.data /tmp/foo.mdbm</div></blockquote>
+</div>
+<div class="section" id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_check(1), mdbm_compare(1), mdbm_copy(1), mdbm_create(1),
+mdbm_digest(1), mdbm_dump(1), mdbm_export(1), mdbm_fetch(1), mdbm_import(1),
+mdbm_purge(1), mdbm_replace(1), mdbm_restore(1), mdbm_save(1), mdbm_stat(1),
+mdbm_sync(1), mdbm_trunc(1)</p>
+</div>
+<div class="section" id="contact">
+<h2>CONTACT<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>mdbm-users &lt;<a class="reference external" href="mailto:mdbm-users&#37;&#52;&#48;yahoo-inc&#46;com">mdbm-users<span>&#64;</span>yahoo-inc<span>&#46;</span>com</a>&gt;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mdbm_export</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#options">OPTIONS</a></li>
+<li><a class="reference internal" href="#return-value">RETURN VALUE</a></li>
+<li><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+<li><a class="reference internal" href="#contact">CONTACT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mdbm_dump.html"
+                        title="previous chapter">mdbm_dump</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mdbm_fetch.html"
+                        title="next chapter">mdbm_fetch</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mdbm_export.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mdbm_fetch.html" title="mdbm_fetch"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_dump.html" title="mdbm_dump"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="utilities.html" >Program Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

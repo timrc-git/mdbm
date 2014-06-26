@@ -1,0 +1,527 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Program Utilities" href="utilities.html" />
+    <link rel="prev" title="C++ API" href="mdbm_cxx.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="utilities.html" title="Program Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_cxx.html" title="C++ API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="examples">
+<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="creating-and-populating-a-database">
+<h2>Creating and populating a database<a class="headerlink" href="#creating-and-populating-a-database" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>#include &lt;string.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+    char buf[2048];
+    int ndups;
+
+    snprintf(fn,sizeof(fn),"%s%s",yax_getroot(),"/tmp/example.mdbm");
+    db = mdbm_open(fn,MDBM_O_RDWR|MDBM_O_CREAT,0666,0,0);
+    if (!db) {
+        perror("Unable to create database");
+        exit(2);
+    }
+    ndups = 0;
+    while (fgets(buf,sizeof(buf),stdin)) {
+        int len = strlen(buf);
+        char* s;
+        if (buf[len-1] == '\n') {
+            buf[--len] = 0;
+        }
+        s = strchr(buf,':');
+        if (s) {
+            datum key, val;
+            int ret;
+            key.dptr = buf;
+            key.dsize = s-buf;
+            val.dptr = s+1;
+            val.dsize = len-key.dsize-1;
+            mdbm_lock(db);
+            ret = mdbm_store(db,key,val,MDBM_INSERT);
+            mdbm_unlock(db);
+            if (ret == 1) {
+                ndups++;
+            } else if (ret == -1) {
+                perror("Database store failed");
+            }
+        }
+    }
+    mdbm_sync(db);      /* optional flush to disk */
+    mdbm_close(db);
+    return 0;
+}
+</pre>
+</div>
+</div>
+<div class="section" id="fetching-and-updating-records-in-place">
+<h2>Fetching and updating records in-place<a class="headerlink" href="#fetching-and-updating-records-in-place" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>#include &lt;assert.h&gt;
+#include &lt;string.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+struct user_rec {
+    int u_count;
+};
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+    char buf[2048];
+    int notfound;
+
+    snprintf(fn,sizeof(fn),"%s%s",yax_getroot(),"/tmp/example.mdbm");
+    db = mdbm_open(fn,MDBM_O_RDWR,0666,0,0);
+    if (!db) {
+        perror("Unable to open database");
+        exit(2);
+    }
+    notfound = 0;
+    while (fgets(buf,sizeof(buf),stdin)) {
+        datum key, val;
+        int len = strlen(buf);
+        if (buf[len-1] == '\n') {
+            buf[--len] = 0;
+        }
+        key.dptr = buf;
+        key.dsize = len;
+        mdbm_lock(db);
+        val = mdbm_fetch(db,key);
+        if (val.dptr) {
+            struct user_rec* recp;
+            assert(val.dsize == sizeof(*recp));
+            recp = (struct user_rec*)val.dptr;
+            if (--recp-&gt;u_count == 0) {
+                mdbm_delete(db,key);
+            }
+        } else {
+            notfound++;
+        }
+        mdbm_unlock(db);
+    }
+    mdbm_close(db);
+    return 0;
+}
+</pre>
+</div>
+</div>
+<div class="section" id="adding-replacing-records">
+<h2>Adding/replacing records<a class="headerlink" href="#adding-replacing-records" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>#include &lt;assert.h&gt;
+#include &lt;string.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    char buf[2048];
+    MDBM* db;
+    char fn[MAXPATHLEN];
+    int notfound;
+
+    snprintf(fn,sizeof(fn),"%s%s",yax_getroot(),"/tmp/example.mdbm");
+    db = mdbm_open(fn,MDBM_O_RDWR,0666,0,0);
+    if (!db) {
+        perror("Unable to open database");
+        exit(2);
+    }
+    notfound = 0;
+    while (fgets(buf,sizeof(buf),stdin)) {
+        datum key, val;
+        static char DELETED[] = "deleted";
+        int len = strlen(buf);
+        int ret;
+
+        if (buf[len-1] == '\n') {
+            buf[--len] = 0;
+        }
+        key.dptr = buf;
+        key.dsize = len;
+        val.dptr = DELETED;
+        val.dsize = sizeof(DELETED)-1;
+        mdbm_lock(db);
+        ret = mdbm_store(db,key,val,MDBM_REPLACE);
+        mdbm_unlock(db);
+        if (ret) {
+            perror("Database store failed");
+        }
+    }
+    mdbm_close(db);
+    return 0;
+}
+</pre>
+</div>
+</div>
+<div class="section" id="iterating-over-all-records">
+<h2>Iterating over all records<a class="headerlink" href="#iterating-over-all-records" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>#include &lt;assert.h&gt;
+#include &lt;string.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+    kvpair kv;
+
+    snprintf(fn,sizeof(fn),"%s%s",yax_getroot(),"/tmp/example.mdbm");
+    db = mdbm_open(fn,MDBM_O_RDONLY,0666,0,0);
+        if (!db) {
+            perror("Unable to open database");
+            exit(2);
+        }
+
+    mdbm_lock(db);
+    kv = mdbm_first(db);
+    while (kv.key.dptr) {
+        printf("%.*s %.*s\n",
+               kv.key.dsize,(char*)kv.key.dptr,
+               kv.val.dsize,(char*)kv.val.dptr);
+        kv = mdbm_next(db);
+    }
+    mdbm_unlock(db);
+    mdbm_close(db);
+    return 0;
+}
+</pre>
+</div>
+</div>
+<div class="section" id="iterating-over-all-records-with-custom-iterator">
+<h2>Iterating over all records with custom iterator<a class="headerlink" href="#iterating-over-all-records-with-custom-iterator" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>/* Use iterators to walk through MDBM.
+ */
+
+#include &lt;assert.h&gt;
+#include &lt;strings.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+
+    MDBM_ITER iter;
+    kvpair kv;
+
+    snprintf(fn,sizeof(fn),"%s%s",yax_getroot(),"/tmp/example.mdbm");
+    db = mdbm_open(fn,MDBM_O_RDWR,0666,0,0);
+    if (!db) {
+        perror("Unable to open database");
+        exit(2);
+    }
+
+    /* Start at the beginning */
+    kv = mdbm_first_r( db, &amp;iter );
+    if ((kv.key.dsize == 0) &amp;&amp; (kv.val.dsize == 0)) {
+          printf("Database was empty!\n");
+          mdbm_close(db);
+          exit(3);
+    }
+
+    while (! ((kv.key.dsize == 0) &amp;&amp; (kv.val.dsize == 0))) {
+        printf("Key [%.*s] Val [%.*s]\n",
+               kv.key.dsize, kv.key.dptr,
+               kv.val.dsize, kv.val.dptr);
+
+        kv = mdbm_next_r( db, &amp;iter );
+    }
+    printf("End of db reached.\n");
+    mdbm_close(db);
+    exit(1);
+}
+</pre>
+</div>
+</div>
+<div class="section" id="iterating-over-all-keys-with-custom-iterator">
+<h2>Iterating over all keys with custom iterator<a class="headerlink" href="#iterating-over-all-keys-with-custom-iterator" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>/* Use iterators to walk through MDBM.
+ */
+
+#include &lt;assert.h&gt;
+#include &lt;strings.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+
+    MDBM_ITER iter;
+    datum key;
+
+    strlcpy(fn,yax_getroot(),sizeof(fn));
+    strlcat(fn,"/tmp/example.mdbm",sizeof(fn));
+    db = mdbm_open(fn,MDBM_O_RDWR,0666,0,0);
+    if (!db) {
+        perror("Unable to open database");
+        exit(2);
+    }
+
+    /* Start at the beginning */
+    key = mdbm_firstkey_r( db, &amp;iter );
+    if (key.dsize == 0) {
+        printf("Database was empty!\n");
+        mdbm_close(db);
+        exit(3);
+    }
+
+    while (! (key.dsize == 0)) {
+        printf("Key [%.*s]\n", key.dsize, key.dptr);
+
+        key = mdbm_nextkey_r( db, &amp;iter );
+    }
+    printf("End of db reached.\n");
+    mdbm_close(db);
+    exit(1);
+}
+</pre>
+</div>
+</div>
+<div class="section" id="iterating-over-all-values-for-a-given-key">
+<h2>Iterating over all values for a given key<a class="headerlink" href="#iterating-over-all-values-for-a-given-key" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="generation">
+<h3>Generation<a class="headerlink" href="#generation" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>/*
+ * Generate a db with a bunch of different entires, all sharing the
+ * same key.
+ */
+
+#include &lt;strings.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+    char buf[2048];
+    int num;
+    datum key, val;
+    int ret;
+
+    strlcpy(fn,yax_getroot(),sizeof(fn));
+    strlcat(fn,"/tmp/example.mdbm",sizeof(fn));
+    db = mdbm_open(fn,MDBM_O_RDWR|MDBM_O_CREAT,0666,0,0);
+    if (!db) {
+        perror("Unable to create database");
+        exit(2);
+    }
+    
+#define COMMON_KEY_ONE "mykey\0"
+#define COMMON_KEY_TWO "fooba\0"
+
+    /* Insert a bunch of different values */
+    for (num=0; num&lt;16; num++) {
+        if (num%2) {
+            key.dptr = COMMON_KEY_ONE;
+        } else {
+            key.dptr = COMMON_KEY_TWO;
+        }
+        key.dsize = strlen( key.dptr );
+
+        sprintf(buf, "Value #%d", num);
+        val.dptr = buf;
+        val.dsize = strlen(buf);
+
+        mdbm_lock(db);
+        printf("Storing [%.*s] value [%.*s]\n",
+               key.dsize, key.dptr, val.dsize, val.dptr);
+        ret = mdbm_store(db, key, val, MDBM_INSERT_DUP);
+        mdbm_unlock(db);
+        if (ret == -1) {
+            perror("Database store failed");
+        }
+    }
+    mdbm_close(db);
+}
+</pre>
+</div>
+</div>
+<div class="section" id="iteration">
+<h3>Iteration<a class="headerlink" href="#iteration" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>/* Fetch all values for a given key.  Assumes more than on value was
+ * inserted for a given key, via mbm_store() and the MDBM_INSERT_DUP.
+ */
+
+#include &lt;assert.h&gt;
+#include &lt;strings.h&gt;
+#include &lt;yax/osutil.h&gt;
+#include &lt;sys/fcntl.h&gt;
+#include "mdbm.h"
+
+int main(int argc, char **argv)
+{
+    MDBM* db;
+    char fn[MAXPATHLEN];
+
+    MDBM_ITER iter;
+    datum key, val;
+
+    strlcpy(fn,yax_getroot(),sizeof(fn));
+    strlcat(fn,"/tmp/example.mdbm",sizeof(fn));
+    db = mdbm_open(fn,MDBM_O_RDWR,0666,0,0);
+    if (!db) {
+        perror("Unable to open database");
+        exit(2);
+    }
+
+#define COMMON_KEY "mykey\0"
+    key.dptr = COMMON_KEY;
+    key.dsize = strlen(COMMON_KEY);
+
+    MDBM_ITER_INIT( &amp;iter );
+
+    /* Loop through DB, looking at records with the same key.
+     */
+    while (mdbm_fetch_dup_r( db, &amp;key, &amp;val, &amp;iter ) == 0) {
+        printf("Found another: %.*s\n", val.dsize, val.dptr);
+    }
+    printf("End of db reached.\n");
+    mdbm_close(db);
+    exit(1);
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#creating-and-populating-a-database">Creating and populating a database</a></li>
+<li><a class="reference internal" href="#fetching-and-updating-records-in-place">Fetching and updating records in-place</a></li>
+<li><a class="reference internal" href="#adding-replacing-records">Adding/replacing records</a></li>
+<li><a class="reference internal" href="#iterating-over-all-records">Iterating over all records</a></li>
+<li><a class="reference internal" href="#iterating-over-all-records-with-custom-iterator">Iterating over all records with custom iterator</a></li>
+<li><a class="reference internal" href="#iterating-over-all-keys-with-custom-iterator">Iterating over all keys with custom iterator</a></li>
+<li><a class="reference internal" href="#iterating-over-all-values-for-a-given-key">Iterating over all values for a given key</a><ul>
+<li><a class="reference internal" href="#generation">Generation</a></li>
+<li><a class="reference internal" href="#iteration">Iteration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mdbm_cxx.html"
+                        title="previous chapter">C++ API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utilities.html"
+                        title="next chapter">Program Utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/examples.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="utilities.html" title="Program Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_cxx.html" title="C++ API"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

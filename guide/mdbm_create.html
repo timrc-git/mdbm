@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mdbm_create &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="up" title="Program Utilities" href="utilities.html" />
+    <link rel="next" title="mdbm_delete_lockfiles" href="mdbm_delete_lockfiles.html" />
+    <link rel="prev" title="mdbm_copy" href="mdbm_copy.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mdbm_delete_lockfiles.html" title="mdbm_delete_lockfiles"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_copy.html" title="mdbm_copy"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="utilities.html" accesskey="U">Program Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mdbm-create">
+<span id="id1"></span><h1>mdbm_create<a class="headerlink" href="#mdbm-create" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_create [-23LNz] [-a <em>record-alignment</em>] [-c <em>cache-mode</em>] [-d <em>mbytes</em>] [-h <em>hash-function</em>] [-l <em>spill-size</em>] [-m <em>int</em>] [-p <em>bytes</em>] [-s <em>mbytes</em>] <em>mdbm</em></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">mdbm_create</span></tt> creates a new MDBM according to the specified options.</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-2</span></kbd></td>
+<td>Create v2 format mdbm.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-3</span></kbd></td>
+<td>[Default] Create v3 format mdbm.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-a <var>record-alignment</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><table border="1" class="first last docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Record Alignment</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>8</td>
+<td>1-byte alignment</td>
+</tr>
+<tr class="row-odd"><td>16</td>
+<td>2 byte alignment</td>
+</tr>
+<tr class="row-even"><td>32</td>
+<td>3 byte alignment</td>
+</tr>
+<tr class="row-odd"><td>64</td>
+<td>4 byte alignment</td>
+</tr>
+</tbody>
+</table>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-c <var>cache-mode</var></span></kbd></td>
+<td><table border="1" class="first docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Cache-Mode</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>LFU: least frequently used</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>LRU: least recently used</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>GDSF: greedy dual size frequency</td>
+</tr>
+</tbody>
+</table>
+<p class="last">The default is not to enable cache mode.</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-d <var>mbytes</var></span></kbd></td>
+<td>Specify initial size of db (default: minimum).
+Suffix k/m/g may be used to override default of m.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-h <var>hash-function</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">Create DB using hash function <em>hash-function</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">hash-function</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>CRC-32</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>EJB</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>PHONG</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>OZ</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>TOREK</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>FNV32 [Default]</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>STL</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>MD5</td>
+</tr>
+<tr class="row-even"><td>8</td>
+<td>SHA-1</td>
+</tr>
+<tr class="row-odd"><td>9</td>
+<td>Jenkins</td>
+</tr>
+<tr class="row-even"><td>10</td>
+<td>Hsieh SuperFast</td>
+</tr>
+</tbody>
+</table>
+<p class="last">hash-function for MDBM V2 are 0-9 only.</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-L</span></kbd></td>
+<td>Enable large-object mode</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-l <var>spill-size</var></span></kbd></td>
+<td><p class="first">Set the number of spill size bytes for data to be put on large-object heap.
+Large objects must be enabled with the -L option for this option to be
+applicable.</p>
+<p class="last">The default is 75% of the page size.</p>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-m <var>int</var></span></kbd></td>
+<td>File permissions (default: 0666).</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-p <var>bytes</var></span></kbd></td>
+<td>Specify size of main db (remainder is large-object/overflow space).
+Suffix k/m/g may be used to override default of m.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-s <var>mbytes</var></span></kbd></td>
+<td>Truncate db if it already exists.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="return-value">
+<h2>RETURN VALUE<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p>Returns 0 upon success, non-zero upon failure.</p>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Create an MDBM with an initial size of 2GB:</p>
+<blockquote>
+<div>mdbm_create -p 2g /tmp/bar.mdbm</div></blockquote>
+</div>
+<div class="section" id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_check(1), mdbm_compare(1), mdbm_copy(1), mdbm_create(1),
+mdbm_digest(1), mdbm_dump(1), mdbm_export(1), mdbm_fetch(1), mdbm_import(1),
+mdbm_purge(1), mdbm_replace(1), mdbm_restore(1), mdbm_save(1), mdbm_stat(1),
+mdbm_sync(1), mdbm_trunc(1)</p>
+</div>
+<div class="section" id="contact">
+<h2>CONTACT<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>mdbm-users &lt;<a class="reference external" href="mailto:mdbm-users&#37;&#52;&#48;yahoo-inc&#46;com">mdbm-users<span>&#64;</span>yahoo-inc<span>&#46;</span>com</a>&gt;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mdbm_create</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#options">OPTIONS</a></li>
+<li><a class="reference internal" href="#return-value">RETURN VALUE</a></li>
+<li><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+<li><a class="reference internal" href="#contact">CONTACT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mdbm_copy.html"
+                        title="previous chapter">mdbm_copy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mdbm_delete_lockfiles.html"
+                        title="next chapter">mdbm_delete_lockfiles</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mdbm_create.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mdbm_delete_lockfiles.html" title="mdbm_delete_lockfiles"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_copy.html" title="mdbm_copy"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="utilities.html" >Program Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

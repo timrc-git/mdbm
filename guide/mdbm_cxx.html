@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>C++ API &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Concepts" href="concepts.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="concepts.html" title="Concepts"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="c-api">
+<span id="mdbm-cxx"></span><h1>C++ API<a class="headerlink" href="#c-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>#include &lt;mdbm_cxx.h&gt;
+
+template &lt;class _Key, class _Tp&gt; class Mdbm {
+    class key_type {
+      public:
+        const _Key&amp; operator() () const;
+    };
+
+    class data_type {
+      public:
+        const _Tp&amp; operator() () const;
+    };
+
+    typedef pair&lt;key_type,data_type&gt; value_type;
+
+    class iterator {
+    public:
+        iterator ();
+        iterator (const iterator&amp; i);
+        iterator (iterator&amp; i);
+        ~iterator ();
+
+        value_type* operator-&gt; ();
+        const value_type* operator-&gt; ();
+
+        value_type&amp; operator* ();
+        const value_type&amp; operator* ();
+
+        iterator&amp; operator= (const iterator&amp; i);
+        iterator&amp; operator= (iterator&amp; i);
+
+        bool operator== (const iterator&amp; i) const;
+
+        void operator++ ();
+        iterator&amp; operator++ (int postfix);
+
+        void unlock ();
+    };
+
+    typedef const iterator const_iterator;
+
+ public:
+    iterator begin ();
+    const_iterator begin () const;
+
+    const_iterator end () const;
+    iterator end ();
+
+    pair&lt;iterator,bool&gt; insert (const value_type&amp; x);
+
+    void erase (iterator pos);
+    size_type erase (const key_type&amp; k);
+
+    void clear ();
+
+    iterator find (const key_type&amp; k);
+    const_iterator find (const key_type&amp; k) const;
+};</pre>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The C++ interface to mdbm models the interface of the hash_map&lt;&gt;
+template, a non-standard part of the STL.  Some of the hash_map
+member functions are not currently implemented.  Also, it is
+necessary to use the () operator to retrieve the value of the
+key_type (e.g., x = i-&gt;first() instead of x = i-&gt;first) and to
+set or retrieve the value of the data_type (e.g., i-&gt;second()++).</p>
+</div>
+<div class="section" id="locking">
+<h2>LOCKING<a class="headerlink" href="#locking" title="Permalink to this headline">¶</a></h2>
+<p>One advantage of the C++ interface is that it manages locking of
+the database internally.  When it returns an iterator (other than
+the end()), the database is first locked and that lock is held
+for the lifetime of the iterator or until the iterator&#8217;s unlock()
+member is called.</p>
+</div>
+<div class="section" id="example">
+<h2>EXAMPLE<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>typedef Mdbm&lt;int,int&gt; Db;
+Db db;
+string fn;
+
+fn = yax_getroot();
+fn += "/var/db/foo/db1.mdbm";
+
+if (!db.open(fn.c_str(),Db::ReadWrite|Db::Create)) {
+    cerr &lt;&lt; "Unable to create database: " &lt;&lt; strerror(errno) &lt;&lt; endl;
+    exit(2);
+}
+
+int ndups = 0;
+for (int i = 0; i &lt; 10000; i++) {
+    pair&lt;Db::iterator,bool&gt; i = db.insert(Db::value_type(i,i*i));
+    if (!i.second) {
+        ndups++;
+    }
+}
+
+for_each(db.begin(),db.end(),print&lt;Db::value_type&gt;());
+
+db.close();</pre>
+</div>
+</div>
+<div class="section" id="contact">
+<h2>CONTACT<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>mdbm-users &lt;<a class="reference external" href="mailto:mdbm-users&#37;&#52;&#48;yahoo-inc&#46;com">mdbm-users<span>&#64;</span>yahoo-inc<span>&#46;</span>com</a>&gt;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">C++ API</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#locking">LOCKING</a></li>
+<li><a class="reference internal" href="#example">EXAMPLE</a></li>
+<li><a class="reference internal" href="#contact">CONTACT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="concepts.html"
+                        title="previous chapter">Concepts</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="next chapter">Examples</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mdbm_cxx.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="concepts.html" title="Concepts"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

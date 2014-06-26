@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Performance &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Internal MDBM Information" href="internals.html" />
+    <link rel="prev" title="Restrictions" href="restrictions.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="internals.html" title="Internal MDBM Information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="restrictions.html" title="Restrictions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="performance">
+<span id="performance-page"></span><h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="multi-threaded-mdbm-use-and-performance">
+<span id="threaded-performance"></span><h2>Multi-threaded MDBM Use and Performance<a class="headerlink" href="#multi-threaded-mdbm-use-and-performance" title="Permalink to this headline">¶</a></h2>
+<p>Multi-threaded applications need to use one MDBM handle per thread.</p>
+<p>Dup&#8217;ed handles pull the per-thread info into the dup-ed handle, and share the memory-map, so
+using <tt class="docutils literal"><span class="pre">mdbm_dup_handle()</span></tt> should improve performance over using <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> in each thread.
+The DB lock does double-duty as guardian of the MDBM (memory-map and backing file)
+and of the per-thread-info.
+This is great for reducing latency under low-contention, as MDBM only has to acquire one lock.</p>
+<p>MDBM maintains a lock count and other information in the handle, which is the reason behind
+the one-thread-per-handle rule, and it is needed because YLock doesn&#8217;t have a way to get
+the lock nesting count.</p>
+<p>The other reason why MDBM maintains a lock count is performance. If the count is nonzero,
+then the lock is held and MDBM can go off and do other things without a relatively expensive
+lock call because acquiring a lock that&#8217;s already held is still slower than an &#8220;if&#8221; statement.</p>
+<p>For performance reasons, MDBM does not use the process ID and thread ID to see
+who holds the lock because getting a the thread-ID is expensive.  We decided not to use this
+approach because we determined that every operation that retrieves the lock count would need to
+get the thread ID, and multi-process (but single thread) MDBM usage would take an unacceptable
+performance hit.</p>
+</div>
+<div class="section" id="mdbm-performance-statistics-collection">
+<span id="stats-callback-performance"></span><h2>MDBM Performance Statistics collection<a class="headerlink" href="#mdbm-performance-statistics-collection" title="Permalink to this headline">¶</a></h2>
+<p>To capture performance statistics we&#8217;ve recently introduced the an API: <tt class="docutils literal"><span class="pre">mdbm_set_stats_func</span></tt>
+that uses a user supplied callback function to capture counts of fetch, store, or delete
+operations and also optionally the time, in microseconds, that it takes to perform that operation.</p>
+<p>The overhead of calling an empty callback is less than 1%, and we were trying to make sure that
+the internal mechanism we use to provide time delta information to the callback has an
+overhead that is 5% or less of an MDBM fetch or store.</p>
+<p>The first step we took was to measure the overhead of timed operations, which then pass
+the data to the callback.</p>
+<div class="section" id="performance-analysis-of-mdbm-timed-operations-using-a-callback">
+<h3>Performance Analysis of MDBM Timed Operations Using a Callback<a class="headerlink" href="#performance-analysis-of-mdbm-timed-operations-using-a-callback" title="Permalink to this headline">¶</a></h3>
+<p>We measured the overhead introduced by measuring the time, as a percent of an MDBM fetch or store.</p>
+<p>The measurement of the overhead of the MDBM performance statistics callback
+API produced the following results with MDBM V3.
+With MDBM V3, the MDBM code used <tt class="docutils literal"><span class="pre">ysys_get_usec</span></tt> to measure the time it takes to perform a
+fetch or store, with the following results:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="24%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Data Size</th>
+<th class="head">Store</th>
+<th class="head">Fetch</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>32 bytes</td>
+<td>9.5%</td>
+<td>10%</td>
+</tr>
+<tr class="row-odd"><td>100 bytes</td>
+<td>8.5%</td>
+<td>9.5%</td>
+</tr>
+<tr class="row-even"><td>1 Kbytes</td>
+<td>6.1%</td>
+<td>6.8%</td>
+</tr>
+<tr class="row-odd"><td>2 Kbytes</td>
+<td>6.2%</td>
+<td>6.5%</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Later we measured the overhead for MDBM V4.  MDBM V4 uses the Linux API
+<tt class="docutils literal"><span class="pre">clock_gettime(CLOCK_MONOTONIC)</span></tt> to measure how many microseconds it takes to perform a fetch,
+store or delete.  We also measured MDBM V4&#8217;s overhead when using different APIs, too, in order
+to find a way to reduce the overhead.  We compared that to using the CPU TimeStamp Counters (TSC),
+using assembly code, with and without getting the CPU ID.
+For a 100 byte fetch or store, the overhead was:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="82%" />
+<col width="18%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">API</th>
+<th class="head">Overhead</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">clock_gettime(CLOCK_MONOTONIC)</span></tt></td>
+<td>11%</td>
+</tr>
+<tr class="row-odd"><td>Reading the TSC</td>
+<td>3%</td>
+</tr>
+<tr class="row-even"><td>Reading the TSC + get the CPU ID</td>
+<td>20%</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">clock_gettime(PROCESS_CPUTIME_ID)</span></tt></td>
+<td>80%</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="using-tsc-to-improve-performance">
+<span id="improving-stat-performance"></span><h3>Using TSC to improve performance<a class="headerlink" href="#using-tsc-to-improve-performance" title="Permalink to this headline">¶</a></h3>
+<p>Given the above results, we decided to modify MDBM to use the CPU TSC to improve the performance
+of statistics monitoring time measurement.  Using the TSC is done with assembly code and is very
+Intel (and possibly AMD) CPU-specific.  We added an API, <tt class="docutils literal"><span class="pre">mdbm_set_stat_time_func</span></tt>, to allow
+us to change the time measurement mechanism.  We added a wrapper function, <tt class="docutils literal"><span class="pre">tsc_get_usec</span></tt>
+that reads the TSC, and every 2 seconds uses <tt class="docutils literal"><span class="pre">gettimeofday</span></tt> to calibrate the time.</p>
+<p>The code is not designed to provide perfectly accurate results in a setup where multiple threads
+access TSC-based timer data simultaneously.  The wrapper therefore maintains a high water mark of
+the TSC, in order to minimize the error introduced by multiple threads accessing TSC-based timers
+at the same time.</p>
+<p>The overhead produced, over several runs, for a 1024 byte operation, by <tt class="docutils literal"><span class="pre">tsc_get_usec</span></tt> is:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Store</th>
+<th class="head">Fetch</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.97%</td>
+<td>4.86%</td>
+</tr>
+<tr class="row-odd"><td>3.42%</td>
+<td>4.02%</td>
+</tr>
+<tr class="row-even"><td>3.53%</td>
+<td>4.39%</td>
+</tr>
+<tr class="row-odd"><td>3.79%</td>
+<td>5.09%</td>
+</tr>
+<tr class="row-even"><td>2.76%</td>
+<td>4.06%</td>
+</tr>
+<tr class="row-odd"><td>4.16%</td>
+<td>4.44%</td>
+</tr>
+<tr class="row-even"><td>4.05%</td>
+<td>4.65%</td>
+</tr>
+<tr class="row-odd"><td>3.64%</td>
+<td>4.41%</td>
+</tr>
+<tr class="row-even"><td>4.18%</td>
+<td>4.79%</td>
+</tr>
+<tr class="row-odd"><td>3.98%</td>
+<td>3.58%</td>
+</tr>
+<tr class="row-even"><td>3.72%</td>
+<td>5.08%</td>
+</tr>
+<tr class="row-odd"><td>3.41%</td>
+<td>3.67%</td>
+</tr>
+<tr class="row-even"><td>3.45%</td>
+<td>4.22%</td>
+</tr>
+<tr class="row-odd"><td>4.12%</td>
+<td>4.00%</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The average of the above runs, for fetches and stores is:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Average</th>
+<th class="head">Average</th>
+</tr>
+<tr class="row-even"><th class="head">Store</th>
+<th class="head">Fetch</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td>3.73%</td>
+<td>4.37%</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Since using the CPU&#8217;s TSC took less than the 5% performance requirement, we decided to
+add an API that allows us to switch to using the TSC from the normal mechanism of time collection,
+which is <tt class="docutils literal"><span class="pre">ysys_get_usec</span></tt> for MDBM V3 and <tt class="docutils literal"><span class="pre">clock_gettime(MONOTONIC)</span></tt> for MDBM V4.
+To use the TSC, we need to call <tt class="docutils literal"><span class="pre">mdbm_set_stat_time_func(MDBM_CLOCK_TIME_TSC)</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="performance-comparison-of-mdbm-preload">
+<span id="mdbm-preload-performance"></span><h2>Performance Comparison of mdbm_preload<a class="headerlink" href="#performance-comparison-of-mdbm-preload" title="Permalink to this headline">¶</a></h2>
+<p>We have compared the performance of iterating through a half-full MDBM of various sizes.
+Using MDBM V4 on RHEL6, we compared iteration using mdbm_first and mdbm_next against using
+mdbm_preload() prior to iterating, and we&#8217;ve seen the following performance improvment:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">MDBM Size</th>
+<th class="head">preload
+improvement</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>256MB</td>
+<td>61%</td>
+</tr>
+<tr class="row-odd"><td>1GB</td>
+<td>63.3%</td>
+</tr>
+<tr class="row-even"><td>2GB</td>
+<td>55.8%</td>
+</tr>
+<tr class="row-odd"><td>4GB</td>
+<td>70.4%</td>
+</tr>
+<tr class="row-even"><td>8GB</td>
+<td>66.1%</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Using MDBM V3 on RHEL4, we&#8217;ve seen the following performance improvement:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">MDBM Size</th>
+<th class="head">preload
+improvement</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>256MB</td>
+<td>38.7%</td>
+</tr>
+<tr class="row-odd"><td>1GB</td>
+<td>43.6%</td>
+</tr>
+<tr class="row-even"><td>2GB</td>
+<td>43.1%</td>
+</tr>
+<tr class="row-odd"><td>4GB</td>
+<td>56.3%</td>
+</tr>
+<tr class="row-even"><td>8GB</td>
+<td>54.4%</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Performance</a><ul>
+<li><a class="reference internal" href="#multi-threaded-mdbm-use-and-performance">Multi-threaded MDBM Use and Performance</a></li>
+<li><a class="reference internal" href="#mdbm-performance-statistics-collection">MDBM Performance Statistics collection</a><ul>
+<li><a class="reference internal" href="#performance-analysis-of-mdbm-timed-operations-using-a-callback">Performance Analysis of MDBM Timed Operations Using a Callback</a></li>
+<li><a class="reference internal" href="#using-tsc-to-improve-performance">Using TSC to improve performance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-comparison-of-mdbm-preload">Performance Comparison of mdbm_preload</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="restrictions.html"
+                        title="previous chapter">Restrictions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="internals.html"
+                        title="next chapter">Internal MDBM Information</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/performance.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="internals.html" title="Internal MDBM Information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="restrictions.html" title="Restrictions"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
