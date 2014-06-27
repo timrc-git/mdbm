@@ -17,3 +17,5 @@ for a wide variety of applications, both large and small.
 
 It is being released under the BSD license.
 
+See the [documentation](http://yahoo.github.io/mdbm/) for more details.
+
