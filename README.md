@@ -19,3 +19,7 @@ It is being released under the BSD license.
 
 See the [documentation](http://yahoo.github.io/mdbm/) for more details.
 
+build status
+------------
+
+[![Build Status](https://travis-ci.org/yahoo/mdbm.svg?branch=master)](https://travis-ci.org/yahoo/mdbm)
