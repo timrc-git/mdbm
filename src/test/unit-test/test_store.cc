@@ -1003,7 +1003,7 @@ MdbmUnitTestStore::test_StoreChurnOversize()
 
     // This is an attepmt to exercise some deeply nested (oversize) functions
 
-    char key[8];
+    char key[16];
     char val[256];
     datum kdat = { key, 4 };
     datum vdat = { val, 256 };
@@ -1016,7 +1016,7 @@ MdbmUnitTestStore::test_StoreChurnOversize()
     CPPUNIT_ASSERT(0 == mdbm_limit_size_v3 (db, 20, NULL, NULL));
 
     memset(val, '*', 256);
-    kdat.dsize = 1+ snprintf(key, 16, "key");
+    kdat.dsize = 1+ snprintf(key, sizeof(key), "key");
 
     for (i=0; i<90; ++i) {
       //fprintf(stderr, "STORING ENTRY %d\n", i);
