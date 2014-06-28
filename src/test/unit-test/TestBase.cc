@@ -627,7 +627,8 @@ int TestBase::CleanupTmpDirLocks() {
 
   // try to clean up mlock files
   cmd = "rm -rf /tmp/.mlock-named/" + tmpdir;
-  system(cmd.c_str());
+  int ret = system(cmd.c_str());
+  (void)ret;
 
   return 0;
 }

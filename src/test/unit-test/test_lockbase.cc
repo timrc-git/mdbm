@@ -100,7 +100,8 @@ int LockBaseTestSuite::FD_RAII::sendMsg(int fd, const string &msg)
 void LockBaseTestSuite::FD_RAII::makePipe(FD_RAII &readFD, FD_RAII &sendFD)
 {
     int compipe[2];
-    pipe(compipe);
+    int ret = pipe(compipe);
+    (void)ret;
     readFD = compipe[0];
     sendFD = compipe[1];
 }
