@@ -97,6 +97,7 @@ GCC_VER_INT=$(shell printf "%d%04d%04d" $(GCC_VER_SPC))
 GCC_GTE_48=$(shell expr $(GCC_VER_INT) \>= 400080000)
 
 PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings
+PEDANTIC += -Wno-format-security -Wno-c99-extensions
 # stop dead on warnings...
 PEDANTIC += -Werror
 
