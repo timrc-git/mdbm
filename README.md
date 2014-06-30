@@ -19,6 +19,9 @@ It is being released under the BSD license.
 
 See the [documentation](http://yahoo.github.io/mdbm/) for more details.
 
+Join the [mailing list](https://groups.yahoo.com/groups/mdbm-users/) to discuss MDBM.
+
+
 build status
 ------------
 
