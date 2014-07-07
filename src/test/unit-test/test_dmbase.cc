@@ -1421,8 +1421,6 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbChkPage0E3()
 void
 DataMgmtBaseTestSuite::FilledMultiPageDbChkAllPagesE4()
 {
-#if 0
-// FIX BZ 5469518 - v3: mdbm_chk_page: get an abort specifying page num=2 in a DB of 4 pages
     string baseName = "dmtcE4";
     string dbName   = GetTmpName(baseName);
     MdbmHolder dbh(dbName);
@@ -1447,25 +1445,23 @@ DataMgmtBaseTestSuite::FilledMultiPageDbChkAllPagesE4()
     cass << SUITE_PREFIX()
          << "TC E4: Should be no errors reported for a filled multi page DB=" << dbName << endl;
 
-    for (int cnt = 0; cnt < npages; ++cnt)
-    {
-        errno = 0;
+    for (unsigned cnt = 0; cnt < npages; ++cnt) {
+        //fprintf(stderr, "CHECKING PAGE %d of %d\n", cnt, mdbm_count_pages(dbh));
         int ret = mdbm_chk_page(dbh, cnt);
-        int errnum = errno;
-        if (ret == -1)
-        {
-            cass << "Got errno=";
-            cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
-            cass << "Error returned for page=" << cnt << endl;
-            CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
+        if (ret == -1) {
+            if (errno == EINVAL) {
+              // not a real page, mdbm_count_pages() includes dir/free/etc
+            } else {
+              cass << "Got errno="; cass << errno << endl;
+              cass << "Error returned for page=" << cnt << endl;
+              CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
+            }
         }
     }
-#endif
 }
 void
 DataMgmtBaseTestSuite::PartFilledMultiPageDbChkAllPagesE5()
 {
-#if 0
 // FIX BZ 5469518 - v3: mdbm_chk_page: get an abort specifying page num=2 in a DB of 4 pages
     string baseName = "dmtcE5";
     string dbName   = GetTmpName(baseName);
@@ -1484,8 +1480,7 @@ DataMgmtBaseTestSuite::PartFilledMultiPageDbChkAllPagesE5()
     CPPUNIT_ASSERT_MESSAGE(cdss.str(), (numRecsAdded > 0));
 
     // lets delete a few things to make it a partial multi page DB
-    for (int cnt = 3; cnt < 6; ++cnt)
-    {
+    for (int cnt = 3; cnt < 6; ++cnt) {
         string key = makeKeyName((cnt * 7), keyBaseName);
         datum dkey;
         dkey.dptr  = const_cast<char*>(key.c_str());
@@ -1501,20 +1496,20 @@ DataMgmtBaseTestSuite::PartFilledMultiPageDbChkAllPagesE5()
     cass << SUITE_PREFIX()
          << "TC E5: Should be no errors reported for a partial filled multi page DB=" << dbName << endl;
 
-    for (int cnt = 0; cnt < npages; ++cnt)
-    {
+    for (unsigned cnt = 0; cnt < npages; ++cnt) {
         errno = 0;
         int ret = mdbm_chk_page(dbh, cnt);
-        int errnum = errno;
-        if (ret == -1)
-        {
-            cass << "Got errno=";
-            cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
-            cass << "Error returned for page=" << cnt << endl;
-            CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
+        if (ret == -1) {
+            if (errno == EINVAL) {
+              // not a real page, mdbm_count_pages() includes dir/free/etc
+            } else {
+              cass << "Got errno=";
+              cass <<  errno << endl;
+              cass << "Error returned for page=" << cnt << endl;
+              CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
+            }
         }
     }
-#endif
 }
 
 // NOTE: number of pages will be doubled via mdbm_limit_size

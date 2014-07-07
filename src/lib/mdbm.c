@@ -6311,6 +6311,11 @@ mdbm_chk_error(MDBM* db, int pagenum, int mapped_pagenum, int index)
 int
 mdbm_chk_page(MDBM *db, int pno)
 {
+    if (!db || pno > db->db_max_dirbit) {
+      errno = EINVAL;
+      return -1;
+    }
+
     if (lock_db_ex(db) != 1) {
         return -1;
     }

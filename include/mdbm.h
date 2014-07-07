@@ -1777,6 +1777,7 @@ extern void mdbm_chk_error(MDBM* db, int pagenum, int mapped_pagenum, int index)
  * V3: Prints found errors via mdbm_log targeting LOG_CRITICAL.  If no
  * errors, then no logging performed.  When it detects errors, it returns -1
  * and errno is set to EFAULT.
+ * Returns -1, and sets errno to EINVAL for invalid page numbers.
  *
  * \param[in,out] db Database handle
  * \param[in]     pagenum Page to check for errors
