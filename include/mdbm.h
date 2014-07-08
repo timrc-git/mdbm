@@ -813,8 +813,8 @@ extern int mdbm_get_magic_number(MDBM *db, uint32_t *magic);
  * opening MDBM with MDBM_O_RDWR.
  *
  * \param[in,out] db Database handle for windowed access, typically a backing store database
- * \param[in]     wsize Window size which must be at least 4X the page size
- *                used for the database.  0 means to remove windowing
+ * \param[in]     wsize Window size which must be at least 2X the page size
+ *                used for the database.
  * \return Set window status
  * \retval -1 Error, and errno is set
  * \retval  0 Success

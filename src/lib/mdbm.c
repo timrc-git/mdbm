@@ -126,6 +126,8 @@ void mdbm_unload_common_globals(void) {
 /* this pins the pages in memory */
 static int pin_pages(MDBM *db);
 
+static int mdbm_set_window_size_internal(MDBM* db, size_t wsize);
+
 extern int do_delete_lockfiles(const char* dbname);
 
 inline uint64_t
@@ -1738,7 +1740,7 @@ mdbm_internal_remap(MDBM *db, size_t dbsize, int flags)
 
         if (!db->db_window.base) {
             static const int MDBM_DEFAULT_WINDOW_PAGES = 8;
-            if (mdbm_set_window_size(db,MDBM_DEFAULT_WINDOW_PAGES * dbpagesz) < 0) {
+            if (mdbm_set_window_size_internal(db,MDBM_DEFAULT_WINDOW_PAGES * dbpagesz) < 0) {
                 return -1;
             }
         }
@@ -3041,7 +3043,7 @@ mdbm_internal_replace(MDBM* db)
         }
 
         wsize = db->db_window.num_pages * db->db_pagesize;
-        mdbm_set_window_size(db,wsize);
+        mdbm_set_window_size_internal(db,wsize);
 
         close(oldfd);
     }
@@ -4407,7 +4409,7 @@ mdbm_close(MDBM *db)
     }
 #endif
 
-    mdbm_set_window_size(db,0);
+    mdbm_set_window_size_internal(db,0);
 
     if (zrefs && db->db_base) {
         if (!MDBM_IS_RDONLY(db)) {
@@ -7744,7 +7746,7 @@ mdbm_protect(MDBM* db, int protect)
 }
 
 int
-mdbm_set_window_size(MDBM* db, size_t wsize)
+mdbm_set_window_size_internal(MDBM* db, size_t wsize)
 {
     int i;
 
@@ -7795,6 +7797,18 @@ mdbm_set_window_size(MDBM* db, size_t wsize)
 
     release_window_pages(db);
     return 0;
+}
+
+int
+mdbm_set_window_size(MDBM* db, size_t wsize)
+{
+  int dbpagesz = db->db_pagesize;
+  if (wsize < 2*dbpagesz) {
+    mdbm_log(LOG_ERR,"%s: mdbm_set_window_size() wsize should be at least 2 pages\n", db->db_filename);
+    errno=EINVAL;
+    return -1;
+  }
+  return mdbm_set_window_size_internal(db, wsize);
 }
 
 int
@@ -8863,7 +8877,7 @@ mdbm_dup_handle(MDBM* db, int flags)
     wsize = newdb->db_window.num_pages * db->db_pagesize;
     memset(&newdb->db_window,0,sizeof(newdb->db_window));
     if (wsize) {
-        mdbm_set_window_size(newdb,wsize);
+        mdbm_set_window_size_internal(newdb,wsize);
     }
     return newdb;
 

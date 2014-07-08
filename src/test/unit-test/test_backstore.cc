@@ -1245,7 +1245,7 @@ void BackStoreTestSuite::BsStoreDataSetReadOnlyBsWithNewDbStoreNewA23()
 
 void BackStoreTestSuite::BsCreateDbNoWindowFlagSetWindowSizeZeroB1()
 {
-    // create DB without MDBM_OPEN_WINDOWED flag; set window size=0; store, fetch
+    // create DB without MDBM_OPEN_WINDOWED flag; set window size=0; expect failure
     string prefix = "TC B1: Back Store: ";
     TRACE_TEST_CASE(prefix);
     string baseName = "tcbackstoreB1";
@@ -1261,35 +1261,33 @@ void BackStoreTestSuite::BsCreateDbNoWindowFlagSetWindowSizeZeroB1()
     size_t wsize = 0;
     int ret = mdbm_set_window_size(dbh, wsize);
     stringstream wsss;
-    wsss << prefix << "Set Valid Window size=" << wsize
-         << " and expected Success. mdbm_set_window_size returned=" << ret << endl;
-    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == 0));
+    wsss << prefix << "Set invalid Window size=" << wsize
+         << " and expected Failure. mdbm_set_window_size returned=" << ret << endl;
+    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret != 0));
 
-    int limitNumPages = 2;
-    ret = mdbm_limit_size_v3(dbh, limitNumPages, 0, 0);
+    //int limitNumPages = 2;
+    //ret = mdbm_limit_size_v3(dbh, limitNumPages, 0, 0);
 
-    // fill DB then iterate
-    int recCnt = FillDb(dbh);
+    //// fill DB then iterate
+    //int recCnt = FillDb(dbh);
 
-    stringstream itss;
-    itss << prefix << "FAILed to fill DB=" << dbName << endl;
-    MDBM_ITER iter;
-    datum key = mdbm_firstkey_r(dbh, &iter);
-    CPPUNIT_ASSERT_MESSAGE(itss.str(), (key.dsize > 0));
+    //stringstream itss;
+    //itss << prefix << "FAILed to fill DB=" << dbName << endl;
+    //MDBM_ITER iter;
+    //datum key = mdbm_firstkey_r(dbh, &iter);
+    //CPPUNIT_ASSERT_MESSAGE(itss.str(), (key.dsize > 0));
 
-    int icnt;
-    for (icnt = 0; key.dsize > 0; ++icnt)
-    {
-        key = mdbm_nextkey_r(dbh, &iter);
-    }
-    if (icnt != recCnt)
-    {
-        stringstream icss;
-        icss << prefix
-             << "FAILed to fetch all keys. Current cnt="
-             << icnt << " but number of records in DB=" << recCnt << endl;
-        CPPUNIT_ASSERT_MESSAGE(icss.str(), (icnt == recCnt));
-    }
+    //int icnt;
+    //for (icnt = 0; key.dsize > 0; ++icnt) {
+    //    key = mdbm_nextkey_r(dbh, &iter);
+    //}
+    //if (icnt != recCnt) {
+    //    stringstream icss;
+    //    icss << prefix
+    //         << "FAILed to fetch all keys. Current cnt="
+    //         << icnt << " but number of records in DB=" << recCnt << endl;
+    //    CPPUNIT_ASSERT_MESSAGE(icss.str(), (icnt == recCnt));
+    //}
 }
 void BackStoreTestSuite::BsCreateDbNoWindowFlagSetWindowSizeB2()
 {
@@ -1306,7 +1304,7 @@ void BackStoreTestSuite::BsCreateDbNoWindowFlagSetWindowSizeB2()
     prefix = SUITE_PREFIX() + prefix;
     CPPUNIT_ASSERT_MESSAGE(prefix, (dbret != -1));
 
-    size_t wsize = pageSize * 3;
+    size_t wsize = pageSize * 4;
     int ret = mdbm_set_window_size(dbh, wsize);
     stringstream wsss;
     wsss << prefix << "Set Valid Window size=" << wsize
@@ -1412,9 +1410,7 @@ void BackStoreTestSuite::BsSetWindowSizeMinusOneB4()
 }
 void BackStoreTestSuite::BsSetWindowSizeZeroB5()
 {
-#if 0
-// FIX BZ 5518388: v3: mdbm_set_window_size: returns success if window size=0; but SEGV in mdbm_store_r
-    // create DB; set window size=0; store, fetch, delete
+    // create DB; set window size=0; expect failure
     string prefix = "TC B5: Back Store: ";
     TRACE_TEST_CASE(prefix);
     string baseName = "tcbackstoreB5";
@@ -1430,37 +1426,11 @@ void BackStoreTestSuite::BsSetWindowSizeZeroB5()
     size_t wsize = 0;
     int ret = mdbm_set_window_size(dbh, wsize);
     stringstream wsss;
-    wsss << prefix << "Set Valid Window size=" << wsize
-         << " and expected Success. mdbm_set_window_size returned=" << ret << endl;
-    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == 0));
-
-    int limitNumPages = 2;
-    ret = mdbm_limit_size_v3(dbh, limitNumPages, 0, 0);
-
-    // fill DB then iterate
-    int recCnt = FillDb(dbh);
-
-    stringstream itss;
-    itss << prefix << "FAILed to fill DB=" << dbName << endl;
-    MDBM_ITER iter;
-    datum key = mdbm_firstkey_r(dbh, &iter);
-    CPPUNIT_ASSERT_MESSAGE(itss.str(), (key.dsize > 0));
-
-    int icnt;
-    for (icnt = 0; key.dsize > 0; ++icnt)
-    {
-        key = mdbm_nextkey_r(dbh, &iter);
-    }
-    if (icnt != recCnt)
-    {
-        stringstream icss;
-        icss << prefix
-             << "FAILed to fetch all keys. Current cnt="
-             << icnt << " but number of records in DB=" << recCnt << endl;
-        CPPUNIT_ASSERT_MESSAGE(icss.str(), (icnt == recCnt));
-    }
-#endif
+    wsss << prefix << "Set invalid Window size=" << wsize
+         << " and expected failure. mdbm_set_window_size returned=" << ret << endl;
+    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == -1));
 }
+
 void BackStoreTestSuite::BsCheckSeveralDiffPageSizesSetWinSizeB6()
 {
 #if 0
