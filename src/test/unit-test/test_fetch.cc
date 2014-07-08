@@ -223,9 +223,6 @@ MdbmFetchUnitTest::GetRegisteredData(int id, std::vector<std::string> & items)
 }
 
 const vector<int>& MdbmFetchUnitTest::GetLargeDataPageSizes() {
-    if (versionFlag & MDBM_CREATE_V2)  {
-        return LargeDataPageSizesVectV2;
-    }
     return LargeDataPageSizesVectV3;
 }
 
@@ -600,10 +597,6 @@ void
 MdbmFetchUnitTest::test_FetchK2()
 {
     TRACE_TEST_CASE(__func__);
-    if (versionFlag & MDBM_CREATE_V2) {
-        // TODO FIXME bug 5385451
-        return;
-    }
 
     MDBM *mdbm;
     int openFlags = MDBM_O_FSYNC | MDBM_LARGE_OBJECTS | versionFlag | MDBM_O_CREAT | MDBM_O_TRUNC | MDBM_O_RDWR;

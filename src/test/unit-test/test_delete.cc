@@ -194,9 +194,6 @@ MdbmUnitTestDelete::GetRegisteredData(int id, std::vector<std::string> & items)
 //map<string,DeleteTestData> MdbmUnitTestDelete::DataByVersion;
 
 const vector<int>& MdbmUnitTestDelete::GetLargeDataPageSizes() {
-    if (versionFlag & MDBM_CREATE_V2)  {
-        return LargeDataPageSizesVectV2;
-    }
     return LargeDataPageSizesVectV3;
 }
 
@@ -374,10 +371,6 @@ MdbmUnitTestDelete::test_DeleteO3()
 {
     TRACE_TEST_CASE(__func__);
     string fname = "deleteempty" + versionString;
-    if (versionFlag & MDBM_CREATE_V2) {
-      return;
-//    mdbm_delete_r on an empty MDBM crashes MDBM V2, but this is not worth a bug
-    }
 
     MDBM *mdbm;
     int openFlags = versionFlag | MDBM_O_CREAT | MDBM_O_TRUNC | MDBM_O_RDWR;

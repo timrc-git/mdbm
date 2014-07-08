@@ -877,7 +877,7 @@ DataInterchangeBaseTestSuite::PartialDbSaveToNewUseDbVersionFlagB6()
     string saveFile =  GetTmpName(baseName);
     MdbmHolder savedb(saveFile);
 
-    int openFlags = MDBM_O_CREAT | (versionFlag ^ (MDBM_CREATE_V2 | MDBM_CREATE_V3));
+    int openFlags = MDBM_O_CREAT | versionFlag;
     int ret = mdbm_save(dbh, saveFile.c_str(), openFlags, 0644, 0);
 
     stringstream sfss;
@@ -1314,7 +1314,7 @@ DataInterchangeBaseTestSuite::SaveUsingV3FlagThenRestoreC1()
     string saveFile =  GetTmpName(baseName);
     MdbmHolder savedb(saveFile);
 
-    int openFlags = MDBM_O_CREAT | (versionFlag ^ (MDBM_CREATE_V2 | MDBM_CREATE_V3));
+    int openFlags = MDBM_O_CREAT | versionFlag;
     int ret = mdbm_save(dbh, saveFile.c_str(), openFlags, 0644, 0);
 
     stringstream sfss;

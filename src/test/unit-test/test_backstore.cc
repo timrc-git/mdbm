@@ -93,28 +93,6 @@ void BackStoreTestSuite::TestWindowedMode()
     }
 }
 
-void BackStoreTestSuite::BsV2DbSetBackStoreA1()
-{
-#if 0
-// FIX BZ 5512918: v3: mdbm_set_backingstore: doesnt check MDBM version
-    // create a V2 DB; call mdbm_set_backingstore
-    string prefix = "TC A1: DB Back Store: ";
-    TRACE_TEST_CASE(prefix);
-    string baseName = "tcbackstoreA1";
-    string dbName = GetTmpName(baseName);
-    MdbmHolder dbh(dbName);
-
-    int openflags = MDBM_O_RDWR | MDBM_O_CREAT | MDBM_O_TRUNC | MDBM_CREATE_V2;
-    int dbret = dbh.Open(openflags, 0644, 512, 0);
-    prefix = SUITE_PREFIX() + prefix;
-    CPPUNIT_ASSERT_MESSAGE(prefix, (dbret != -1));
-
-    int ret = mdbm_set_backingstore(dbh, MDBM_BSOPS_FILE, (void*)"/tmp", O_DIRECT);
-    stringstream bsss;
-    bsss << prefix << "mdbm_set_backingstore should return -1 since using a V2 DB, instead it returned=" << ret << endl;
-    CPPUNIT_ASSERT_MESSAGE(bsss.str(),(ret == -1));
-#endif
-}
 void BackStoreTestSuite::BsSetWithNullParamA2()
 {
 #if 0

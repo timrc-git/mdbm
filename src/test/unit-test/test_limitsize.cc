@@ -399,7 +399,7 @@ void LimitSizeTestSuite::maxNumPages(LimitSizeFO & lsfo, const string& tcprefix)
     uint32_t maxPages = GetMaxNumPages(versionFlag);
     uint64_t maxDBsize = GetMaxDBsize(versionFlag);
     // Call mdbm_limit_size with maximum number of pages < MDBM_NUMPAGES_MAX
-    mdbm_ubig_t setNumPages = (versionFlag&MDBM_CREATE_V2) ? maxDBsize/(uint64_t)pgsize : maxPages;
+    mdbm_ubig_t setNumPages = maxPages;
     int ret = (lsfo)(dbh, setNumPages);
     stringstream lsfoss;
     lsfoss << prefix << "Maximum Number of pages=" << maxPages

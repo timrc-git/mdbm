@@ -464,13 +464,7 @@ void SpillSizeTestSuite::PremadeAddLO()  // TC I-8
 
     // 2. Call mdbm_setspillsize: 256
     int spillSize = 256;
-    if (versionFlag & MDBM_CREATE_V2) {
-        int ret = mdbm_setspillsize(dbh, spillSize);
-        CPPUNIT_ASSERT_MESSAGE(prefix + " Expect mdbm_setspillsize to FAIL since DB was created without large object support", (ret == -1) );
-        return;  // all done, since v2 DB correctly doesnt allow setting of spill size
-    } else {
-        assertSetSpillSize(dbh, spillSize, prefix.c_str());
-    }
+    assertSetSpillSize(dbh, spillSize, prefix.c_str());
 
     // 3. Call mdbm_store; Add a large object of size = 256
     // 4. Expected result: FAIL and errno set

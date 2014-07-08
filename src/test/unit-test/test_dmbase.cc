@@ -1194,12 +1194,11 @@ DataMgmtBaseTestSuite::EmptyDbChkAllD1()
     // expect no errors from mdbm_chk_all_page
     errno = 0;
     int ret = mdbm_chk_all_page(dbh);
-    int errnum = errno;
 
     stringstream cass;
     cass << prefix
          << "Should be no errors reported for an empty DB=" << dbName << endl;
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 void
@@ -1223,13 +1222,12 @@ DataMgmtBaseTestSuite::PartFilledDbChkAllD2()
     // expect no errors from mdbm_chk_all_page
     errno = 0;
     int ret = mdbm_chk_all_page(dbh);
-    int errnum = errno;
 
     stringstream cass;
     cass << SUITE_PREFIX()
          << "TC D2: Should be no errors reported for a partial filled DB=" << dbName << endl
          << "Got errno=";
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 void
@@ -1253,13 +1251,12 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbChkAllD3()
     // expect no errors from mdbm_chk_all_page
     errno = 0;
     int ret = mdbm_chk_all_page(dbh);
-    int errnum = errno;
 
     stringstream cass;
     cass << SUITE_PREFIX()
          << "TC D3: Should be no errors reported for a filled single page DB=" << dbName << endl
          << "Got errno=";
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 void
@@ -1283,13 +1280,12 @@ DataMgmtBaseTestSuite::FilledMultiPageDbChkAllD4()
     // expect no errors from mdbm_chk_all_page
     errno = 0;
     int ret = mdbm_chk_all_page(dbh);
-    int errnum = errno;
 
     stringstream cass;
     cass << SUITE_PREFIX()
          << "TC D4: Should be no errors reported for a filled multi page DB=" << dbName << endl
          << "Got errno=";
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 void
@@ -1323,13 +1319,12 @@ DataMgmtBaseTestSuite::PartFilledMultiPageDbChkAllD5()
     // expect no errors from mdbm_chk_all_page
     errno = 0;
     int ret = mdbm_chk_all_page(dbh);
-    int errnum = errno;
 
     stringstream cass;
     cass << SUITE_PREFIX()
          << "TC D5: Should be no errors reported for a partial filled multi page DB=" << dbName << endl
          << "Got errno=";
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 
@@ -1350,14 +1345,14 @@ DataMgmtBaseTestSuite::EmptyDbChkPage0E1()
     // expect no errors from mdbm_chk_page
     errno = 0;
     int ret = mdbm_chk_page(dbh, 0);
-    int errnum = errno;
 
     stringstream cass;
     cass << prefix
          << "Should be no errors reported for an empty DB=" << dbName << endl;
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
+
 void
 DataMgmtBaseTestSuite::PartFilledDbChkPage0E2()
 {
@@ -1379,13 +1374,12 @@ DataMgmtBaseTestSuite::PartFilledDbChkPage0E2()
     // expect no errors from mdbm_chk_page
     errno = 0;
     int ret = mdbm_chk_page(dbh, 0);
-    int errnum = errno;
 
     stringstream cass;
     cass << SUITE_PREFIX()
          << "TC E2: Should be no errors reported for a partial filled DB=" << dbName << endl
          << "Got errno=";
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 void
@@ -1409,13 +1403,12 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbChkPage0E3()
     // expect no errors from mdbm_chk_page
     errno = 0;
     int ret = mdbm_chk_page(dbh, 0);
-    int errnum = errno;
 
     stringstream cass;
     cass << SUITE_PREFIX()
          << "TC E3: Should be no errors reported for a filled single page DB=" << dbName << endl
          << "Got errno=";
-    cass << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+    cass << errno << endl;
     CPPUNIT_ASSERT_MESSAGE(cass.str(), (ret == 0));
 }
 void

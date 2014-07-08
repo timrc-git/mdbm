@@ -32,7 +32,6 @@ public:
     void TestWindowedMode();
 
     // mdbm_set_backingstore
-    void BsV2DbSetBackStoreA1();
     void BsSetWithNullParamA2();
     void BsSetMdbmMultipleTimesThenCloseA3();
     void BsSetUsingSameDbAsCacheAndBsA4();
@@ -106,7 +105,6 @@ class BackStoreTsV3 : public BackStoreTestSuite
     CPPUNIT_TEST_SUITE(BackStoreTsV3);
 
     CPPUNIT_TEST(TestWindowedMode);
-    CPPUNIT_TEST(BsV2DbSetBackStoreA1);
     CPPUNIT_TEST(BsSetWithNullParamA2);
     CPPUNIT_TEST(BsSetMdbmMultipleTimesThenCloseA3);
     // TODO BZ 5718172, invalid test, shouldn't allow cache and bs to be the same MDBM

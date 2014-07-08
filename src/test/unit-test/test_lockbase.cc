@@ -769,8 +769,6 @@ LockBaseTestSuite::createMultipageDB(string &prefix, int openFlags, string &dbNa
         }
     } else { // get a name for the new DB
         CPPUNIT_ASSERT_MESSAGE("dbName is empty", !dbName.empty());
-        //dbName = openFlags & MDBM_CREATE_V2 ?
-        //    _cfgStory->getTempDBv2Name() : _cfgStory->getTempDBv3Name();
     }
 
     int pageSize = 512;
@@ -815,9 +813,7 @@ LockBaseTestSuite:: getKeysInDifferentPartitions(MDBM *dbh, int openFlags, strin
     for (; key.dsize != 0; ++numRecs) {
         mdbm_ubig_t pageNum = mdbm_get_page(dbh, &key);
 // FIX for now just use page number as partition number
-//        int         partNum = openFlags & MDBM_CREATE_V2 ?
-//                              getPartitionNumV2(dbh, pageNum) :
-//                              pageNum; // FIX MDBM_PAGENUM_TO_PARTITION(dbh, pageNum);
+//        int         partNum = pageNum; // FIX MDBM_PAGENUM_TO_PARTITION(dbh, pageNum);
 
         if (alphaPart == -1) {
             alphaPart = pageNum; // FIX partNum;

@@ -221,7 +221,6 @@ void HashTestBase::CreateValidSeries() // Test Case F-3
     // Set all hash id's from set of valid ID's
     // Valid test range: loop from cnt = 0 to MDBM_MAX_HASH(for v2, MDBM_MAX_HASH-1)
     int len = (sizeof(_ValidHashSeries)/sizeof(int));
-    if (versionFlag == MDBM_CREATE_V2) { len = len - 1; }
     for (int i=0; i<len; ++i) {
         CheckHash(_ValidHashSeries[i], prefix, false);
     }
@@ -236,7 +235,6 @@ void HashTestBase::CreateInvalidSeries() // Test Case F-4
     // v3 Invalid values: -1, MDBM_MAX_HASH + 1
     int invalidHash[] = { -1, MDBM_MAX_HASH+1 };
     int len = (sizeof(invalidHash)/sizeof(int));
-    if (versionFlag == MDBM_CREATE_V2) { invalidHash[1] = MDBM_HASH_JENKINS+1; }
     for (int i=0; i<len; ++i) {
         CheckHash(invalidHash[i], prefix, true);
     }
@@ -316,7 +314,7 @@ void HashTestBase::storeDataSetDefHash(const string &tcprefix)  // Test Case F-6
     CPPUNIT_ASSERT_MESSAGE(fetchmsg.str(), (val != 0 && strcmp(_Val, val) == 0));
 
     // 3. Call mdbm_sethash: MDBM_DEFAULT_HASH
-    bool expectSuccess = (versionFlag == MDBM_CREATE_V2) ? true : false;
+    bool expectSuccess = false;
     assertSetHash(dbh, prefix, expected_def_hash_ID, expectSuccess);
 
     // 4. Call mdbm_fetch_str
@@ -364,7 +362,7 @@ void HashTestBase::storeDataSetNonDefHash(const string &tcprefix)  // Test Case 
     CPPUNIT_ASSERT_MESSAGE(fetchmsg.str(), (val != 0 && strcmp(_Val, val) == 0));
 
     // 3. Call mdbm_sethash: MDBM_HASH_PHONG
-    bool expectSuccess = (versionFlag == MDBM_CREATE_V2) ? true : false;
+    bool expectSuccess = false;
     assertSetHash(dbh, prefix, MDBM_HASH_PHONG, expectSuccess);
 
     // 4. Call mdbm_fetch_str: key="tcF6"
@@ -382,11 +380,6 @@ void HashTestBase::storeDataSetNonDefHash(const string &tcprefix)  // Test Case 
 
 void HashTestBase::StoreDataSetNonDefHash()  // Test Case F-7
 {
-  if (versionFlag == MDBM_CREATE_V2) {
-// V2 Obsolete can't test for unsupported behavior - it allows changing
-// of the hash(no error returned) then we are able to fetch data anyway
-    return;
-  }
   if (versionFlag == MDBM_CREATE_V3) {
 // TODO FIXME V3 BZ ticket 5220918
     return;
@@ -406,7 +399,7 @@ void HashTestBase::preMadeSetDefHash(const string &tcprefix)       // Test Case 
     // 2. Call mdbm_sethash: MDBM_DEFAULT_HASH
     int cur_def_hash_ID      = mdbm_get_hash(dbh);
     int expected_def_hash_ID = getDefaultHashID();
-    bool expectSuccess = versionFlag == MDBM_CREATE_V2 ? true : false;
+    bool expectSuccess = false;
     assertSetHash(dbh, prefix, expected_def_hash_ID, expectSuccess);
 
     // 3. Call mdbm_fetch: known key="pass1"
@@ -445,7 +438,7 @@ void HashTestBase::preMadeSetNonDefHash(const string &tcprefix)
     // v3 returns error but v2 doesnt check so v3 test will always assert here
     //
     int cur_def_hash_ID      = mdbm_get_hash(dbh);
-    bool expectSuccess = (versionFlag == MDBM_CREATE_V2) ? true : false;
+    bool expectSuccess = false;
     assertSetHash(dbh, prefix, MDBM_HASH_MD5, expectSuccess);
 
     // 3. Call mdbm_fetch: known key="pass1"
@@ -462,11 +455,6 @@ void HashTestBase::preMadeSetNonDefHash(const string &tcprefix)
 
 void HashTestBase::PreMadeSetNonDefHash()    // Test Case F-9
 {
-    if (versionFlag == MDBM_CREATE_V2) {
-        // Obsolete can't test for unsupported behavior - it allows changing
-        // of the hash(no error returned) then we are able to fetch data anyway
-        return;
-    }
     if (versionFlag == MDBM_CREATE_V3) {
         // TODO FIXME BZ ticket 5220918
         return;
@@ -478,11 +466,6 @@ void HashTestBase::PreMadeSetNonDefHash()    // Test Case F-9
 
 void HashTestBase::GetKeyhashValue()    // Test Case F-10
 {
-    if (versionFlag == MDBM_CREATE_V2) {
-        // Obsolete can't test for unsupported behavior - it allows changing
-        // of the hash(no error returned) then we are able to fetch data anyway
-        return;
-    }
     // Open pre-made DB with data; set non-default hash ID; fetch data
     getKeyhashValue("TC F-10: getKeyhashValue: ");
 }
@@ -519,11 +502,6 @@ void HashTestBase::Checkhashvalue(int hashMode)
 
 void HashTestBase::GetKeyhashValInvalidHashFunc()    // Test Case F-11
 {
-    if (versionFlag == MDBM_CREATE_V2) {
-        // Obsolete can't test for unsupported behavior - it allows changing
-        // of the hash(no error returned) then we are able to fetch data anyway
-        return;
-    }
     // Open pre-made DB with data; set non-default hash ID; fetch data
     getKeyhashValInvalidHashFunc("TC F-11: getKeyhashValInvalidHashFunc: ");
 }

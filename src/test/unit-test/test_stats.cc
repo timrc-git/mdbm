@@ -75,7 +75,6 @@ class MdbmUnitTestStats : public CppUnit::TestFixture, public TestBase
     void test_StatsAB2();
     void test_StatsAB3();
     void test_StatsAB4();
-    //void test_StatsAB5(); //V2
     void test_StatsAB6();
     void test_StatsAB7();
 
@@ -83,7 +82,6 @@ class MdbmUnitTestStats : public CppUnit::TestFixture, public TestBase
     void test_StatsAC2();
     void test_StatsAC3();
     void test_StatsAC4();
-    //void test_StatsAC5(); //V2
     void test_StatsAC6();
 
     void test_StatsAD1();
@@ -204,21 +202,6 @@ MdbmUnitTestStats::test_StatsAB4()
     CPPUNIT_ASSERT(mdbm_get_stat_counter(mdbm, (mdbm_stat_type) 80000, &count) != 0);
 }
 
-//void
-//MdbmUnitTestStats::test_StatsAB5()
-//{
-//    string prefix = string("StatAB5") + versionString + ":";
-//    TRACE_TEST_CASE(__func__)
-//
-//    // Create a V2 DB - statistics operations on V2 should fail
-//    MdbmHolder mdbm(GetTmpPopulatedMdbm(prefix,
-//                                         MDBM_O_CREAT | MDBM_CREATE_V2 |
-//                                         MDBM_O_TRUNC | MDBM_STAT_OPERATIONS | MDBM_O_RDWR,
-//                                         0644, DEFAULT_PAGE_SIZE, 0));
-//    mdbm_counter_t count;
-//    CPPUNIT_ASSERT_EQUAL(-1, mdbm_get_stat_counter(mdbm, MDBM_STAT_TYPE_STORE, &count));
-//}
-
 void
 MdbmUnitTestStats::test_StatsAB6()
 {
@@ -315,21 +298,6 @@ MdbmUnitTestStats::test_StatsAC4()
     CPPUNIT_ASSERT(mdbm_get_stat_time(mdbm, (mdbm_stat_type) 70000, &timeStat) != 0);
 }
 
-//Void
-//MdbmUnitTestStats::test_StatsAC5()
-//{
-//    string prefix = string("StatAC5") + versionString + ":";
-//    TRACE_TEST_CASE(__func__)
-//
-//    // Create a V2 DB - statistics operations on V2 should fail
-//    MdbmHolder mdbm(GetTmpPopulatedMdbm(prefix,
-//                                        MDBM_O_CREAT | MDBM_CREATE_V2 |
-//                                        MDBM_O_TRUNC | MDBM_STAT_OPERATIONS | MDBM_O_RDWR,
-//                                        0644, DEFAULT_PAGE_SIZE, 0));
-//    time_t timeStat;
-//    CPPUNIT_ASSERT_EQUAL(-1, mdbm_get_stat_time(mdbm, MDBM_STAT_TYPE_FETCH, &timeStat));
-//}
-
 void
 MdbmUnitTestStats::test_StatsAC6()
 {
@@ -388,24 +356,15 @@ MdbmUnitTestStats::test_StatsAE1()
     refInfo.s_num_entries = KEY_COUNT_DEFAULT ;
     refInfo.s_large_num_entries = KEY_COUNT_DEFAULT / 2;
     refInfo.s_page_count = 5;
-    if (getmdbmFlags() & MDBM_CREATE_V2) {
-        refInfo.s_page_count = 64;
-        refInfo.s_size = 72;
-        refInfo.s_pages_used = 9;
-        refInfo.s_bytes_used = 3588;
-        refInfo.s_min_level = 1;
-        refInfo.s_max_level = 6;
-    } else {
-        refInfo.s_page_count = 128;
-        refInfo.s_pages_used = 16;
-        refInfo.s_bytes_used = 13840;
-        refInfo.s_min_level = 2;
-        refInfo.s_max_level = 7;
-        refInfo.s_large_threshold = 384;
-        refInfo.s_large_pages_used = refInfo.s_large_page_count = 40;
-        refInfo.s_large_bytes_used = 10640;
-        refInfo.s_large_min_size = refInfo.s_large_max_size = 532;
-    }
+    refInfo.s_page_count = 128;
+    refInfo.s_pages_used = 16;
+    refInfo.s_bytes_used = 13840;
+    refInfo.s_min_level = 2;
+    refInfo.s_max_level = 7;
+    refInfo.s_large_threshold = 384;
+    refInfo.s_large_pages_used = refInfo.s_large_page_count = 40;
+    refInfo.s_large_bytes_used = 10640;
+    refInfo.s_large_min_size = refInfo.s_large_max_size = 532;
     checkMdbmStatInfo(mdbm, &refInfo);
 }
 
@@ -1143,7 +1102,6 @@ class MdbmUnitTestStatsV3 : public MdbmUnitTestStats
     CPPUNIT_TEST(test_StatsAB2);
     CPPUNIT_TEST(test_StatsAB3);
     CPPUNIT_TEST(test_StatsAB4);
-    //CPPUNIT_TEST(test_StatsAB5); //V2
     CPPUNIT_TEST(test_StatsAB6);
     CPPUNIT_TEST(test_StatsAB7);
 
@@ -1151,7 +1109,6 @@ class MdbmUnitTestStatsV3 : public MdbmUnitTestStats
     CPPUNIT_TEST(test_StatsAC2);
     CPPUNIT_TEST(test_StatsAC3);
     CPPUNIT_TEST(test_StatsAC4);
-    //CPPUNIT_TEST(test_StatsAC5); //V2
     CPPUNIT_TEST(test_StatsAC6);
 
     CPPUNIT_TEST(test_StatsAD1);

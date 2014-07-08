@@ -150,15 +150,8 @@ void GetSizeTestSuite::CheckSize(int numPages, int psize, const string& tcprefix
     int openFlags = MDBM_O_RDWR | MDBM_O_CREAT | MDBM_O_TRUNC | versionFlag;
     int presize = (int)dbSize;
     if (dbSize > INT_MAX) { // detect overflow
-        if (versionFlag == MDBM_CREATE_V2) {
-             GetLogStream() << prefix << "WARNING V2: presize(" << presize
-                 << ") OVERFLOW detected for V2 presize, FIX TODO(BZ tick# 5249534) causes hang so NOT continuuing."
-                 << endl << flush;
-            return; // FIX TODO BZ ticket # 5249534
-        } else {
-            openFlags |= MDBM_DBSIZE_MB;  // V3 only flag
-            presize = (int)(dbSize / _MegDivider);
-        }
+        openFlags |= MDBM_DBSIZE_MB;  // V3 only flag
+        presize = (int)(dbSize / _MegDivider);
     }
 
     GetLogStream() << prefix << "TRACE: presize(" << presize << ")." << endl << flush;
@@ -279,15 +272,6 @@ void GetSizeTestSuite::CreateValidSeriesInitSizes() // Test Case B-4
 {
     string prefix = "TC B-4: CreateValidSeriesInitSizes:";
     TRACE_TEST_CASE(prefix);
-
-//cout << "FIX special test start:" << endl << flush;
-//CheckSize((64 * 1024), MDBM_CREATE_V2, _cfgStory, "FIX")(1); // FIX TODO special test
-//cout << "FIX special test end" << endl << flush;
-
-    if (versionFlag & MDBM_CREATE_V2) {
-      // FIX dont know what a bug is for this
-      return;
-    }
 
     int plen = sizeof(_PageSizeSeries)/sizeof(int);
     int nlen = sizeof(_NumPagesSeries)/sizeof(int);

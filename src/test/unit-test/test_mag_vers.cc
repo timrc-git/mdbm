@@ -47,7 +47,6 @@ public:
     void TruncNewDbVer();  // TC K-4
     void ReplaceNewWithPremadeMag();  // TC E-7
     void ReplaceNewWithPremadeVer();  // TC K-7
-    void ReplaceNewWithPremadeOppositeMag();  // TC E-10
     void ReplaceNewWithPremadeOppositeVer();  // TC K-10
     void CreateMag();  // E-13
     void CreateVer();  // K-12
@@ -270,8 +269,7 @@ void GetMagVersTestSuite::replaceNewWithPremade(GetMagicNumFO &getFO, const stri
                       int v2orV3flagPreDB)
 {
     stringstream premsg;
-    premsg << SUITE_PREFIX() << tcprefix << " Premade DB version="
-           << (v2orV3flagPreDB & MDBM_CREATE_V2 ? "2: " : "3: ");
+    premsg << SUITE_PREFIX() << tcprefix << " Premade DB version=3";
     string prefix = premsg.str();
     TRACE_TEST_CASE(tcprefix);
 
@@ -330,27 +328,9 @@ void GetMagVersTestSuite::ReplaceNewWithPremadeVer()   // TC K-9
     GetVersNumFO verFO(prefix, versionFlag);
     replaceNewWithPremade(verFO, prefix, versionFlag);
 }
-void GetMagVersTestSuite::ReplaceNewWithPremadeOppositeMag()   // TC E-10
-{
-    string prefix = "TC E-8/10: ReplaceNewWithPremadeOppositeMag: mdbm_get_magic_number: ";
-    TRACE_TEST_CASE(prefix);
-
-    int opposite = (versionFlag & MDBM_CREATE_V2) ? MDBM_CREATE_V3 : MDBM_CREATE_V2;
-    GetMagicNumFO magFO(prefix, opposite);
-    replaceNewWithPremade(magFO, prefix, opposite);
-}
-void GetMagVersTestSuite::ReplaceNewWithPremadeOppositeVer()   // TC K-10
-{
-    string prefix = "TC K-8/10: ReplaceNewWithPremadeOppositeVer: mdbm_get_version: ";
-    TRACE_TEST_CASE(prefix);
-
-    int opposite = (versionFlag & MDBM_CREATE_V2) ? MDBM_CREATE_V3 : MDBM_CREATE_V2;
-    GetVersNumFO verFO(prefix, opposite);
-    replaceNewWithPremade(verFO, prefix, opposite);
-}
 
 /*
-   Create new v2 database.
+   Create new database.
 */
 void GetMagVersTestSuite::createDB(GetMagicNumFO &getFO, const string &tcprefix)  // E-11
 {

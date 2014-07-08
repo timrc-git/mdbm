@@ -22,21 +22,20 @@
 
 double startTime = getnow();
 
-const int      MinPowerForV2 = 7; // minimum power factor to determine V2 page sizes
-const int      MaxPowerForV2 = 16; // maximum power factor to determine V2 page sizes
+//const int      MinPowerForV2 = 7; // minimum power factor to determine V2 page sizes
+//const int      MaxPowerForV2 = 16; // maximum power factor to determine V2 page sizes
+
 const uint64_t MaxDBsizeV3 = (1ULL<<36);
 // NOTE: MDBM_DIRSHIFT_MAX not accessable
 const uint64_t V3MaxDBsize = MaxDBsizeV3; // 68gig hi, posted is 16gig: too big --> _v3MaxNumPages* (uint64_t)MDBM_MAXPAGE;
-const uint64_t V2MaxNumPages = (1U<<31); // actually not defined in v2 just implied
-const uint64_t V2MaxDBsize = INT_MAX;  // limted to 2gig //_v2MaxNumPages* MDBM_MAXPAGE;
 
 
     // MDBM v3 limits for number of pages and page size
 uint64_t TestBase::GetMaxNumPages(int vFlag) {
-  return (vFlag&MDBM_CREATE_V2) ? V2MaxNumPages : MDBM_NUMPAGES_MAX;
+  return MDBM_NUMPAGES_MAX;
 }
 uint64_t TestBase::GetMaxDBsize(int vFlag) {
-  return (vFlag&MDBM_CREATE_V2) ? V2MaxDBsize :  V3MaxDBsize;
+  return V3MaxDBsize;
 }
 
 //  Get the system limit - maximum file size allowed for this process.
@@ -665,24 +664,24 @@ int TestBase::CleanupTmpFile(string suffix) {
 
 // Calculate expected page size for given pagesize according to DB version
 // For v2, page sizes used will be a power of 2
-// dbVersionFlag : MDBM_CREATE_V2, MDBM_CREATE_V3
+// dbVersionFlag : MDBM_CREATE_V3
 // pagesize : in bytes
 // RETURN: expected page size for given pagesize
 int TestBase::GetExpectedPageSize(int dbVersionFlag, int pagesize) {
     if (pagesize == 0)
         return MDBM_PAGESIZ;
 
-    if (dbVersionFlag == MDBM_CREATE_V3)
-        return pagesize;
+    //if (dbVersionFlag == MDBM_CREATE_V3)
+    //    return pagesize;
 
-    // calculate power of 2 that is >= to pagesize
-    //
-    for (int cnt = MinPowerForV2; cnt <= MaxPowerForV2; ++cnt) {
-        //int power = static_cast<int>(pow(2, cnt));
-        int power = 1<<cnt;
-        if (power >= pagesize)
-            return power;
-    }
+    //// calculate power of 2 that is >= to pagesize
+    ////
+    //for (int cnt = MinPowerForV2; cnt <= MaxPowerForV2; ++cnt) {
+    //    //int power = static_cast<int>(pow(2, cnt));
+    //    int power = 1<<cnt;
+    //    if (power >= pagesize)
+    //        return power;
+    //}
 
     return pagesize; // invalid page size, too large
 }
@@ -873,11 +872,9 @@ void TestBase::StoreFetchKnownValues(int openflags, vector<int> &pageSizeRange, 
         if (presplitpages > 0) {
             int ret = mdbm_pre_split(dbh, presplitpages);
             if (ret == -1) {
-                int errnum = errno;
                 prefix << psss.str()
                        << "mdbm_pre_split FAILed to pre split DB to 32 pages. "
-                       << "Got errno="
-                       << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+                       << "Got errno=" << errno << endl;
                 CPPUNIT_ASSERT_MESSAGE(prefix.str(), (ret == 0));
             }
         }
@@ -949,11 +946,9 @@ void TestBase::StoreFetchKnownValues(int openflags, vector<int> &pageSizeRange, 
         // use dupkey above
         ret = mdbm_delete(dbh, dkey);
         if (ret != 0) {
-            int errnum = errno;
             prefix << psss.str()
                    << "mdbm_delete FAILed to delete known key(" << dkey.dptr
-                   << ") Got errno="
-                   << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+                   << ") Got errno=" << errno << endl;
             CPPUNIT_ASSERT_MESSAGE(prefix.str(), (ret == 0));
         }
         datum dret = mdbm_fetch(dbh, dkey);
@@ -967,10 +962,8 @@ void TestBase::StoreFetchKnownValues(int openflags, vector<int> &pageSizeRange, 
         // call mdbm_chk_all_page to check for errors
         ret = mdbm_chk_all_page(dbh);
         if (ret != 0) {
-            int errnum = errno;
             prefix << psss.str()
-                   << "Should be no errors reported for the DB. Got errno="
-                   << (versionFlag == MDBM_CREATE_V2 ? mdbm_get_errno(dbh) : errnum) << endl;
+                   << "Should be no errors reported for the DB. Got errno=" << errno << endl;
             CPPUNIT_ASSERT_MESSAGE(prefix.str(), (ret == 0));
         }
     }

@@ -189,8 +189,8 @@ public:
     int    testLevel;     ///< depth of tests to run (from environment)
     string suiteName;     ///< short, descriptive test-suite name
     string testName;      ///< short, descriptive test-case name
-    int    versionFlag;   ///< mdbm_open option MDBM_CREATE_V3 or MDBM_CREATE_V2
-    string versionString; ///< mdbm version string "v3" or "v2"
+    int    versionFlag;   ///< mdbm_open option MDBM_CREATE_V3 
+    string versionString; ///< mdbm version string "v3"
 private:
     bool   autoclean;     ///< controls automatic deletion of temp test directory
     static int    tmpIndex;      ///< index for generating temporary filenames

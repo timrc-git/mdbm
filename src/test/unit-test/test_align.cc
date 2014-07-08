@@ -210,10 +210,6 @@ void AlignTestSuite::InvalidMasks()  // TC H-2
     string tcprefix = "TC H-2: InvalidMasks: ";
     TRACE_TEST_CASE(tcprefix);
 
-    if (versionFlag & MDBM_CREATE_V2) {
-      // TODO FIXME BZ 5241421
-      return;
-    }
     int len = sizeof(_InvalidMasks)/sizeof(int);
     for (int i=0; i<len; ++i) {
         CheckInvalidAlign(tcprefix, _InvalidMasks[i]);
@@ -325,15 +321,9 @@ void AlignTestSuite::VerifyAlignAfterTrunc()  // TC H-5
     // 6. Expected result: g != a
     stringstream sstrm;
     sstrm << prefix;
-    if (versionFlag & MDBM_CREATE_V2) {
-        sstrm << "Expected non-default alignment=" << align
-              << " to remain the same after truncation" << endl;
-        CPPUNIT_ASSERT_MESSAGE(sstrm.str(), (curmask == align));
-    } else {
-        sstrm << "Expected non-default alignment=" << align
-              << " to be reset to default after truncation" << endl;
-        CPPUNIT_ASSERT_MESSAGE(sstrm.str(), (curmask != align));
-    }
+    sstrm << "Expected non-default alignment=" << align
+          << " to be reset to default after truncation" << endl;
+    CPPUNIT_ASSERT_MESSAGE(sstrm.str(), (curmask != align));
 }
 
 void AlignTestSuite::SetAlignForNumType()  // TC H-6
@@ -388,10 +378,6 @@ void AlignTestSuite::SetAlignPerMultiDatatype()  // TC H-7
     string tcprefix = "TC H-7: SetAlignPerMultiDatatype: ";
     string prefix = SUITE_PREFIX() + tcprefix;
 
-    if (versionFlag & MDBM_CREATE_V2) {
-      // TODO FIXME BZ 5350542
-      return;
-    }
     // Mix and Match: Per data type alignment: each data type uses individual alignment
 
     // 1. Call mdbm_open; create DB with defaults

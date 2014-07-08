@@ -29,11 +29,8 @@
 #include "TestBase.hh"
 
 //  bugzilla tickets:
-//  BZ ticket 5271544: V2: mdbm_pre_split SEGV fault with max number pages specified=2147483648
-//  BZ ticket 5271830: V2: mdbm_pre_split: although data in DB no error retcode returned
-//  BZ ticket 5271857: V2, V3: mdbm_pre_split: invalid num pages(0) specified, no error returned
-//  BZ ticket 5271875: V2: mdbm_pre_split: a) limit size=2; b) pre split=4; no error returned
-//  BZ ticket 5273139: V2, V3: mdbm_pre_split: invalid num pages (-1) causes a hang
+//  BZ ticket 5271857: V3: mdbm_pre_split: invalid num pages(0) specified, no error returned
+//  BZ ticket 5273139: V3: mdbm_pre_split: invalid num pages (-1) causes a hang
 class PreSplitTestSuite : public CppUnit::TestFixture, public TestBase
 {
 public:
@@ -69,10 +66,11 @@ private:
     static int _PageSizeRange[];
 };
 
+const uint64_t V2MaxNumPages = (1U<<31);
 
 int PreSplitTestSuite::_setupCnt = 0;
 int PreSplitTestSuite::_NumPagesSeries[] = { 1, 2, 3,
-  (int)(TestBase::GetMaxNumPages(MDBM_CREATE_V3)-1), (int)(TestBase::GetMaxNumPages(MDBM_CREATE_V2)-1) };
+  (int)(TestBase::GetMaxNumPages(MDBM_CREATE_V3)-1), (int)(V2MaxNumPages-1) };
 
 int PreSplitTestSuite::_PageSizeRange[] = { 256, 2048, 4096, 16384, 65536 };
 
@@ -88,10 +86,6 @@ void PreSplitTestSuite::setUp()
 // Open pre-made DB containing data, then try to split
 void PreSplitTestSuite::SplitPremadeDB()  // TC G-1
 {
-    if (versionFlag & MDBM_CREATE_V2) {
-      // TODO FIXME BZ 5271830
-      return;
-    }
     string tcprefix = "TC G-1: SplitPremadeDB: mdbm_pre_split: ";
     string prefix = SUITE_PREFIX() + tcprefix;
     TRACE_TEST_CASE(tcprefix);
@@ -228,10 +222,6 @@ void PreSplitTestSuite::CreatePresizeInvalidSplitB()  // TC G-3
 
 void PreSplitTestSuite::CreateMaxPages()  // TC G-4
 {
-    if (versionFlag & MDBM_CREATE_V2) {
-// TODO FIXME BZ ticket # 5271544 segv
-        return;
-    }
     string tcprefix = "TC G-4: CreateMaxPages: mdbm_pre_split: ";
     string prefix = SUITE_PREFIX() + tcprefix;
     TRACE_TEST_CASE(tcprefix);
@@ -349,10 +339,6 @@ void PreSplitTestSuite::LimitSizeSplitSame()  // TC G-6
 // Limit number of pages. Pre-split to bigger than limit previously set.
 void PreSplitTestSuite::LimitSizeSplitBigger()  // TC G-7
 {
-    if (versionFlag & MDBM_CREATE_V2) {
-// TODO FIXME BZ 5271875
-      return;
-    }
     string tcprefix = "TC G-7: LimitSizeSplitBigger: mdbm_pre_split: ";
     string prefix = SUITE_PREFIX() + tcprefix;
     TRACE_TEST_CASE(tcprefix);

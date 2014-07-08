@@ -115,10 +115,7 @@ class MdbmUnitTestOther : public CppUnit::TestFixture, public TestBase
     void test_OtherAJ16();
     void test_OtherAJ17();
     void test_OtherAJ18();
-    //void test_OtherAJ19();
     void test_OtherAJ20();
-    void test_OtherAJ21();
-    //void test_OtherAJ22();
     void test_OtherAJ23();
     void test_OtherAJ24();
     void test_OtherAJ25();
@@ -273,9 +270,12 @@ MdbmUnitTestOther::testCompressTree()
       CPPUNIT_ASSERT_EQUAL(0, InsertData(mdbm, DEFAULT_KEY_SIZE, lobSize, lobCount));
       CPPUNIT_ASSERT_EQUAL(0, VerifyData(mdbm, DEFAULT_KEY_SIZE, lobSize, lobCount));
 
-      // just for coverage
-      dump_chunk_headers(mdbm);
-      dump_mdbm_header(mdbm);
+      {
+        StdoutDiverter diverter("/dev/null");
+        // just for coverage
+        dump_chunk_headers(mdbm);
+        dump_mdbm_header(mdbm);
+      }
 
       mdbm_compress_tree(mdbm);
       CPPUNIT_ASSERT_EQUAL(0, VerifyData(mdbm, DEFAULT_KEY_SIZE, lobSize, lobCount));
@@ -926,18 +926,6 @@ MdbmUnitTestOther::test_OtherAJ18()
     mdbm_purge(mdbm);
 }
 
-////count_all_page()
-////This test cases is valid only for V2
-//void
-//MdbmUnitTestOther::test_OtherAJ19()
-//{
-//    string prefix = string("OtherAJ19: count_all_page") + versionString + ":";
-//    TRACE_TEST_CASE(__func__)
-//
-//    string fname;
-//    MdbmHolder mdbm(GetTmpPopulatedMdbm(prefix, getmdbmFlags() | MDBM_O_CREAT | MDBM_O_RDWR, 0644, DEFAULT_PAGE_SIZE, 0, &fname));
-//    count_all_page(mdbm);
-//}
 
 //mdbm_lock_reset()
 void
@@ -1436,52 +1424,6 @@ void MdbmUnitTestOther::testRstatsChurn() {
     mdbm_close_rstats(m);
 }
 
-//void
-//MdbmUnitTestOther::test_OtherAJ21()
-//{
-//    string prefix = string("OtherAJ15: mdbm_fcopy, error cases") + versionString + ":";
-//    TRACE_TEST_CASE(__func__)
-//    int ret = -1;
-//    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-//    string fname1 = GetTmpName("mdbm_fcopy");
-//    int fd = open("mdbm_fcopy", O_RDWR | O_CREAT | O_TRUNC, mode);
-//    CPPUNIT_ASSERT(fd != -1);
-//
-//    datum key, value;
-//    key.dptr = (char*)"key";
-//    key.dsize = strlen(key.dptr);
-//    value.dptr = (char*)"value";
-//    value.dsize = strlen(value.dptr);
-//
-//    string fname;
-//    MdbmHolder mdbm(GetTmpPopulatedMdbm(prefix, MDBM_CREATE_V2 | MDBM_O_CREAT | MDBM_O_RDWR, 0644, DEFAULT_PAGE_SIZE, 0, &fname));
-//    CPPUNIT_ASSERT((ret = mdbm_store(mdbm, key, value, MDBM_INSERT)) == 0);
-//    CPPUNIT_ASSERT(ret = mdbm_fcopy(mdbm, fd, 0x10) ==  -1);
-//    close(fd);
-//}
-
-// //mdbm_init_rstats invalid version() - this test is used with MDBM V2 tests only
-// void
-// MdbmUnitTestOther::test_OtherAJ22()
-// {
-//     string prefix = string("OtherAJ22: mdbm_init_rstats Error") + versionString + ":";
-//     TRACE_TEST_CASE(__func__)
-//
-//     int ret = -1;
-//     datum dk, dv;
-//
-//     dk.dptr = (char*)"key";
-//     dk.dsize = strlen(dk.dptr);
-//     dv.dptr = (char*)"value";
-//     dv.dsize = strlen(dv.dptr);
-//
-//     string fname;
-//     MdbmHolder mdbm(GetTmpPopulatedMdbm(prefix, getmdbmFlags() | MDBM_O_CREAT | MDBM_O_RDWR, 0644, DEFAULT_PAGE_SIZE, 0, &fname));
-//
-//     CPPUNIT_ASSERT((ret = mdbm_store(mdbm, dk, dv, MDBM_INSERT)) == 0);
-//     // V2 does not support - returns -1 as a part of V2 tests only
-//     CPPUNIT_ASSERT_EQUAL(-1, mdbm_init_rstats(mdbm, 0));
-// }
 
 //mdbm_set_stats_func error cases()
 void
@@ -1493,7 +1435,6 @@ MdbmUnitTestOther::test_OtherAJ23()
     string fname;
     MdbmHolder mdbm(GetTmpPopulatedMdbm(prefix, getmdbmFlags() | MDBM_O_CREAT | MDBM_O_RDWR, 0644, DEFAULT_PAGE_SIZE, 0, &fname));
 
-    // V2 does not support
     CPPUNIT_ASSERT_EQUAL(-1, mdbm_set_stats_func(mdbm, 0, 0, 0));
 }
 
@@ -2360,7 +2301,6 @@ class MdbmUnitTestOtherV3 : public MdbmUnitTestOther
     CPPUNIT_TEST(test_OtherAJ17);
     CPPUNIT_TEST(test_OtherAJ18);
     CPPUNIT_TEST(test_OtherAJ20);
-    //CPPUNIT_TEST(test_OtherAJ21); V2 test not valid for V4
     CPPUNIT_TEST(test_OtherAJ36);  // test fcopy with oversized pages
     CPPUNIT_TEST(test_OtherAJ37);
     CPPUNIT_TEST(test_OtherAJ28);

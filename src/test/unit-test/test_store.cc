@@ -302,11 +302,7 @@ MdbmUnitTestStore::test_StoreQ3()
     TRACE_TEST_CASE(__func__);
     const vector<int> &pageSizes = GetLargeDataPageSizes();
 
-    if (versionFlag & MDBM_CREATE_V2) {
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_INSERT, DO_STORE);
-    } else {
-        createBigDataV3(MDBM_INSERT, DO_STORE);
-    }
+    createBigDataV3(MDBM_INSERT, DO_STORE);
     compareLargeObjFiles(data.largeFiles, pageSizes);
 }
 
@@ -347,15 +343,11 @@ MdbmUnitTestStore::test_StoreQ6()
 
     const vector<int> &pageSizes = GetLargeDataPageSizes();
 
-    if (versionFlag & MDBM_CREATE_V2) {
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-    } else {
-        createBigDataV3(MDBM_REPLACE, DO_STORE);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-        compareXLfile(false);
-        replaceTestXLobj(DO_STORE, MDBM_REPLACE);
-    }
+    createBigDataV3(MDBM_REPLACE, DO_STORE);
+    compareLargeObjFiles(data.largeFiles, pageSizes);
+    compareXLfile(false);
+    replaceTestXLobj(DO_STORE, MDBM_REPLACE);
+
     replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE, MDBM_REPLACE);
 }
 
@@ -421,14 +413,9 @@ MdbmUnitTestStore::test_StoreQ13()
     SKIP_IF_FAST_VALGRIND()
 
     const vector<int> &pageSizes = GetLargeDataPageSizes();
-    if (versionFlag & MDBM_CREATE_V2) {
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
-        modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE);
-    } else {
-        createBigDataV3(MDBM_REPLACE, DO_STORE);
-        modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE);
-        modifyTestXLobj(DO_STORE);
-    }
+    createBigDataV3(MDBM_REPLACE, DO_STORE);
+    modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE);
+    modifyTestXLobj(DO_STORE);
 }
 
 
@@ -450,10 +437,10 @@ MdbmUnitTestStore::test_StoreQ15()
     createBigTestFiles(MDBM_LARGE_OBJECTS|versionFlag, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
     replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE, MDBM_MODIFY);
 
-//    bugzilla bug 5381866 - when fixed, replace V3 version of above with
-//    replaceTestXLobj(DO_STORE, MDBM_MODIFY);
-//    createBigDataV3(MDBM_REPLACE, DO_STORE);
-//    replaceLargeObjects(data.largeFiles, v3LargeDataPageSizes, DO_STORE, MDBM_MODIFY);
+    // // bugzilla bug 5381866 - when fixed, replace V3 version of above with
+    // replaceTestXLobj(DO_STORE, MDBM_MODIFY);
+    // createBigDataV3(MDBM_REPLACE, DO_STORE);
+    // replaceLargeObjects(data.largeFiles, LargeDataPageSizesVectV3, DO_STORE, MDBM_MODIFY);
 }
 
 // mdbm_store_r() tests
@@ -479,14 +466,9 @@ MdbmUnitTestStore::test_StoreR3()
 {
     TRACE_TEST_CASE(__func__);
     const vector<int> &pageSizes = GetLargeDataPageSizes();
-    if (versionFlag & MDBM_CREATE_V2) {
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_INSERT, DO_STORE_R);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-    } else {
-        createBigDataV3(MDBM_INSERT, DO_STORE_R);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-        compareXLfile(false);
-    }
+    createBigDataV3(MDBM_INSERT, DO_STORE_R);
+    compareLargeObjFiles(data.largeFiles, pageSizes);
+    compareXLfile(false);
 }
 
 
@@ -520,15 +502,11 @@ MdbmUnitTestStore::test_StoreR6()
 {
     TRACE_TEST_CASE(__func__);
     const vector<int> &pageSizes = GetLargeDataPageSizes();
-    if (versionFlag & MDBM_CREATE_V2) {
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE_R);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-    } else {
-        createBigDataV3(MDBM_REPLACE, DO_STORE_R);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-        compareXLfile(false);
-        replaceTestXLobj(DO_STORE_R, MDBM_REPLACE);
-    }
+    createBigDataV3(MDBM_REPLACE, DO_STORE_R);
+    compareLargeObjFiles(data.largeFiles, pageSizes);
+    compareXLfile(false);
+    replaceTestXLobj(DO_STORE_R, MDBM_REPLACE);
+
     replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_R, MDBM_REPLACE);
 }
 
@@ -593,14 +571,9 @@ MdbmUnitTestStore::test_StoreR13()
     SKIP_IF_FAST_VALGRIND()
 
     const vector<int> &pageSizes = GetLargeDataPageSizes();
-    if (versionFlag & MDBM_CREATE_V2) {
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE_R);
-        modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE_R);
-    } else {
-      createBigDataV3(MDBM_REPLACE, DO_STORE_R);
-      modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE_R);
-      modifyTestXLobj(DO_STORE_R);
-    }
+    createBigDataV3(MDBM_REPLACE, DO_STORE_R);
+    modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE_R);
+    modifyTestXLobj(DO_STORE_R);
 }
 
 void
@@ -667,17 +640,9 @@ MdbmUnitTestStore::test_StoreS3()
     SKIP_IF_FAST()
 
     const vector<int> &pageSizes = GetLargeDataPageSizes();
-    if (versionFlag & MDBM_CREATE_V2) {
-        // commenting out: bug 5385451
-#if 0
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_INSERT, DO_STORE_STR);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-#endif
-    } else {
-        createBigDataV3(MDBM_INSERT, DO_STORE_STR);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-        compareXLfile(true);
-    }
+    createBigDataV3(MDBM_INSERT, DO_STORE_STR);
+    compareLargeObjFiles(data.largeFiles, pageSizes);
+    compareXLfile(true);
 }
 
 void
@@ -715,20 +680,11 @@ MdbmUnitTestStore::test_StoreS6()
     //  // the largest size tries to allocate >2G and blows up in RHEL6-32-bit
     //  pageSizes.resize(pageSizes.size()-1);
     //}
-    if (versionFlag & MDBM_CREATE_V2) {
-        // commenting out: bug 5385451
-#if 0
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE_STR);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-        replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR, MDBM_REPLACE);
-#endif
-    } else {
-        createBigDataV3(MDBM_REPLACE, DO_STORE_STR);
-        compareLargeObjFiles(data.largeFiles, pageSizes);
-        compareXLfile(true);
-        replaceTestXLobj(DO_STORE_STR, MDBM_REPLACE);
-        replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR, MDBM_REPLACE);
-    }
+    createBigDataV3(MDBM_REPLACE, DO_STORE_STR);
+    compareLargeObjFiles(data.largeFiles, pageSizes);
+    compareXLfile(true);
+    replaceTestXLobj(DO_STORE_STR, MDBM_REPLACE);
+    replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR, MDBM_REPLACE);
 }
 
 
@@ -799,16 +755,10 @@ MdbmUnitTestStore::test_StoreS13()
     //  // the largest size tries to allocate too much memory and blows up in RHEL6-32-bit
     //  pageSizes.resize(pageSizes.size()-1);
     //}
-    if (versionFlag & MDBM_CREATE_V2) {
-        // Create files using MDBM_REPLACE and DO_STORE to improve performance
-        createBigTestFiles(MDBM_LARGE_OBJECTS, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
-        modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR);
-    } else {
-        // Create files using MDBM_REPLACE and DO_STORE to improve performance
-        createBigDataV3(MDBM_REPLACE, DO_STORE);
-        modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR);
-        modifyTestXLobj(DO_STORE_STR);
-    }
+    // Create files using MDBM_REPLACE and DO_STORE to improve performance
+    createBigDataV3(MDBM_REPLACE, DO_STORE);
+    modifyLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR);
+    modifyTestXLobj(DO_STORE_STR);
 }
 
 
@@ -1028,9 +978,12 @@ MdbmUnitTestStore::test_StoreChurnOversize()
       CPPUNIT_ASSERT(0 == mdbm_delete(db, kdat));
     }
 
-    // dump coverage...
-    mdbm_dump_all_page(db);
-    mdbm_dump_page(db, 0);
+    { 
+        // dump coverage... but to /dev/null
+        StdoutDiverter diverter("/dev/null");
+        mdbm_dump_all_page(db);
+        mdbm_dump_page(db, 0);
+    }
 
     for (i=1; i<50; ++i) {
       CPPUNIT_ASSERT(0 == mdbm_store(db, kdat, vdat, MDBM_INSERT_DUP));
@@ -1185,9 +1138,6 @@ MdbmUnitTestStore::createFileNames(const string &basename)
 
 
 const vector<int>& MdbmUnitTestStore::GetLargeDataPageSizes() {
-    if (versionFlag & MDBM_CREATE_V2)  {
-        return LargeDataPageSizesVectV2;
-    }
     return LargeDataPageSizesVectV3;
 }
 
