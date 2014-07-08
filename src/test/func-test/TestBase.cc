@@ -92,7 +92,9 @@ MDBM* createBSMdbmNoLO(const char* db, int flags, int pgSize, int dbSize, int li
     CPPUNIT_ASSERT((mdbm = mdbm_open(db, flags, 0600, pgSize, dbSize)) != NULL);
     CPPUNIT_ASSERT_EQUAL(1, mdbm_sethash(mdbm, MDBM_HASH_MD5));
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, static_cast<size_t>(limitSize), NULL, NULL));
-    CPPUNIT_ASSERT_EQUAL(0, mdbm_set_window_size(mdbm, static_cast<size_t>(windowSize)));
+    if (windowSize) {
+      CPPUNIT_ASSERT_EQUAL(0, mdbm_set_window_size(mdbm, static_cast<size_t>(windowSize)));
+    }
     return mdbm;
 }
 
@@ -103,7 +105,9 @@ MDBM* createBSMdbmWithLO(const char* db, int flags, int pgSize, int dbSize, int 
     CPPUNIT_ASSERT_EQUAL(1, mdbm_sethash(mdbm, MDBM_HASH_MD5));
     CPPUNIT_ASSERT_EQUAL(0, mdbm_setspillsize(mdbm, spillSize));
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, static_cast<size_t>(limitSize), NULL, NULL));
-    CPPUNIT_ASSERT_EQUAL(0, mdbm_set_window_size(mdbm, static_cast<size_t>(windowSize)));
+    if (windowSize) {
+      CPPUNIT_ASSERT_EQUAL(0, mdbm_set_window_size(mdbm, static_cast<size_t>(windowSize)));
+    }
     return mdbm;
 }
 

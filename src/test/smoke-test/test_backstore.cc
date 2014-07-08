@@ -65,7 +65,7 @@ private:
 string SmokeTestBackStoreSuite::_basePath = "";
 int SmokeTestBackStoreSuite::_pageSize = 64*1024;
 int SmokeTestBackStoreSuite::_limitSize = 256;
-int SmokeTestBackStoreSuite::_windowSize = 4096;
+int SmokeTestBackStoreSuite::_windowSize = (64*1024)*4;
 
 void SmokeTestBackStoreSuite::setUp() {
 }
