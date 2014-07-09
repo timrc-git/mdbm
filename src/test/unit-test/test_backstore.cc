@@ -3,7 +3,6 @@
 
 // FIX BZ 5512918: v3: mdbm_set_backingstore: doesnt check MDBM version
 // FIX BZ 5512957: v3: mdbm_set_backingstore: doesnt check for null bsops param = SEGV
-// FIX BZ 5513176: v3: mdbm_set_backingstore: memory leak using MDBM_BSOPS_MDBM when cache is closed
 // FIX BZ 5455314 - mdbm_open generates core with MDBM_OPEN_WINDOWED flag
 // FIX BZ 5518388: v3: mdbm_set_window_size: returns success if window size=0; but SEGV in mdbm_store_r
 // FIX BZ 5530655: v3: mdbm_get_window_stats: SEGV with null mdbm_window_stats_t parameter
@@ -117,8 +116,6 @@ void BackStoreTestSuite::BsSetWithNullParamA2()
 }
 void BackStoreTestSuite::BsSetMdbmMultipleTimesThenCloseA3()
 {
-#if 0
-// FIX BZ 5513176: v3: mdbm_set_backingstore: memory leak using MDBM_BSOPS_MDBM when cache is closed
     // cleanup issues: set backing store MDBM_BSOPS_MDBM n times; then close the cache
     // NOTE: this requires something like valgrind to see the lost memory problem
     // if we had access to memcheck API could do it that way?
@@ -146,17 +143,16 @@ void BackStoreTestSuite::BsSetMdbmMultipleTimesThenCloseA3()
         CPPUNIT_ASSERT_MESSAGE(prefix, (dbret != -1));
 
         // have to open without MdbmHolder since only dbh should clean it up
-        MDBM *bsdbh = mdbm_open(bsdbName.c_str(), openflags, 0644, 512, 0);
-        CPPUNIT_ASSERT_MESSAGE(bsprefix, (bsdbh != 0));
+        MDBM *bsdb = mdbm_open(bsdbName.c_str(), openflags, 0644, 512, 0);
+        CPPUNIT_ASSERT_MESSAGE(bsprefix, (bsdb != 0));
 
-        int ret = mdbm_set_backingstore(dbh, MDBM_BSOPS_MDBM, bsdbh, 0);
+        int ret = mdbm_set_backingstore(dbh, MDBM_BSOPS_MDBM, bsdb, 0);
         if (ret == -1)
         {
             bsss << ret << endl;
             CPPUNIT_ASSERT_MESSAGE(bsss.str(), (ret == 0));
         }
     }
-#endif
 }
 void BackStoreTestSuite::BsSetUsingSameDbAsCacheAndBsA4()
 {
@@ -1391,6 +1387,8 @@ void BackStoreTestSuite::BsSetWindowSizeZeroB5()
     // create DB; set window size=0; expect failure
     string prefix = "TC B5: Back Store: ";
     TRACE_TEST_CASE(prefix);
+    SKIP_IF_VALGRIND()
+
     string baseName = "tcbackstoreB5";
     string dbName = GetTmpName(baseName);
     MdbmHolder dbh(dbName);
