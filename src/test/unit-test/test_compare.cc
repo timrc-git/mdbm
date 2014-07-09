@@ -39,8 +39,6 @@
 #undef usage
 
 
-//  bugzilla tickets:
-//  BZ ticket 5220918: mdbm_sethash V3 returns incorrect ret code upon invalid input param
 class CompareTestBase : public CppUnit::TestFixture, public TestBase
 {
 

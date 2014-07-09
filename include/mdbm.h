@@ -570,8 +570,8 @@ extern int mdbm_get_hash(MDBM *db);
  * \param[in,out] db Database handle
  * \param[in]     hashid Numeric identifier for new hash function.
  * \return Set hash status
- * \retval 0 Error, invalid \a hashid
- * \retval 1 Success
+ * \retval -1 Error, invalid \a hashid
+ * \retval 0 Success
  *
  * Available Hash IDs are:
  *  - MDBM_HASH_CRC32   - Table based 32bit CRC
@@ -585,6 +585,20 @@ extern int mdbm_get_hash(MDBM *db);
  *  - MDBM_HASH_SHA_1   - SHA_1
  *  - MDBM_HASH_JENKINS - Jenkins string
  *  - MDBM_HASH_HSIEH   - Hsieh SuperFast
+ */
+extern int mdbm_set_hash(MDBM *db, int hashid);
+
+/**
+ * DEPRECATED.
+ * Legacy version of mdbm_set_hash().
+ * This function has inconsistent naming, and error return value.
+ * It will be removed in a future version.
+ *
+ * \param[in,out] db Database handle
+ * \param[in]     hashid Numeric identifier for new hash function.
+ * \return Set hash status
+ * \retval -1 Error, invalid \a hashid
+ * \retval 1 Success
  */
 extern int mdbm_sethash(MDBM *db, int hashid);
 

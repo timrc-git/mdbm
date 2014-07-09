@@ -29,8 +29,6 @@
 
 
 
-//  bugzilla tickets:
-//  BZ ticket 5220918: mdbm_sethash V3 returns incorrect ret code upon invalid input param
 class HashTestBase : public CppUnit::TestFixture, public TestBase
 {
 
@@ -67,11 +65,6 @@ public:
 protected:
     void createDefaultDB(const string &prefix);
     void openPreMade(const string &prefix);
-    void setValidResetInvalid(const string &prefix);
-    void storeDataSetDefHash(const string &prefix);
-    void storeDataSetNonDefHash(const string &prefix);
-    void preMadeSetDefHash(const string &prefix);
-    void preMadeSetNonDefHash(const string &prefix);
     void getKeyhashValue(const string &tcprefix);
     void getKeyhashValInvalidHashFunc(const string &tcprefix);
     void CheckHash(int hashId, const string& prefix, bool expectFail);
@@ -137,8 +130,8 @@ void HashTestBase::assertSetHash(MDBM *dbh, const string &prefix, int hashID, bo
         CPPUNIT_ASSERT_MESSAGE(sethmsg.str(), (ret == 1));
     } else {
         sethmsg  << "Should have Failed to mdbm_sethash=" << hashID
-                 << " Returned value should be 0, got=" << ret << endl;
-        CPPUNIT_ASSERT_MESSAGE(sethmsg.str(), (ret == 0));
+                 << " Returned value should be -1, got=" << ret << endl;
+        CPPUNIT_ASSERT_MESSAGE(sethmsg.str(), (ret == -1));
     }
 }
 
@@ -240,8 +233,9 @@ void HashTestBase::CreateInvalidSeries() // Test Case F-4
     }
 }
 
-void HashTestBase::setValidResetInvalid(const string &tcprefix) // Test Case F-5
+void HashTestBase::SetValidResetInvalid() // Test Case F-5
 {
+    string tcprefix = "TC F-5: SetValidResetInvalid: ";
     // Set invalid hash id's after setting valid non-default hash ID. Invalid values: -1, MDBM_MAX_HASH + 1
     TRACE_TEST_CASE(tcprefix);
     string prefix = SUITE_PREFIX() + tcprefix;
@@ -258,8 +252,8 @@ void HashTestBase::setValidResetInvalid(const string &tcprefix) // Test Case F-5
     stringstream setbad1;
     setbad1 << prefix
             << "mdbm_sethash called with invalid hash ID=-1"
-            << " should have returned an error(0) but returned=" << ret << endl;
-    CPPUNIT_ASSERT_MESSAGE(setbad1.str(), (ret == 0));
+            << " should have returned an error(-1) but returned=" << ret << endl;
+    CPPUNIT_ASSERT_MESSAGE(setbad1.str(), (ret == -1));
 
     // 4. Call mdbm_get_hash: h
     int getHashID = assertGetHash(dbh, prefix, MDBM_HASH_SHA_1);
@@ -274,27 +268,19 @@ void HashTestBase::setValidResetInvalid(const string &tcprefix) // Test Case F-5
     stringstream setbad2;
     setbad2 << prefix << "mdbm_sethash called with invalid hash ID=" << (MDBM_MAX_HASH + 1)
             << " should have returned an error but it did not!" << endl;
-    CPPUNIT_ASSERT_MESSAGE(setbad2.str(), (ret == 0));
+    CPPUNIT_ASSERT_MESSAGE(setbad2.str(), (ret == -1));
 
     // 8. Call mdbm_get_hash: h
     // 9. Expected results: h == MDBM_HASH_OZ
     getHashID = assertGetHash(dbh, prefix, MDBM_HASH_OZ);
 }
 
-void HashTestBase::SetValidResetInvalid() // Test Case F-5
-{
-    if (versionFlag == MDBM_CREATE_V3) {
-      // TODO FIXME BZ ticket 5220918
-      return;
-    }
-    string prefix = "TC F-5: SetValidResetInvalid: ";
-    setValidResetInvalid(prefix);
-}
 
-void HashTestBase::storeDataSetDefHash(const string &tcprefix)  // Test Case F-6
+void HashTestBase::StoreDataSetDefHash()  // Test Case F-6
 {
-    string prefix = SUITE_PREFIX() + tcprefix;
-    TRACE_TEST_CASE(tcprefix);
+    // Create DB with defaults; store data; set default hash ID; then fetch the data.
+    string prefix = SUITE_PREFIX() + "TC F-6: StoreDataSetDefHash: ";
+    TRACE_TEST_CASE(prefix);
 
     // 1. Setup DB: Open and create a DB with typical defaults
     MDBM *dbh = EnsureTmpMdbm(prefix, MDBM_O_RDWR | MDBM_O_CREAT | MDBM_O_TRUNC |versionFlag);
@@ -330,19 +316,10 @@ void HashTestBase::storeDataSetDefHash(const string &tcprefix)  // Test Case F-6
 }
 
 
-
-void HashTestBase::StoreDataSetDefHash()  // Test Case F-6
+void HashTestBase::StoreDataSetNonDefHash()  // Test Case F-7
 {
-    if (versionFlag == MDBM_CREATE_V3) {
-      // TODO FIXME BZ ticket 5220918
-      return;
-    }
-    // Create DB with defaults; store data; set default hash ID; then fetch the data.
-    storeDataSetDefHash("TC F-6: StoreDataSetDefHash: ");
-}
-
-void HashTestBase::storeDataSetNonDefHash(const string &tcprefix)  // Test Case F-7
-{
+    // Create DB with defaults; store data; set non-default hash ID; then fetch the data.
+    string tcprefix = "TC F-7: StoreDataSetNonDefHash: ";
     string prefix = SUITE_PREFIX() + tcprefix;
     TRACE_TEST_CASE(tcprefix);
 
@@ -366,30 +343,21 @@ void HashTestBase::storeDataSetNonDefHash(const string &tcprefix)  // Test Case 
     assertSetHash(dbh, prefix, MDBM_HASH_PHONG, expectSuccess);
 
     // 4. Call mdbm_fetch_str: key="tcF6"
-    // 5. Expected results: FAIL to fetch the stored data
+    // 5. Expected results: succed to fetch the stored data (sethash fails)
     val = mdbm_fetch_str(dbh, _Key);
 
     stringstream refetchmsg;
-    refetchmsg << prefix << "Found the string(" << (val ? val : "ignore") << ") for key("
+    refetchmsg << prefix << "Didn't find the string(" << (val ? val : "ignore") << ") for key("
              << _Key << " in DB(current hashID=" << MDBM_HASH_PHONG
-             << ") but should NOT have since hash ID changed between store and fetch" << endl;
+             << ") but should have (hash ID change attempted between store and fetch)" << endl;
 
-    CPPUNIT_ASSERT_MESSAGE(refetchmsg.str(), (val == 0));
+    CPPUNIT_ASSERT_MESSAGE(refetchmsg.str(), (val != NULL));
 }
 
-
-void HashTestBase::StoreDataSetNonDefHash()  // Test Case F-7
+void HashTestBase::PreMadeSetDefHash()       // Test Case F-8
 {
-  if (versionFlag == MDBM_CREATE_V3) {
-// TODO FIXME V3 BZ ticket 5220918
-    return;
-  }
-  // Create DB with defaults; store data; set non-default hash ID; then fetch the data.
-    storeDataSetNonDefHash("TC F-7: StoreDataSetNonDefHash: ");
-}
-
-void HashTestBase::preMadeSetDefHash(const string &tcprefix)       // Test Case F-8
-{
+    // Pre-made DB that had known limits set (page size and number of pages).
+    string tcprefix = "TC F-8: PreMadeSetDefHash: ";
     TRACE_TEST_CASE(tcprefix);
     string prefix = SUITE_PREFIX() + tcprefix;
 
@@ -414,19 +382,10 @@ void HashTestBase::preMadeSetDefHash(const string &tcprefix)       // Test Case 
     CPPUNIT_ASSERT_MESSAGE(foundmsg.str(), ret == 0);
 }
 
-void HashTestBase::PreMadeSetDefHash()       // Test Case F-8
+void HashTestBase::PreMadeSetNonDefHash()    // Test Case F-9
 {
-    if (versionFlag == MDBM_CREATE_V3) {
-      // TODO FIXME BZ ticket 5220918
-      return;
-    }
-
-    // Pre-made DB that had known limits set (page size and number of pages).
-    preMadeSetDefHash("TC F-8: PreMadeSetDefHash: ");
-}
-
-void HashTestBase::preMadeSetNonDefHash(const string &tcprefix)
-{
+    // Open pre-made DB with data; set non-default hash ID; fetch data
+    string tcprefix = "TC F-9: PreMadeSetNonDefHash: ";
     string prefix = SUITE_PREFIX() +tcprefix;
     TRACE_TEST_CASE(tcprefix);
 
@@ -434,9 +393,7 @@ void HashTestBase::preMadeSetNonDefHash(const string &tcprefix)
     MDBM *dbh = GetTmpPopulatedMdbm(prefix, MDBM_O_RDWR|versionFlag);
 
     // 2. Call mdbm_sethash: MDBM_HASH_MD5
-    // NOTE: diff in behavior between v2 and v3, if there is data,
-    // v3 returns error but v2 doesnt check so v3 test will always assert here
-    //
+    // NOTE: if there is data, sethash returns error
     int cur_def_hash_ID      = mdbm_get_hash(dbh);
     bool expectSuccess = false;
     assertSetHash(dbh, prefix, MDBM_HASH_MD5, expectSuccess);
@@ -444,23 +401,13 @@ void HashTestBase::preMadeSetNonDefHash(const string &tcprefix)
     // 3. Call mdbm_fetch: known key="pass1"
     int ret = VerifyData(dbh, DEFAULT_KEY_SIZE, DEFAULT_VAL_SIZE, 1);
 
-    // 4. Expected results: FAIL to fetch the stored data
+    // 4. Expected results: succeed to fetch the stored data
     stringstream foundmsg;
-    foundmsg << prefix << "Found value "
+    foundmsg << prefix << "Didn't find value "
              << "for key(" << 0 << ") in DB(current  default hash ID="
-             << cur_def_hash_ID << ") AFTER setting hash ID(" << MDBM_HASH_MD5
-             << ") but should NOT have since hash ID changed between store and fetch" << endl;
-    CPPUNIT_ASSERT_MESSAGE(foundmsg.str(), ret != 0);
-}
-
-void HashTestBase::PreMadeSetNonDefHash()    // Test Case F-9
-{
-    if (versionFlag == MDBM_CREATE_V3) {
-        // TODO FIXME BZ ticket 5220918
-        return;
-    }
-    // Open pre-made DB with data; set non-default hash ID; fetch data
-    preMadeSetNonDefHash("TC F-9: PreMadeSetNonDefHash: ");
+             << cur_def_hash_ID << ") AFTER attempt to change hash ID(" << MDBM_HASH_MD5
+             << ") but should have (sethash should have failed)" << endl;
+    CPPUNIT_ASSERT_MESSAGE(foundmsg.str(), ret == 0);
 }
 
 

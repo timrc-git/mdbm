@@ -6472,7 +6472,7 @@ mdbm_truncate(MDBM *db)
 }
 
 int
-mdbm_sethash(MDBM* db, int hash)
+mdbm_set_hash(MDBM* db, int hash)
 {
     if (!db) {
         errno = EINVAL;
@@ -6494,7 +6494,14 @@ mdbm_sethash(MDBM* db, int hash)
     db->db_hdr->h_hash_func = (uint8_t)hash;
     db->db_hashfunc = mdbm_hash_funcs[hash];
     unlock_db(db);
-    return 1;
+    return 0;
+}
+
+int
+mdbm_sethash(MDBM* db, int hash)
+{
+  int ret = mdbm_set_hash(db, hash);
+  return (ret < 0) ? ret : 1;
 }
 
 int
