@@ -7,7 +7,6 @@
 // FIX BZ 5461114 - v2, v3: mdbm_purge: loses number of pages configuration set via mdbm_limit_size
 // FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
 // FIX BZ 5465619 - v3: mdbm_clean: specify pagenum = -1 fails because of assignment of signed(param) to unsigned(local var)
-// FIX BZ 5465540 - v3: mdbm_clean: wont clean page in DB that is bigger number than max dir bit (31)
 
 #include <unistd.h>
 #include <string.h>
@@ -3144,24 +3143,40 @@ DataMgmtBaseTestSuite::FillDbDontSetCleanerFuncThenCleanAllJ1()
     CPPUNIT_ASSERT_MESSAGE(clss.str(), (ret != -1));
 #endif
 }
+
+int dummyCleanFunc(MDBM *, const datum*, const datum*, struct mdbm_clean_data *, int* quit) {
+  *quit = 0;
+  return 1;
+}
+
+
 void
 DataMgmtBaseTestSuite::FillDb45pagesCleanPage32J2()
 {
-#if 0
-// FIX BZ 5465540 - v3: mdbm_clean: wont clean page in DB that is bigger number than max dir bit (31)
     string baseName = "dmtcJ2";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC J2: ";
     MdbmHolder dbh(dbName);
     string keyBaseName = "tcJ2key";
     string value       = "tcJ2dummy";
-    int limitNumPages  = 45;
-    int cnt = createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages);
+    int limitNumPages  = 64;
+    int cnt = createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages, dummyCleanFunc);
     stringstream cdss;
     cdss << SUITE_PREFIX() << prefix
          << "FAILed to create a filled multi paged DB=" << dbName
          << endl;
     CPPUNIT_ASSERT_MESSAGE(cdss.str(), (cnt > 0));
+
+    {
+      int cnt = limitNumPages * 50;
+      int maxCnt = cnt*2;
+      for (; cnt < maxCnt; ++cnt) {
+          string key = makeKeyName(cnt, keyBaseName);
+          if (store(dbh, key.c_str(), const_cast<char*>(value.c_str()), value.size()+1, 0) == -1) {
+              break;
+          }
+      }
+    }
 
     // although we have set cache modes, we are not going to set a cleaner function
     int ret = mdbm_clean(dbh, 32, 0);
@@ -3172,7 +3187,6 @@ DataMgmtBaseTestSuite::FillDb45pagesCleanPage32J2()
          << " and number of entries=" << cnt << endl
          << "Specified cleaning page number=32 should be valid page number but mdbm_clean FAILed" <<endl;
     CPPUNIT_ASSERT_MESSAGE(clss.str(), (ret != -1));
-#endif
 }
 void
 DataMgmtBaseTestSuite::EmptyDbCleanerCleansAnyCleanPage0J3()

@@ -7311,11 +7311,21 @@ mdbm_clean(MDBM* db, int pnum, int flags)
     mdbm_pagenum_t page_mpt = (mdbm_pagenum_t)pnum;
 
     if (pagenum > db->db_max_dirbit || (db->db_flags & MDBM_DBFLAG_NO_DIRTY)) {
+        if (pagenum > db->db_max_dirbit) {
+          mdbm_log(LOG_ERR, "%s: mdbm_clean() pagenum:%d > dirbit:%d\n", 
+              db->db_filename, pnum, db->db_max_dirbit);
+        }
+        errno = EINVAL;
+        return -1;
+    }
+    if (!db->db_clean_func) {
+          mdbm_log(LOG_ERR, "%s: mdbm_clean(), No clean function set! \n", db->db_filename);
         errno = EINVAL;
         return -1;
     }
     if (mdbm_internal_do_lock(db,MDBM_LOCK_WRITE,MDBM_LOCK_WAIT,NULL,NULL,(pagenum >= 0) ? &page_mpt : NULL) < 0)
     {
+        mdbm_log(LOG_ERR, "%s: mdbm_clean(), internal lock failed! \n", db->db_filename);
         return -1;
     }
     for (i = (pagenum < 0) ? 0 : pagenum; i <= db->db_max_dirbit; i++) {
