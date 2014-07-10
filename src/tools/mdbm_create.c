@@ -41,6 +41,12 @@ Options:\n\
     -L          Enable large-object mode\n\
     -l <bytes>  Set the spill size for data to be put on large-object heap. Dependent on -L\n\
     -m <int>    File permissions (default: 0666)\n\
+    -n locking  Specify the type of locking to use:\n\
+                  exclusive  -  Exclusive locking (default)\n\
+                  partition  -  Partition locking (requires a fixed size MDBM)\n\
+                  shared     -  Shared locking\n\
+                  any        -  use whatever locks exist\n\
+                  none       -  no locking\n\
     -N          Open without locking\n\
     -p <bytes>  Page size (default: 4096).\n\
                 Suffix k/m/g may be used to override the default of bytes.\n\
@@ -64,7 +70,7 @@ main (int argc, char** argv)
     int spillsize = 0;
     int pagesize = 4096;
     int truncflag = 0;
-    int nolockflag = 0;
+    int lockflag = 0;
     int mode = 0666;
     int limit_size = 0;
 #ifdef MDBM_CREATE_V3
@@ -79,7 +85,7 @@ main (int argc, char** argv)
     verflag = MDBM_CREATE_V3;
 #endif
 
-    while ((opt = getopt(argc,argv,"23a:c:D:d:h:Ll:m:Np:s:w:z")) != -1) {
+    while ((opt = getopt(argc,argv,"23a:c:D:d:h:Ll:m:Nn:p:s:w:z")) != -1) {
         switch (opt) {
         case '3':
 #ifdef MDBM_CREATE_V3
@@ -146,7 +152,7 @@ main (int argc, char** argv)
             break;
 
         case 'l':
-            spillsize = atoi(optarg);
+            spillsize = mdbm_util_get_size(optarg,1);
             break;
 
         case 'm': {
@@ -160,8 +166,16 @@ main (int argc, char** argv)
             break;
         }
 
+        case 'n': {
+            if (mdbm_util_lockstr_to_flags(optarg, &lockflag)) {
+              fprintf(stderr, "Invalid locking argument, argument=%s\n", optarg);
+              exit(1);
+            }
+            break;
+        }
+
         case 'N':
-            nolockflag = MDBM_OPEN_NOLOCK;
+            lockflag = MDBM_OPEN_NOLOCK;
             break;
 
         case 'p':
@@ -228,7 +242,7 @@ main (int argc, char** argv)
         */
         unlink(argv[i]);
 
-        flags = MDBM_O_RDWR|MDBM_O_CREAT|truncflag|largeflag|verflag|nolockflag|oflags;
+        flags = MDBM_O_RDWR|MDBM_O_CREAT|truncflag|largeflag|verflag|lockflag|oflags;
         if ((db = mdbm_open(argv[i],flags,mode,pagesize,0)) == NULL) {
             fprintf(stderr,PROG ": %s: %s\n",argv[i],strerror(errno));
             exit(2);
