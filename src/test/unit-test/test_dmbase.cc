@@ -6,7 +6,6 @@
 // FIX BZ 5447216 - v2: mdbm_truncate: does not reset configuration params to defaults
 // FIX BZ 5461114 - v2, v3: mdbm_purge: loses number of pages configuration set via mdbm_limit_size
 // FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
-// FIX BZ 5465619 - v3: mdbm_clean: specify pagenum = -1 fails because of assignment of signed(param) to unsigned(local var)
 
 #include <unistd.h>
 #include <string.h>
@@ -3113,11 +3112,14 @@ DataMgmtBaseTestSuite::FillMultiPageDbLimitWithShakerSetCleanStoreBigDataI10()
 #endif
 }
 
+int dummyCleanFunc(MDBM *, const datum*, const datum*, struct mdbm_clean_data *, int* quit) {
+  *quit = 0;
+  return 1;
+}
+
 void
 DataMgmtBaseTestSuite::FillDbDontSetCleanerFuncThenCleanAllJ1()
 {
-#if 0
-// FIX BZ 5465619 - v3: mdbm_clean: specify pagenum = -1 fails because of assignment of signed(param) to unsigned(local var)
     string baseName = "dmtcJ1";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC J1: ";
@@ -3125,7 +3127,7 @@ DataMgmtBaseTestSuite::FillDbDontSetCleanerFuncThenCleanAllJ1()
     string keyBaseName = "tcJ1key";
     string value       = "tcJ1dummy";
     int limitNumPages  = 1;
-    int cnt = createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages);
+    int cnt = createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages, dummyCleanFunc);
     stringstream cdss;
     cdss << SUITE_PREFIX() << prefix
          << "FAILed to create a filled single paged DB=" << dbName
@@ -3141,12 +3143,6 @@ DataMgmtBaseTestSuite::FillDbDontSetCleanerFuncThenCleanAllJ1()
          << " and number of entries=" << cnt << endl
          << "Specified cleaning page number=-1 which means all pages but mdbm_clean FAILed" <<endl;
     CPPUNIT_ASSERT_MESSAGE(clss.str(), (ret != -1));
-#endif
-}
-
-int dummyCleanFunc(MDBM *, const datum*, const datum*, struct mdbm_clean_data *, int* quit) {
-  *quit = 0;
-  return 1;
 }
 
 
@@ -3277,26 +3273,15 @@ DataMgmtBaseTestSuite::FillDbCleanerCleansAnyCleanAllRefillDbJ5()
     // set cleaner that cleans anything
     mdbm_set_cleanfunc(dbh, cleananything, 0);
 
-    // FIX BZ 5465619 - v3: mdbm_clean: specify pagenum = -1 fails because of assignment of signed(param) to unsigned(local var)
-    // Because of BZ 5465619 we will loop instead of specifying -1
-    // loop thru each page and clean it
-    int sumNumCleaned = 0;
-    for (int pageNum = 0; pageNum <= limitNumPages; ++pageNum)
-    {
-        int ret = mdbm_clean(dbh, pageNum, 0);
-        if (ret > 0)
-        {
-            sumNumCleaned += ret;
-        }
-    }
+    int ret = mdbm_clean(dbh, -1, 0);
 
     stringstream clss;
     clss << SUITE_PREFIX() << prefix
          << "FAILed to clean all entries in DB=" << dbName << endl
          << "Which was limited to number of pages=" << limitNumPages << endl
          << "It contained number of entries=" << entrycnt
-         << " but mdbm_clean cleaned number of entries=" << sumNumCleaned << endl;
-    CPPUNIT_ASSERT_MESSAGE(clss.str(), (sumNumCleaned == entrycnt));
+         << " but mdbm_clean cleaned number of entries=" << ret << endl;
+    CPPUNIT_ASSERT_MESSAGE(clss.str(), (ret == entrycnt));
 
     // now refill
     string newkey = keyBaseName;
@@ -3351,25 +3336,15 @@ DataMgmtBaseTestSuite::FillDbCleanerCleansNothingCleanAllJ6()
     // set cleaner that cleans nothing
     mdbm_set_cleanfunc(dbh, keyclean, 0);
 
-    // Because of BZ 5465619 we will loop instead of specifying -1
-    // loop thru each page and clean it
-    int sumNumCleaned = 0;
-    for (int pageNum = 0; pageNum <= limitNumPages; ++pageNum)
-    {
-        int ret = mdbm_clean(dbh, pageNum, 0);
-        if (ret > 0)
-        {
-            sumNumCleaned += ret;
-        }
-    }
+    int ret = mdbm_clean(dbh, -1, 0);
 
     stringstream clss;
     clss << SUITE_PREFIX() << prefix
          << "Should NOT have cleaned any entries in DB=" << dbName << endl
          << "The DB was limited to number of pages=" << limitNumPages << endl
          << "It contained number of entries=" << entrycnt
-         << " but mdbm_clean cleaned number of entries=" << sumNumCleaned << endl;
-    CPPUNIT_ASSERT_MESSAGE(clss.str(), (sumNumCleaned == 0));
+         << " but mdbm_clean cleaned number of entries=" << ret << endl;
+    CPPUNIT_ASSERT_MESSAGE(clss.str(), (ret == 0));
 }
 void
 DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanAllStoreKeyJ7()
@@ -3397,17 +3372,7 @@ DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanAllStoreKeyJ7()
     cleandata.user_data = (void*)keymatch.c_str();
     mdbm_set_cleanfunc(dbh, keycleanandquit, &cleandata);
 
-    // Because of BZ 5465619 we will loop instead of specifying -1
-    // loop thru each page and clean it
-    int sumNumCleaned = 0;
-    for (int pageNum = 0; pageNum <= limitNumPages; ++pageNum)
-    {
-        int ret = mdbm_clean(dbh, pageNum, 0);
-        if (ret > 0)
-        {
-            sumNumCleaned += ret;
-        }
-    }
+    int ret = mdbm_clean(dbh, pageNum, 0);
 
     // try and store some data - expect it to succeed
     datum dkey;
