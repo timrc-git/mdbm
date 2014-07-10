@@ -2467,6 +2467,9 @@ typedef struct mdbm_bsops {
  * very large. Please refer to \ref mdbm_set_window_size for window size
  * restrictions.
  *
+ * NOTE: The file-based backing store (MDBM_BSOPS_FILE) is really just for 
+ * demonstration purposes, and should not be used.
+ *
  * An \ref mdbm_store on \a cachedb must be used to update data in the backing
  * store.  An in-place update (fetching the data address using \ref mdbm_fetch and
  * directly modifying the data within the mapped db) will not get written
