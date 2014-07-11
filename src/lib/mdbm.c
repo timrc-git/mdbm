@@ -2778,7 +2778,6 @@ cache_evict(MDBM* db, mdbm_page_t* page,
             int free_bytes, int needed_bytes, int want_large)
 {
     int clean = (db->db_cache_mode & MDBM_CACHEMODE_EVICT_CLEAN_FIRST) != 0;
-    int reset = 1;
     int quit = 0;
     uint64_t t0 = 0;
     uint64_t nerror = 0;
@@ -2791,6 +2790,13 @@ cache_evict(MDBM* db, mdbm_page_t* page,
         t0 = db->db_get_usec();
     }
 
+    {   /* Reset markers for entries that failed db_clean_func. */
+        mdbm_entry_t* ep;
+        mdbm_entry_data_t e;
+        for (ep = first_entry(page,&e); ep; ep = next_entry(&e)) {
+            ep->e_flags &= ~MDBM_EFLAG_SYNC_ERROR;
+        }
+    }
     while (free_bytes < needed_bytes) {
         mdbm_entry_t* ep;
         mdbm_entry_data_t e;
@@ -2803,12 +2809,8 @@ cache_evict(MDBM* db, mdbm_page_t* page,
         switch (MDBM_DB_CACHEMODE(db)) {
         case MDBM_CACHEMODE_LFU:
             for (ep = first_entry(page,&e); ep; ep = next_entry(&e)) {
-                if (ep->e_flags & MDBM_EFLAG_SYNC_ERROR) {
-                    if (reset) {
-                        ep->e_flags &= ~MDBM_EFLAG_SYNC_ERROR;
-                    } else {
-                        continue;
-                    }
+                if (clean && (ep->e_flags & MDBM_EFLAG_SYNC_ERROR)) {
+                    continue; /* skip entries that failed db_clean_func */
                 }
                 if (ep->e_key.match
                     && (!clean || !MDBM_ENTRY_DIRTY(ep))
@@ -2836,12 +2838,8 @@ cache_evict(MDBM* db, mdbm_page_t* page,
 
         case MDBM_CACHEMODE_LRU:
             for (ep = first_entry(page,&e); ep; ep = next_entry(&e)) {
-                if (ep->e_flags & MDBM_EFLAG_SYNC_ERROR) {
-                    if (reset) {
-                        ep->e_flags &= ~MDBM_EFLAG_SYNC_ERROR;
-                    } else {
-                        continue;
-                    }
+                if (clean && (ep->e_flags & MDBM_EFLAG_SYNC_ERROR)) {
+                    continue; /* skip entries that failed db_clean_func */
                 }
                 if (ep->e_key.match
                     && (!clean || !MDBM_ENTRY_DIRTY(ep))
@@ -2869,12 +2867,8 @@ cache_evict(MDBM* db, mdbm_page_t* page,
 
         case MDBM_CACHEMODE_GDSF:
             for (ep = first_entry(page,&e); ep; ep = next_entry(&e)) {
-                if (ep->e_flags & MDBM_EFLAG_SYNC_ERROR) {
-                    if (reset) {
-                        ep->e_flags &= ~MDBM_EFLAG_SYNC_ERROR;
-                    } else {
-                        continue;
-                    }
+                if (clean && (ep->e_flags & MDBM_EFLAG_SYNC_ERROR)) {
+                    continue; /* skip entries that failed db_clean_func */
                 }
                 if (ep->e_key.match
                     && (!clean || !MDBM_ENTRY_DIRTY(ep))
@@ -2903,6 +2897,7 @@ cache_evict(MDBM* db, mdbm_page_t* page,
         }
 
         if (!evict) {
+            /* clean_func didn't free enough, retry with normal cache preferences */
             if (clean) {
                 clean = 0;
                 continue;
@@ -2910,7 +2905,7 @@ cache_evict(MDBM* db, mdbm_page_t* page,
             return free_bytes;
         }
 
-        if (db->db_clean_func && MDBM_ENTRY_DIRTY(evict)) {
+        if (clean && db->db_clean_func && MDBM_ENTRY_DIRTY(evict)) {
             datum k, v;
             get_kv2(db,page,evict,&k,&v);
             if (!db->db_clean_func(db,&k,&v,db->db_clean_data,&quit)) {
@@ -7335,6 +7330,7 @@ mdbm_clean(MDBM* db, int pnum, int flags)
             mdbm_entry_t* ep;
 
             for (ep = first_entry(page,&e); ep; ep = next_entry(&e)) {
+                /*mdbm_log(LOG_ERR, "%s: mdbm_clean(), page %d entry %p\n", db->db_filename, i, (void*)ep);*/
                 if (ep->e_key.match && MDBM_ENTRY_DIRTY(ep)) {
                     datum key, val;
 

@@ -5,7 +5,6 @@
 // FIX BZ 5469518 - v3: mdbm_chk_page: get an abort specifying page num=2 in a DB of 4 pages
 // FIX BZ 5447216 - v2: mdbm_truncate: does not reset configuration params to defaults
 // FIX BZ 5461114 - v2, v3: mdbm_purge: loses number of pages configuration set via mdbm_limit_size
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
 
 #include <unistd.h>
 #include <string.h>
@@ -43,12 +42,9 @@ DataMgmtBaseTestSuite::makeKeyName(int incr, const string &keyBaseName)
 {
     stringstream dummykeyss;
     dummykeyss << keyBaseName;
-    if (incr < 10)
-    {
+    if (incr < 10) {
         dummykeyss << "00";
-    }
-    else if (incr < 100)
-    {
+    } else if (incr < 100) {
         dummykeyss << "0";
     }
 
@@ -2352,20 +2348,16 @@ DataMgmtBaseTestSuite::FilledMultiPageDbPrunerDestroyAllH6()
     CPPUNIT_ASSERT_MESSAGE(fkss.str(), (kv.key.dsize == 0));
 }
 
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
 static int cleanvalofsize(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm_clean_data *matcher, int *quit)
 {
-    if (!matcher || !matcher->user_data)
-    {
+    (void)dkey; // make pedantic compiler happy
+    if (!matcher || !matcher->user_data) {
         return 0;
     }
 
     int len = *(int*)matcher->user_data;
-    if (len == dval->dsize)
-    {
-        if (quit)
-        {
+    if (len == dval->dsize) {
+        if (quit) {
             *quit = 1;
         }
         return 1;
@@ -2375,20 +2367,19 @@ static int cleanvalofsize(MDBM *dbh, const datum *dkey, const datum *dval, struc
 }
 static int valclean(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm_clean_data *matcher, int *quit)
 {
-    if (!matcher || !matcher->user_data)
-    {
+    (void)dkey; // make pedantic compiler happy
+    (void)quit; // make pedantic compiler happy
+    if (!matcher || !matcher->user_data) {
         return 0;
     }
 
     string val(dval->dptr, dval->dsize);
-    if (val.find((const char*)matcher->user_data) != string::npos)
-    {
+    if (val.find((const char*)matcher->user_data) != string::npos) {
         return 1;
     }
 
     return 0;
 }
-#endif
 
 static int keyclean(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm_clean_data *matcher, int *quit)
 {
@@ -2400,7 +2391,9 @@ static int keyclean(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm
     if (dkey->dptr && dkey->dsize) {
       key.assign(dkey->dptr, dkey->dsize);
     }
+    //fprintf(stderr, "=*=*=* CHECKING KEY (%s) vs (%s) *=*=*=\n", key.c_str(), (char*)matcher->user_data);
     if (key.find((const char*)matcher->user_data) != string::npos) {
+        //fprintf(stderr, "=*=*=* KEY MATCHED *=*=*=\n");
         return 1;
     }
 
@@ -2409,10 +2402,8 @@ static int keyclean(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm
 static int keycleanandquit(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm_clean_data *matcher, int *quit)
 {
     int ret = keyclean(dbh, dkey, dval, matcher, quit);
-    if (quit)
-    {
-        if (ret || !matcher || !matcher->user_data)
-        {
+    if (quit) {
+        if (ret || !matcher || !matcher->user_data) {
             *quit = 1;
         }
     }
@@ -2481,8 +2472,7 @@ DataMgmtBaseTestSuite::createCacheModeDB(string &prefix, MdbmHolder &dbh, string
     // set cleaner function that cleans anything
     dbret = mdbm_set_cachemode(dbh, MDBM_CACHEMODE_EVICT_CLEAN_FIRST|MDBM_CACHEMODE_GDSF);
 
-    if (cleanerfunc)
-    {
+    if (cleanerfunc) {
         mdbm_set_cleanfunc(dbh, cleanerfunc, cleanerdata);
     }
 
@@ -2495,11 +2485,9 @@ DataMgmtBaseTestSuite::createCacheModeDB(string &prefix, MdbmHolder &dbh, string
     // It will require iteration afterwards to get the entry count
     int cnt;
     int maxCnt = limitNumPages * 50;
-    for (cnt = 0; cnt < maxCnt; ++cnt)
-    {
+    for (cnt = 0; cnt < maxCnt; ++cnt) {
         string key = makeKeyName(cnt, keyBaseName);
-        if (store(dbh, key.c_str(), const_cast<char*>(value.c_str()), value.size()+1, 0) == -1)
-        {
+        if (store(dbh, key.c_str(), const_cast<char*>(value.c_str()), value.size()+1, 0) == -1) {
             break;
         }
     }
@@ -2510,8 +2498,7 @@ DataMgmtBaseTestSuite::createCacheModeDB(string &prefix, MdbmHolder &dbh, string
     kvpair kv = mdbm_first_r(dbh, &iter);
 
     int entrycnt;
-    for (entrycnt = 0; kv.key.dsize > 0 && kv.val.dsize > 0; ++entrycnt)
-    {
+    for (entrycnt = 0; kv.key.dsize > 0 && kv.val.dsize > 0; ++entrycnt) {
         kv = mdbm_next_r(dbh, &iter);
     }
 
@@ -2563,19 +2550,17 @@ DataMgmtBaseTestSuite::FillDbCleanerCleansNothingStoreDataI2()
     cleandata.user_data = 0;
     mdbm_set_cleanfunc(dbh, keycleanandquit, &cleandata);
 
-    // try and store some data - expect it to fail since space cannot be freed
+    // try and store some data 
     int ret = store(dbh, keyBaseName, keyBaseName);
     stringstream errss;
     errss << SUITE_PREFIX()
-          << "TC I2: Store should have failed since the DB is full and no Cleaner was set"
+          << "TC I2: Store should pass, the DB is full and no Cleaner set, but cache mode drops entries"
            << endl;
-    CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == -1));
+    CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == 0));
 }
 void
 DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreSameSizedDataI3()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     string baseName = "dmtcI3";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC I3: ";
@@ -2583,18 +2568,20 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreSameSizedDataI3()
     string keyBaseName = "tcI3key";
     string value       = "tcI3dummy";
     int limitNumPages  = 4;
-    int cnt = createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages);
+    createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages);
 
     // set a clean function that cleans a given key and quits
     mdbm_clean_data cleandata;
-    string keymatch = makeKeyName(7, keyBaseName);
+    // Note: key:164 was empirically found to map to the same page as key:7
+    string keymatch = makeKeyName(164, keyBaseName);
+    string storekey = makeKeyName(7, keyBaseName);
     cleandata.user_data = (void*)keymatch.c_str();
     mdbm_set_cleanfunc(dbh, keycleanandquit, &cleandata);
 
     // try and store some data - expect it to succeed
     datum dkey;
-    dkey.dptr  = const_cast<char*>(keymatch.c_str());
-    dkey.dsize = keymatch.size();
+    dkey.dptr  = const_cast<char*>(storekey.c_str());
+    dkey.dsize = storekey.size();
     datum dval;
     value[0] = '7';
     dval.dptr  = const_cast<char*>(value.c_str());
@@ -2602,13 +2589,12 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreSameSizedDataI3()
     int ret = mdbm_store(dbh, dkey, dval, MDBM_INSERT);
     stringstream errss;
     errss << SUITE_PREFIX()
-          << "TC I3: Store should have succeeded although the DB is full but the Cleaner was set for key=" << keyBaseName
-           << endl;
+          << "TC I3: Store should succeed though the DB is full, Cleaner was set for key=" << keyBaseName
+          << endl;
     CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == 0));
 
     datum fdata = mdbm_fetch(dbh, dkey);
-    if (fdata.dsize == 0)
-    {
+    if (fdata.dsize == 0) {
         stringstream fdss;
         fdss << SUITE_PREFIX()
              << " Store returned success with key=" << keymatch
@@ -2616,13 +2602,10 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreSameSizedDataI3()
              << " but fetch did not retrieve this key!" << endl;
         CPPUNIT_ASSERT_MESSAGE(fdss.str(), (fdata.dsize > 0));
     }
-#endif
 }
 void
 DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreBiggerSizedDataI4()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     string baseName = "dmtcI4";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC I4: ";
@@ -2630,7 +2613,7 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreBiggerSizedDataI4()
     string keyBaseName = "tcI4key";
     string value       = "tcI4dummy";
     int limitNumPages  = 4;
-    int cnt = createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages);
+    createCacheModeDB(prefix, dbh, keyBaseName, value, limitNumPages);
 
     // set a clean function that cleans a given key and quits
     mdbm_clean_data cleandata;
@@ -2638,6 +2621,7 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreBiggerSizedDataI4()
     cleandata.user_data = (void*)keymatch.c_str();
     mdbm_set_cleanfunc(dbh, keycleanandquit, &cleandata);
 
+    //mdbm_dump_all_page(dbh);
     // try and store some data - expect it to fail
     datum dkey;
     dkey.dptr  = const_cast<char*>(keymatch.c_str());
@@ -2651,14 +2635,13 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreBiggerSizedDataI4()
     int ret = mdbm_store(dbh, dkey, dval, MDBM_INSERT);
     stringstream errss;
     errss << SUITE_PREFIX()
-          << "TC I4: Store should have Failed. The DB is full and the Cleaner was set for key=" << keyBaseName
+          << "TC I4: Store should pass. The DB is full and the Cleaner was set for key=" << keyBaseName
           << " which cointained a value of size=" << origSize
-          << " BUt the new value for the same key is bigger=" << dval.dsize << endl;
-    CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == -1));
+          << " But the new value for the same key is bigger=" << dval.dsize << endl;
+    CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == 0));
 
     datum fdata = mdbm_fetch(dbh, dkey);
-    if (fdata.dsize == 0)
-    {
+    if (fdata.dsize == 0) {
         stringstream fdss;
         fdss << SUITE_PREFIX()
              << " Store returned success with key=" << keymatch
@@ -2666,7 +2649,6 @@ DataMgmtBaseTestSuite::FillDbCleanerCleanKeyQuitStoreBiggerSizedDataI4()
              << " but fetch did not retrieve this key!" << endl;
         CPPUNIT_ASSERT_MESSAGE(fdss.str(), (fdata.dsize > 0));
     }
-#endif
 }
 void
 DataMgmtBaseTestSuite::CreateDbNODIRTYflagCleanerCleanKeyQuitStoreDataI5()
@@ -2804,8 +2786,6 @@ DataMgmtBaseTestSuite::FillMultiPageDbUniqueKeysCleanKeyQuitStoreKeyI6()
 void
 DataMgmtBaseTestSuite::FillMultiPageDbDuplicateKeysCleanKeyPageStoreDupKeysI7()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     string baseName = "dmtcI7";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC I7: ";
@@ -2871,7 +2851,6 @@ DataMgmtBaseTestSuite::FillMultiPageDbDuplicateKeysCleanKeyPageStoreDupKeysI7()
 
         CPPUNIT_ASSERT_MESSAGE(stss.str(), (ret == 0));
     }
-#endif
 }
 void
 DataMgmtBaseTestSuite::FillMultiPageDbDuplicateKeysCleanKeyPageInsertUniqueKeyI8()
@@ -3017,8 +2996,6 @@ DataMgmtBaseTestSuite::FillMultiPageDbDuplicateKeysCleanKeyPageStoreDupNewKeyI9(
     }
 }
 
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
 // This shaker wont actually free space, it will just report a match was
 // found. That way, since not enough space was freed, the clean function
 // should be called to try and free space.
@@ -3046,13 +3023,10 @@ static int shakev3(MDBM *dbh, const datum *dkey, const datum *dval, struct mdbm_
     }
     return 0;
 }
-#endif
 
 void
 DataMgmtBaseTestSuite::FillMultiPageDbLimitWithShakerSetCleanStoreBigDataI10()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     // create a DB and place some smaller data and some bigger data
     string baseName = "dmtcI10";
     string dbName   = GetTmpName(baseName);
@@ -3109,7 +3083,6 @@ DataMgmtBaseTestSuite::FillMultiPageDbLimitWithShakerSetCleanStoreBigDataI10()
          << " Expected the store(INSERT new key)=" << newkey
          << " to Succeed for DB=" << dbName << endl;
     CPPUNIT_ASSERT_MESSAGE(stss.str(), (ret == 0));
-#endif
 }
 
 int dummyCleanFunc(MDBM *, const datum*, const datum*, struct mdbm_clean_data *, int* quit) {
@@ -3349,8 +3322,6 @@ DataMgmtBaseTestSuite::FillDbCleanerCleansNothingCleanAllJ6()
 void
 DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanAllStoreKeyJ7()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     // fill DB
     string baseName = "dmtcJ7";
     string dbName   = GetTmpName(baseName);
@@ -3372,7 +3343,7 @@ DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanAllStoreKeyJ7()
     cleandata.user_data = (void*)keymatch.c_str();
     mdbm_set_cleanfunc(dbh, keycleanandquit, &cleandata);
 
-    int ret = mdbm_clean(dbh, pageNum, 0);
+    int ret = mdbm_clean(dbh, -1, 0);
 
     // try and store some data - expect it to succeed
     datum dkey;
@@ -3382,7 +3353,7 @@ DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanAllStoreKeyJ7()
     value[0] = '7';
     dval.dptr  = const_cast<char*>(value.c_str());
     dval.dsize = value.size() + 1;
-    int ret = mdbm_store(dbh, dkey, dval, MDBM_INSERT);
+    ret = mdbm_store(dbh, dkey, dval, MDBM_INSERT);
     stringstream errss;
     errss << SUITE_PREFIX() << prefix
           << "Store should have succeeded although the DB is full but the Cleaner was set for key=" << keyBaseName
@@ -3399,13 +3370,10 @@ DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanAllStoreKeyJ7()
              << " but fetch did not retrieve this key!" << endl;
         CPPUNIT_ASSERT_MESSAGE(fdss.str(), (fdata.dsize > 0));
     }
-#endif
 }
 void
 DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanUsingGetPageKeyStoreKeyJ8()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     // fill DB
     string baseName = "dmtcJ8";
     string dbName   = GetTmpName(baseName);
@@ -3456,13 +3424,10 @@ DataMgmtBaseTestSuite::FillMultiPageDbCleanerCleansKeyCleanUsingGetPageKeyStoreK
              << " but fetch did not retrieve this key!" << endl;
         CPPUNIT_ASSERT_MESSAGE(fdss.str(), (fdata.dsize > 0));
     }
-#endif
 }
 void
 DataMgmtBaseTestSuite::FillDbDuplicateKeysUniqueValsCleanerCleansValsStoreJ9()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     string baseName = "dmtcJ9";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC J9: ";
@@ -3534,7 +3499,6 @@ DataMgmtBaseTestSuite::FillDbDuplicateKeysUniqueValsCleanerCleansValsStoreJ9()
     errss << SUITE_PREFIX() << prefix
           << "Store should have succeeded although the DB is full but the Cleaner was set for value=" << valmatch << endl;
     CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == 0));
-#endif
 }
 void
 DataMgmtBaseTestSuite::FillDb0SizedValsCleanerCleansKeysStoreValSizeN_J10()
@@ -3574,8 +3538,6 @@ DataMgmtBaseTestSuite::FillDb0SizedValsCleanerCleansKeysStoreValSizeN_J10()
 void
 DataMgmtBaseTestSuite::FillDbDuplicateKeysMostValsSizeNminus1_StoreCleanSizeNStoreSizeN_J11()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     string baseName = "dmtcJ11";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC J11: ";
@@ -3650,13 +3612,10 @@ DataMgmtBaseTestSuite::FillDbDuplicateKeysMostValsSizeNminus1_StoreCleanSizeNSto
     errss << SUITE_PREFIX() << prefix
           << "Store should have succeeded although the DB is full but the Cleaner was set for value length=" << cleanlen << endl;
     CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == 0));
-#endif
 }
 void
 DataMgmtBaseTestSuite::FillDbDuplicateKeysMostValsSizeNminus1_StoreCleanSizeNStoreSizeNplus1_J12()
 {
-#if 0
-// FIX BZ 5460975 - v3: mdbm_set_cleanfunc: full DB and cleanfunc cleans key=K, store/insert key=K, infinite loop
     string baseName = "dmtcJ11";
     string dbName   = GetTmpName(baseName);
     string prefix   = "TC J11: ";
@@ -3729,10 +3688,9 @@ DataMgmtBaseTestSuite::FillDbDuplicateKeysMostValsSizeNminus1_StoreCleanSizeNSto
     ret = mdbm_store(dbh, dkey, dval, MDBM_INSERT_DUP);
     stringstream errss;
     errss << SUITE_PREFIX() << prefix
-          << "Store should NOT succeed since the DB is full and the Cleaner was set for value length=" << cleanlen
+          << "Store should pass, the DB is full and the Cleaner was set for value length=" << cleanlen
           << " but value stored has length=" << dval.dsize << endl;
-    CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == -1));
-#endif
+    CPPUNIT_ASSERT_MESSAGE(errss.str(), (ret == 0));
 }
 void
 DataMgmtBaseTestSuite::CreateDbNODIRTYflagCleanerCleansAllCleanPage0J13()
