@@ -236,7 +236,9 @@ main (int argc, char** argv)
     uint64_t winsize = 0;
     int legacy = 0;
 
+    di.db = NULL;
     di.flags = 0;
+    di.free = 0;
 
     while ((opt = getopt(argc,argv,"CcdhfklLp:Pvw:")) != -1) {
         switch (opt) {
@@ -320,6 +322,7 @@ main (int argc, char** argv)
         } else {
             mdbm_dump_page(db,pno);
         }
+        mdbm_close(db);
         return 0;
     }
 
@@ -343,5 +346,6 @@ main (int argc, char** argv)
         }
         mdbm_iterate(db,pno,dump,flags,&di);
     }
+    mdbm_close(db);
     return 0;
 }
