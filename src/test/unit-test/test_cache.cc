@@ -1,7 +1,6 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-// FIX BZ 5507568: v3: mdbm_store with cache flags is broken
 // FIX BZ 5509909: v3: mdbm_get_cachemode_name doesnt handle cachemode = MDBM_CACHEMODE_EVICT_CLEAN_FIRST
 #include <unistd.h>
 #include <string.h>
@@ -144,32 +143,33 @@ void CacheBaseTestSuite::cacheAllModesModifyNewKey(string &prefix, int storeFlag
 
         // store a new key in the cache
         ret = mdbm_store_str(dbh, baseName.c_str(), "cachetcAllval", storeFlags);
-        if (ret != expectedStoreRet)
-        {
+        if (ret != expectedStoreRet) {
             stss << " returned FAILure=" << ret
-                 << " with cache mode=" << _ValidCacheModes[cnt] << endl;
+                 << " with cache mode(" << cnt << ")=" << _ValidCacheModes[cnt] << endl;
             CPPUNIT_ASSERT_MESSAGE(stss.str(), (ret == expectedStoreRet));
         }
 
-        // since this is a cache and it was a new key, it should NOT have
-        // store the new entry, lets verify it returns null
         char *val = mdbm_fetch_str(dbh, baseName.c_str());
-        if (val)
-        {
+        if (expectedStoreRet != MDBM_STORE_SUCCESS) {
+          // since this is a cache and it was a new key, it should NOT have
+          // store the new entry, lets verify it returns null
+          if (val) {
+              stss << " cache mode=" <<  _ValidCacheModes[cnt]
+                   << " Value should NOT exist in the DB, yet we have fetched val=" << val << endl;
+              CPPUNIT_ASSERT_MESSAGE(stss.str(), (val == NULL));
+          }
+        } else if (!val) {
             stss << " cache mode=" <<  _ValidCacheModes[cnt]
-                 << " Value should NOT exist in the DB, yet we have fetched val=" << val << endl;
-            CPPUNIT_ASSERT_MESSAGE(stss.str(), (val == (char*)0));
+                 << " Value should exist in the DB, yet we have fetched val=NULL" << endl;
+            CPPUNIT_ASSERT_MESSAGE(stss.str(), (val == NULL));
         }
     }
 }
 void CacheBaseTestSuite::CacheAllModesModifyNewKeyA3()
 {
-#if 0
-// FIX BZ 5507568: v3: mdbm_store with cache flags is broken
     string prefix = SUITE_PREFIX();
     prefix += "TC A3 Cache(MDBM_CACHE_MODIFY new): ";
     cacheAllModesModifyNewKey(prefix, MDBM_CACHE_MODIFY, MDBM_STORE_SUCCESS);
-#endif
 }
 
 void CacheBaseTestSuite::cacheAllModesModifyOldKey(string &prefix, int storeFlags, int expectedStoreRet)
@@ -185,8 +185,7 @@ void CacheBaseTestSuite::cacheAllModesModifyOldKey(string &prefix, int storeFlag
     stringstream stss;
     stss << prefix << "mdbm_store_str with key=" << baseName.c_str();
     // lets skip over MDBM_CACHEMODE_NONE
-    for (int cnt = 1; cnt < _ValidCacheModeLen; ++cnt)
-    {
+    for (int cnt = 1; cnt < _ValidCacheModeLen; ++cnt) {
         MdbmHolder dbh(dbName);
 
         int dbret = dbh.Open(openflags, 0644, 512, 0);
@@ -201,8 +200,7 @@ void CacheBaseTestSuite::cacheAllModesModifyOldKey(string &prefix, int storeFlag
 
         // store a new key
         ret = mdbm_store_str(dbh, baseName.c_str(), "cachetcAllval", MDBM_CACHE_REPLACE);
-        if (ret == -1)
-        {
+        if (ret == -1) {
             stss << " should have succeeded to store using the CACHE REPLACE flag"
                  << " and cache mode=" << _ValidCacheModes[cnt] << endl;
             CPPUNIT_ASSERT_MESSAGE(stss.str(), (ret == 0));
@@ -210,18 +208,16 @@ void CacheBaseTestSuite::cacheAllModesModifyOldKey(string &prefix, int storeFlag
         // replace the value now
         string replacementVal = "cachetcAllval_replaced";
         ret = mdbm_store_str(dbh, baseName.c_str(), replacementVal.c_str(), storeFlags);
-        if (ret != expectedStoreRet)
-        {
+        if (ret != expectedStoreRet) {
             stss << " store using the flags=" << storeFlags << " FAILed=" << ret
-                 << " with cache mode=" << _ValidCacheModes[cnt] << endl;
+                 << " with cache mode(" << cnt << ")=" << _ValidCacheModes[cnt] << endl;
             CPPUNIT_ASSERT_MESSAGE(stss.str(), (ret == expectedStoreRet));
         }
 
         // since this is a cache and it was a existing key, it should have
         // stored the new value, lets verify it replaced the old value
         char *val = mdbm_fetch_str(dbh, baseName.c_str());
-        if (!val)
-        {
+        if (!val) {
             stss << " after storing using flags=" << storeFlags
                  << " cache mode=" <<  _ValidCacheModes[cnt]
                  << " Value should exist in the DB but does NOT" << endl;
@@ -229,23 +225,25 @@ void CacheBaseTestSuite::cacheAllModesModifyOldKey(string &prefix, int storeFlag
         }
         string fval = val;
         bool replaced = fval.compare(replacementVal) == 0;
-        if (!replaced)
-        {
-            stss << " after storing using the flags=" << storeFlags
-                 << " cache mode=" <<  _ValidCacheModes[cnt]
-                 << " Value should have been replaced, but we have fetched val=" << val << endl;
-            CPPUNIT_ASSERT_MESSAGE(stss.str(), (replaced));
+        if (expectedStoreRet == MDBM_STORE_SUCCESS) {
+          stss << " after storing using the flags=" << storeFlags
+               << " cache mode=" <<  _ValidCacheModes[cnt]
+               << " Value should have been replaced, but we have fetched val=" << val << endl;
+          CPPUNIT_ASSERT_MESSAGE(stss.str(), (replaced));
+        } else {
+          stss << " after storing using the flags=" << storeFlags
+               << " cache mode=" <<  _ValidCacheModes[cnt]
+               << " Value should NOT have been replaced, but we have fetched val=" << val << endl;
+          CPPUNIT_ASSERT_MESSAGE(stss.str(), (!replaced));
         }
     }
 }
 void CacheBaseTestSuite::CacheAllModesModifyOldKeyA4()
 {
-#if 0
-// FIX BZ 5507568: v3: mdbm_store with cache flags is broken
+    // NOTE: MDBM_CACHE_MODIFY is ignored (default MDBM_INSERT) unless there is a backing store
     string prefix = SUITE_PREFIX();
     prefix += "TC A4 Cache(MDBM_CACHE_MODIFY existing): ";
-    cacheAllModesModifyOldKey(prefix, MDBM_CACHE_MODIFY, MDBM_STORE_SUCCESS);
-#endif
+    cacheAllModesModifyOldKey(prefix, MDBM_CACHE_MODIFY, MDBM_STORE_ENTRY_EXISTS);
 }
 void CacheBaseTestSuite::setCacheModifyNewKey(string &prefix, int cacheFlags, int storeFlags, int expectedStoreRet, bool expectStored)
 {
@@ -283,13 +281,11 @@ void CacheBaseTestSuite::setCacheModifyNewKey(string &prefix, int cacheFlags, in
 }
 void CacheBaseTestSuite::CacheNoModeModifyNewKeyA5()
 {
-#if 0
-// FIX BZ 5507568: v3: mdbm_store with cache flags is broken
+    // NOTE: MDBM_CACHE_MODIFY is ignored (default MDBM_INSERT) unless there is a backing store
     string prefix = SUITE_PREFIX();
     prefix += "TC A5 Cache(MDBM_CACHEMODE_NONE, MDBM_CACHE_MODIFY): ";
-    // no cachemode set, so MDBM_CACHE_MODIFY should be treated like MDBM_MODIFY
-    setCacheModifyNewKey(prefix, MDBM_CACHEMODE_NONE, MDBM_CACHE_MODIFY, MDBM_STORE_SUCCESS, false);
-#endif
+    // no cachemode set, so MDBM_CACHE_MODIFY should be ignored
+    setCacheModifyNewKey(prefix, MDBM_CACHEMODE_NONE, MDBM_CACHE_MODIFY, MDBM_STORE_SUCCESS, true);
 }
 void CacheBaseTestSuite::setCacheModifyOldKey(string &prefix, int cacheFlags, int storeFlags, int expectedStoreRet)
 {
@@ -345,13 +341,11 @@ void CacheBaseTestSuite::setCacheModifyOldKey(string &prefix, int cacheFlags, in
 }
 void CacheBaseTestSuite::CacheNoModeModifyOldKeyA6()
 {
-#if 0
-// FIX BZ 5507568: v3: mdbm_store with cache flags is broken
+    // NOTE: MDBM_CACHE_MODIFY is ignored (default MDBM_INSERT) unless there is a backing store
     string prefix = SUITE_PREFIX();
     prefix += "TC A6 Cache(MDBM_CACHEMODE_NONE, MDBM_CACHE_MODIFY): ";
-    // no cachemode set, so MDBM_CACHE_MODIFY should be treated like MDBM_MODIFY
-    setCacheModifyOldKey(prefix, MDBM_CACHEMODE_NONE, MDBM_CACHE_MODIFY, MDBM_STORE_SUCCESS);
-#endif
+    // no cachemode set, so MDBM_CACHE_MODIFY will be ignored
+    setCacheModifyOldKey(prefix, MDBM_CACHEMODE_NONE, MDBM_CACHE_MODIFY, MDBM_STORE_ENTRY_EXISTS);
 }
 void CacheBaseTestSuite::CacheModifyInsertNewKeyA7()
 {

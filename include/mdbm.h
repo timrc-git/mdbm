@@ -320,7 +320,7 @@ typedef struct mdbm MDBM;
  *   - MDBM_LARGE_OBJECTS     - support large objects
  *   - MDBM_PARTITIONED_LOCKS - partitioned locks
  *   - MDBM_RW_LOCKS          - read-write locks
- *   - MDBM_CREATE_V2         - create a V2 db
+ *   - MDBM_CREATE_V2         - create a V2 db (obsolete)
  *   - MDBM_CREATE_V3         - create a V3 db
  *   - MDBM_HEADER_ONLY       - map header only (internal use)
  *   - MDBM_OPEN_NOLOCK       - do not lock during open
@@ -1112,8 +1112,8 @@ extern int mdbm_delete_str(MDBM *db, const char *key);
  *     records, and which record is returned is not defined.
  *   - MDBM_MODIFY - Store only if matching entry already exists.
  *   - MDBM_RESERVE - Reserve space; value not copied (\ref mdbm_store_r only)
- *   - MDBM_CACHE_ONLY (MDBM V3) - Perform store only in the Cache, not in Backing Store.
- *   - MDBM_CACHE_MODIFY (MDBM V3) - Update Cache only if key exists; update the Backing Store
+ *   - MDBM_CACHE_ONLY  - Perform store only in the Cache, not in Backing Store.
+ *   - MDBM_CACHE_MODIFY  - Update Cache only if key exists; update the Backing Store
  *
  * Insertion with flag \em MDBM_MODIFY set will fail if the key does not
  * already exist.
@@ -1122,9 +1122,13 @@ extern int mdbm_delete_str(MDBM *db, const char *key);
  * MDBM for the object; but will not copy it.  The caller is responsible for
  * copying the value into the indicated position.
  *
- * Replacement with flag \em MDBM_CACHE_MODIFY for a cache with a backing
+ * Replacement with flag \em MDBM_CACHE_MODIFY, for a cache with a backing
  * store, has the effect of writing through the cache to the backing store
  * without updating the cache unless that cache entry already exists.
+ *
+ * NOTE: \em MDBM_CACHE_MODIFY has no effect if you set a cache-mode, but don't have
+ * a backing store. In that case, use MDBM_MODIFY.
+ *
  *
  * Quick option summary:
  *   - MDBM_INSERT  - Add if missing, fail if present
@@ -1368,8 +1372,7 @@ extern int mdbm_iterate(MDBM* db, int pagenum, mdbm_iterate_func_t func, int fla
  */
 
 /**
- * Returns whether or not MDBM is locked by another process or thread (thread:
- * V3 only).
+ * Returns whether or not MDBM is locked by another process or thread.
  *
  * \param[in,out] db Database handle
  * \return Locked status
@@ -1788,7 +1791,7 @@ extern void mdbm_chk_error(MDBM* db, int pagenum, int mapped_pagenum, int index)
  * performed.  When it detects errors, it returns -1 and \ref mdbm_get_errno
  * returns EFAULT.
  *
- * V3: Prints found errors via mdbm_log targeting LOG_CRITICAL.  If no
+ * Prints found errors via mdbm_log targeting LOG_CRITICAL.  If no
  * errors, then no logging performed.  When it detects errors, it returns -1
  * and errno is set to EFAULT.
  * Returns -1, and sets errno to EINVAL for invalid page numbers.
