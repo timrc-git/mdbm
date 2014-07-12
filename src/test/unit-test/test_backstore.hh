@@ -59,6 +59,7 @@ public:
     void BsStoreDataSetReadOnlyBsWithNewDbStoreNewA23();
     void BsTestReplaceA24();
     void BsUseMdbmBsInsertDataDeleteDataA25();
+    void OpenTooSmallReopenWindowed();
     void BsTestMisc();
     void BsTestInvalid();
 
@@ -134,6 +135,7 @@ class BackStoreTsV3 : public BackStoreTestSuite
     CPPUNIT_TEST(BsStoreDataSetReadOnlyBsWithNewDbStoreNewA23);
     CPPUNIT_TEST(BsTestReplaceA24);
     CPPUNIT_TEST(BsUseMdbmBsInsertDataDeleteDataA25);
+    CPPUNIT_TEST(OpenTooSmallReopenWindowed);
     CPPUNIT_TEST(BsTestMisc);
     CPPUNIT_TEST(BsTestInvalid);
 

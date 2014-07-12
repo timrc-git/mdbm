@@ -6,7 +6,6 @@
 // FIX BZ 5455314 - mdbm_open generates core with MDBM_OPEN_WINDOWED flag
 // FIX BZ 5518388: v3: mdbm_set_window_size: returns success if window size=0; but SEGV in mdbm_store_r
 // FIX BZ 5530655: v3: mdbm_get_window_stats: SEGV with null mdbm_window_stats_t parameter
-// FIX BZ 5535716: v3: mdbm_set_window_size: should not set window size if DB NOT opened with MDBM_OPEN_WINDOWED
 // FIX BZ 5535994: v3: mdbm_set_window_size: improper cleanup upon failure; then call mdbm_close causes glibc detected *** double free or corruption
 // FIX BZ 5536317: v3: mdbm_set_backingstore: MDBM_BSOPS_FILE reuse old BS file with new cache - cannot fetch any data
 #include <unistd.h>
@@ -2108,12 +2107,12 @@ void BackStoreTestSuite::BsCheckVariousWinSizesInLoopC5()
 }
 void BackStoreTestSuite::BsNoWinModeFillDbGetStatsC6()
 {
-#if 0
-// FIX BZ 5535716: v3: mdbm_set_window_size: should not set window size if DB NOT opened with MDBM_OPEN_WINDOWED
     // create DB without windowing mode; fill DB with n pages; call mdbm_get_window_stats
     string prefix = "TC C6: DB Window Stats: ";
     TRACE_TEST_CASE(prefix);
     string baseName = "tcbackstoreC6";
+    SKIP_IF_VALGRIND()
+
     string dbName = GetTmpName(baseName);
     MdbmHolder dbh(dbName);
 
@@ -2128,11 +2127,11 @@ void BackStoreTestSuite::BsNoWinModeFillDbGetStatsC6()
     ret = mdbm_limit_size_v3(dbh, 8, 0, 0);
     size_t wsize = pageSize * 4;
 
-    // this should FAIL
+    // this should pass
     ret = mdbm_set_window_size(dbh, wsize);
     stringstream wsss;
-    wsss << prefix << "mdbm_set_window_size Should have FAILed but returned=" << ret << endl;
-    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == -1));
+    wsss << prefix << "mdbm_set_window_size Should pass but returned=" << ret << endl;
+    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == 0));
 
     int recCnt = FillDb(dbh);
 
@@ -2143,15 +2142,13 @@ void BackStoreTestSuite::BsNoWinModeFillDbGetStatsC6()
 
     MDBM_ITER iter;
     datum key = mdbm_firstkey_r(dbh, &iter);
-    if (key.dsize == 0)
-    {
+    if (key.dsize == 0) {
         ssss << " Failed to iterate data in DB!" << endl;
         CPPUNIT_ASSERT_MESSAGE(ssss.str(), (key.dsize > 0));
     }
 
-    for (int cnt = 0; key.dsize > 0 && cnt < recCnt; ++cnt)
-    {
-        datum dval = mdbm_fetch(dbh, key);
+    for (int cnt = 0; key.dsize > 0 && cnt < recCnt; ++cnt) {
+        mdbm_fetch(dbh, key);
         key = mdbm_nextkey_r(dbh, &iter);
     }
 
@@ -2169,21 +2166,18 @@ void BackStoreTestSuite::BsNoWinModeFillDbGetStatsC6()
     ssss << " and mdbm_get_window_stats size=" << offset
          << endl;
     // check w_num_reused and w_num_remapped
-    if (wstats.w_num_reused != 0 || wstats.w_num_remapped != 0)
-    {
+    if (wstats.w_num_reused != 0 || wstats.w_num_remapped != 0) {
         ssss << "Window pages should have been remapped and re-used" << endl;
         CPPUNIT_ASSERT_MESSAGE(ssss.str(), (wstats.w_num_reused == 0 && wstats.w_num_remapped == 0));
     }
 
-    // verify w_window_size and w_max_window_used are 0
-    if (wstats.w_window_size != 0 || wstats.w_max_window_used != 0)
-    {
-        ssss << "Window page size=" << wstats.w_window_size
-             << " and max window used=" << wstats.w_max_window_used
-             << " These parameters should be 0" << endl;
-        CPPUNIT_ASSERT_MESSAGE(ssss.str(), (wstats.w_window_size == 0 && wstats.w_max_window_used == 0));
-    }
-#endif
+    //// verify w_window_size and w_max_window_used are 0
+    //if (wstats.w_window_size == 0 || wstats.w_max_window_used == 0) {
+    //    ssss << "Window page size=" << wstats.w_window_size
+    //         << " and max window used=" << wstats.w_max_window_used
+    //         << " These parameters should not be 0" << endl;
+    //    CPPUNIT_ASSERT_MESSAGE(ssss.str(), (wstats.w_window_size != 0 && wstats.w_max_window_used != 0));
+    //}
 }
 void BackStoreTestSuite::BsWinModeNpagesFillDbNplusNpagesGetStatsC7()
 {
@@ -2479,6 +2473,30 @@ void BackStoreTestSuite::BsUseMdbmBsInsertDataDeleteDataA25()
     CPPUNIT_ASSERT(bsdup != NULL);
     mdbm_close(bsdup);
     mdbm_close(dbh);
+}
+
+void BackStoreTestSuite::OpenTooSmallReopenWindowed()
+{
+    // create DB with small page size (<4k), re-open with windowed mode (fail)
+    string prefix = "OpenTooSmallReopenWindowed ";
+    TRACE_TEST_CASE(prefix);
+    string baseName = "reopen-win-too-small";
+    string dbName = GetTmpName(baseName);
+    MdbmHolder dbholder(dbName);
+
+    int openflags = MDBM_O_RDWR | MDBM_O_CREAT | versionFlag;
+    MDBM *dbh = mdbm_open(dbName.c_str(), openflags, 0644, 512, 0);
+    prefix = SUITE_PREFIX() + prefix;
+    CPPUNIT_ASSERT_MESSAGE(prefix, (dbh != 0));
+    mdbm_close(dbh);
+
+    openflags |= MDBM_OPEN_WINDOWED;
+
+    dbh = mdbm_open(dbName.c_str(), openflags, 0644, 512, 0);
+    CPPUNIT_ASSERT_MESSAGE(prefix, (dbh == 0));
+
+    dbh = mdbm_open(dbName.c_str(), openflags, 0644, 0, 0);
+    CPPUNIT_ASSERT_MESSAGE(prefix, (dbh == 0));
 }
 
 void BackStoreTestSuite::BsTestMisc()

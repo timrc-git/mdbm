@@ -273,6 +273,7 @@ void HashTestBase::SetValidResetInvalid() // Test Case F-5
     // 8. Call mdbm_get_hash: h
     // 9. Expected results: h == MDBM_HASH_OZ
     getHashID = assertGetHash(dbh, prefix, MDBM_HASH_OZ);
+    mdbm_close(dbh);
 }
 
 
@@ -313,6 +314,7 @@ void HashTestBase::StoreDataSetDefHash()  // Test Case F-6
              << ") AFTER setting Default hash ID(" << expected_def_hash_ID
              << ")" << endl;
     CPPUNIT_ASSERT_MESSAGE(foundmsg.str(), (val != 0 && strcmp(_Val, val) == 0));
+    mdbm_close(dbh);
 }
 
 
@@ -352,6 +354,7 @@ void HashTestBase::StoreDataSetNonDefHash()  // Test Case F-7
              << ") but should have (hash ID change attempted between store and fetch)" << endl;
 
     CPPUNIT_ASSERT_MESSAGE(refetchmsg.str(), (val != NULL));
+    mdbm_close(dbh);
 }
 
 void HashTestBase::PreMadeSetDefHash()       // Test Case F-8
@@ -380,6 +383,7 @@ void HashTestBase::PreMadeSetDefHash()       // Test Case F-8
              << ") AFTER setting Default hash ID(" << expected_def_hash_ID
              << ")" << endl;
     CPPUNIT_ASSERT_MESSAGE(foundmsg.str(), ret == 0);
+    mdbm_close(dbh);
 }
 
 void HashTestBase::PreMadeSetNonDefHash()    // Test Case F-9
@@ -408,6 +412,7 @@ void HashTestBase::PreMadeSetNonDefHash()    // Test Case F-9
              << cur_def_hash_ID << ") AFTER attempt to change hash ID(" << MDBM_HASH_MD5
              << ") but should have (sethash should have failed)" << endl;
     CPPUNIT_ASSERT_MESSAGE(foundmsg.str(), ret == 0);
+    mdbm_close(dbh);
 }
 
 

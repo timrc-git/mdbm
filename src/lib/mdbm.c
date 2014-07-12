@@ -4284,11 +4284,14 @@ mdbm_open_inner(const char *filename, int flags, int mode, int pagesize, int dbs
         mdbm_internal_do_unlock(db,NULL);
     }
 
-    if ((flags & MDBM_OPEN_WINDOWED) && 0 != (db->db_pagesize % db_sys_pagesize)) {
-        mdbm_logerror(LOG_ERR,0,"%s: Page size %d must be a multiple of system page size %d", filename, pagesize, db_sys_pagesize);
-        ERROR();
-        errno = EINVAL;
-        goto open_error;
+    if ((flags & MDBM_OPEN_WINDOWED)){
+        if (0 != (db->db_pagesize % db_sys_pagesize)) {
+            mdbm_logerror(LOG_ERR,0,"%s: Page size %d must be a multiple of system page size %d", 
+                filename, pagesize, db_sys_pagesize);
+            ERROR();
+            errno = EINVAL;
+            goto open_error;
+        }
     }
 
 #ifdef MDBM_SANITY_CHECKS
@@ -4313,6 +4316,15 @@ mdbm_open_inner(const char *filename, int flags, int mode, int pagesize, int dbs
                               db->db_base,(unsigned long long)db->db_base_len);
             }
             /*fprintf(stderr, "open_error::munmap(%p,%u)\n", db->db_base,(unsigned)db->db_base_len); */
+        }
+        if (db->db_dir) {
+            free(db->db_dir);
+        }
+        if (db->db_window.buckets) {
+            free(db->db_window.buckets);
+        }
+        if (db->db_window.wpages) {
+            free(db->db_window.wpages);
         }
         if (db->db_fd != -1) {
             close(db->db_fd);
