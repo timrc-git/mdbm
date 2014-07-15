@@ -918,7 +918,7 @@ Options:\n\
         -a <bytes>      Set record alignment (default is byte alignment)\n\
         -B <optstring>  Enable backing store\n\
                          direct         Use O_DIRECT when accessing backing-store files\n\
-                         file=<path>    Enable file-based backing store at <path>\n\
+                         file=<path>    Enable file-based backing store at <path> (DEPRECATED)\n\
                          lock           Use mdbm normal (db) locking\n\
                          mdbm=<dbfile>  Enable mdbm-based backing store at <dbfile>\n\
                          nolock         Use no mdbm locking\n\
@@ -1564,6 +1564,10 @@ main (int argc, char** argv)
     }
 
     db = populate_db(reopen, find_size, gkeys);
+    if (create && !load) {
+        printf("Asked for create but not load... exiting.\n");
+        exit(0);
+    }
     create = 0;
 
     setbuf(outfile,NULL);
