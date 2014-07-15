@@ -1567,7 +1567,7 @@ MdbmUnitTestOther::test_OtherAJ29()
     int openFlags = MDBM_O_CREAT | MDBM_O_RDWR | MDBM_OPEN_WINDOWED | versionFlag;
     string fname(GetTmpName(string("OpenWindowed")));
     MdbmHolder mdbm_db(fname);
-    int ret = mdbm_db.Open(openFlags, 0644, DEFAULT_PAGE_SIZE, 0);
+    int ret = mdbm_db.Open(openFlags, 0644, sysconf(_SC_PAGESIZE), 0);
     CPPUNIT_ASSERT(ret == 0);
     CPPUNIT_ASSERT(-1 == mdbm_preload(mdbm_db));
 }
