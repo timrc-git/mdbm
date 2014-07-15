@@ -750,7 +750,7 @@ void TestStoreSuite::test_store_18() {
     CPPUNIT_ASSERT_EQUAL(-1, mdbm_setspillsize(mdbm, _pageSize + 1));
 
     // Spill size = page size. It should fail
-    CPPUNIT_ASSERT_EQUAL(0, mdbm_setspillsize(mdbm, _pageSize));
+    CPPUNIT_ASSERT_EQUAL(-1, mdbm_setspillsize(mdbm, _pageSize));
 
     mdbm_close(mdbm);
 }

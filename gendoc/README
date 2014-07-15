@@ -29,8 +29,10 @@ EOF
 
 print <<EOF
 MDBM Version 4 is a significant improvement to version 3 by optionally using
-pthreads instead of ylock.  Additionally, all y* package dependencies
-(i.e. ysys, yax, ycore) are optional.
+pthreads instead of ylock.  Additionally, all y* package dependencies are gone.
+
+Version 4.10.0 (07/15/2014, crowdert)
+  - [BUG 5486732] Only allow mdbm_setspillsize() if LARGE_OBJECTS are enabled.
 
 Version 4.3.0 (04/11/2014, carney)
   - [BUG 6866014] Add mdbm_test_build.pl to mdbm_tools

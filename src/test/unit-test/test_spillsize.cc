@@ -462,9 +462,9 @@ void SpillSizeTestSuite::PremadeAddLO()  // TC I-8
     mdbm_limit_size_v3(dbh, 1, 0, 0); // set to 1 page and no shake function
     FillDb(dbh);
 
-    // 2. Call mdbm_setspillsize: 256
+    // 2. Call mdbm_setspillsize: 256, expect fail
     int spillSize = 256;
-    assertSetSpillSize(dbh, spillSize, prefix.c_str());
+    CPPUNIT_ASSERT_EQUAL(-1, mdbm_setspillsize(dbh, spillSize));
 
     // 3. Call mdbm_store; Add a large object of size = 256
     // 4. Expected result: FAIL and errno set

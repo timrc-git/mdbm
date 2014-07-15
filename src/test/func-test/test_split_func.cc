@@ -46,6 +46,7 @@ public:
   void test_split_func_07();
   void test_split_func_08();
   void test_split_func_09();
+  void test_split_func_09b();
   void test_split_func_10();
   void test_split_func_11();
   void test_split_func_12();
@@ -75,6 +76,7 @@ class TestSplitFunc : public TestSplitFuncSuite {
   CPPUNIT_TEST(test_split_func_07);
   CPPUNIT_TEST(test_split_func_08);
   CPPUNIT_TEST(test_split_func_09);
+  CPPUNIT_TEST(test_split_func_09b);
   CPPUNIT_TEST(test_split_func_10);
   CPPUNIT_TEST(test_split_func_11);
   CPPUNIT_TEST(test_split_func_12);
@@ -131,16 +133,16 @@ void TestSplitFuncSuite::test_split_func_01() {
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm );
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
-    // Store these records until Mdbm page is full. This number 254 is
-    // derived by trial.
-    for (int i = 0; i < 254; i++) {
+    // Store these records until Mdbm page is full. This number 254 is derived by trial.
+    int max_records = 254;
+    for (int i = 0; i < max_records; i++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
     }
 
-    // Verify that the Mdbm has exactly 254 records
-    CPPUNIT_ASSERT_EQUAL(254, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
@@ -152,8 +154,8 @@ void TestSplitFuncSuite::test_split_func_01() {
     // Get the size of Mdbm
     CPPUNIT_ASSERT((newMdbmSize = mdbm_get_size(mdbm)) > oldMdbmSize);
 
-    // Verify that the Mdbm has exactly 255 records
-    CPPUNIT_ASSERT_EQUAL(255, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X+1 records
+    CPPUNIT_ASSERT_EQUAL(max_records+1, getNumberOfRecords(mdbm, k));
 
     // Verify that new value is added in Mdbm
     CPPUNIT_ASSERT_EQUAL(0, findRecord(mdbm, k, v));
@@ -182,9 +184,9 @@ void TestSplitFuncSuite::test_split_func_02() {
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
-    // Store these records until Mdbm is full. This number 254 is derived
-    // by trial.
-    for (int i = 0; i < 9982; i++) {
+    // Store these records until Mdbm is full. This number of records is derived by trial.
+    int max_records = 9982;
+    for (int i = 0; i < max_records; i++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
@@ -193,8 +195,8 @@ void TestSplitFuncSuite::test_split_func_02() {
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
 
-    // Verify that the Mdbm has exactly 9982 records
-    CPPUNIT_ASSERT_EQUAL(9982, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Now Mdbm is grown to it's max size and cannot grow further. So
     // attempt to store more data sould fail
@@ -204,8 +206,8 @@ void TestSplitFuncSuite::test_split_func_02() {
     // Verify that Mdbm size is not increased after last store
     CPPUNIT_ASSERT_EQUAL(oldMdbmSize, newMdbmSize);
 
-    // Verify that the Mdbm has exactly 9982 records.
-    CPPUNIT_ASSERT_EQUAL(9982, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 }
 
 // Test case 03 :  Store some records with some key (e.g., key1) into Mdbm.
@@ -231,16 +233,16 @@ void TestSplitFuncSuite::test_split_func_03() {
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
-    // Store these records until Mdbm page is full. This number 254 is
-    // derived by trial.
-    for (int i = 0; i < 254; i++) {
+    // Store these records until Mdbm page is full. This number 254 is derived by trial.
+    int max_records = 254;
+    for (int i = 0; i < max_records; i++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
     }
 
-    // Verify that the Mdbm has exactly 9982 records.
-    CPPUNIT_ASSERT_EQUAL(254, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Verify that new value is added in Mdbm
     CPPUNIT_ASSERT_EQUAL(0, findRecord(mdbm, k, v));
@@ -251,14 +253,15 @@ void TestSplitFuncSuite::test_split_func_03() {
     v.dsize = strlen(v.dptr);
 
     // Store these records until Mdbm is full.
-    for (int j = 0; j < 4096; j++) {
+    max_records = 4096;
+    for (int j = 0; j < max_records; j++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
     }
 
     // Verify that the Mdbm has exactly 4096 records with this key.
-    CPPUNIT_ASSERT_EQUAL(4096, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Verify that new value is added in Mdbm
     CPPUNIT_ASSERT_EQUAL(0, findRecord(mdbm, k, v));
@@ -287,16 +290,16 @@ void TestSplitFuncSuite::test_split_func_04() {
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
-    // Store these records until Mdbm is full. This number 8872 is derived
-    // by trial.
-    for (int i = 0; i < 8872; i++) {
+    // Store these records until Mdbm is full. This number 8872 is derived by trial.
+    int max_records = 8872;
+    for (int i = 0; i < max_records; i++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
     }
 
-    // Verify that the Mdbm has exactly 8872 records with this key.
-    CPPUNIT_ASSERT_EQUAL(8872, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     v.dptr = (char*)("value1value1");
     v.dsize = strlen(v.dptr);
@@ -314,8 +317,8 @@ void TestSplitFuncSuite::test_split_func_04() {
     // Add new record with size < deleted record size
     CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
 
-    // Verify that the Mdbm has exactly 8871 records with this key.
-    CPPUNIT_ASSERT_EQUAL(8872, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 }
 
 // Test case 05 - Mdbm has created with max Db size. Store some records
@@ -340,16 +343,16 @@ void TestSplitFuncSuite::test_split_func_05() {
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
-    // Store these records until Mdbm is full. This number 8872 is derived
-    // by trial.
-    for (int i = 0; i < 8872; i++) {
+    // Store these records until Mdbm is full. This number 8872 is derived by trial.
+    int max_records = 8872;
+    for (int i = 0; i < max_records; i++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
     }
 
     // Verify that the Mdbm has exactly 8871 records with this key.
-    CPPUNIT_ASSERT_EQUAL(8872, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     v.dptr = (char*)("value1value1");
     v.dsize = strlen(v.dptr);
@@ -388,9 +391,9 @@ void TestSplitFuncSuite::test_split_func_06() {
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
-    // Store these records until Mdbm is full. This number 8873 is derived
-    // by trial.
-    for (int i = 0; i < 8872; i++) {
+    // Store these records until Mdbm is full. This number 8872 is derived by trial.
+    int max_records = 8872;
+    for (int i = 0; i < max_records; i++) {
         // Add data (key-value pair) to Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
         CPPUNIT_ASSERT((ret = mdbm_get_size(mdbm)) != 0);
@@ -398,7 +401,7 @@ void TestSplitFuncSuite::test_split_func_06() {
 
 
     // Verify that the Mdbm has exactly 8872 records with this key.
-    CPPUNIT_ASSERT_EQUAL(8872, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     v.dptr = (char*)("value1value1");
     v.dsize = strlen(v.dptr);
@@ -415,7 +418,7 @@ void TestSplitFuncSuite::test_split_func_06() {
     CPPUNIT_ASSERT((ret = mdbm_store(mdbm, k, v, MDBM_INSERT_DUP)) != 0);
 
     // Verify that the Mdbm has exactly 8872 records with this key.
-    CPPUNIT_ASSERT_EQUAL(8872, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 }
 
 // Test case07 - Mdbm has created with max Db size. Store only one
@@ -442,7 +445,8 @@ void TestSplitFuncSuite::test_split_func_07() {
     v.dsize = strlen(v.dptr);
 
     // Create a Mdbm
-    MdbmHolder mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MdbmHolder mdbm = createMdbm(db_name, _largeObjectFlags, _pageSize, _initialDbSize, _spillSize);
+    //MdbmHolder mdbm = createMdbmNoLO(db_name, flags, _pageSize, _initialDbSize);
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
@@ -493,18 +497,19 @@ void TestSplitFuncSuite::test_split_func_08() {
     v.dsize = strlen(v.dptr);
 
     // Create a Mdbm
-    MdbmHolder mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MdbmHolder mdbm = createMdbm(db_name, _largeObjectFlags, _pageSize, _initialDbSize, _spillSize);
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
     // Store few values having large size until Mdbm is full
-    for (int i = 0; i < 50; i++) {
+    int max_records = 112;
+    for (int i = 0; i < max_records; i++) {
         // Store large object value into Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     }
 
-    // Verify that the Mdbm has exactly 50 records with this key.
-    CPPUNIT_ASSERT_EQUAL(50, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
@@ -513,8 +518,8 @@ void TestSplitFuncSuite::test_split_func_08() {
     CPPUNIT_ASSERT((ret = mdbm_store(mdbm, k, v, MDBM_INSERT_DUP)) != 0);
     CPPUNIT_ASSERT((newMdbmSize = mdbm_get_size(mdbm)) != 0);
 
-    // Verify that the Mdbm has exactly 50 records with this key.
-    CPPUNIT_ASSERT_EQUAL(50, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     delete[] largeObj;
 }
@@ -524,12 +529,11 @@ void TestSplitFuncSuite::test_split_func_08() {
 // with large objects until Mdbm has grown to max. size. Any attempt to
 // store record after that should fail Delete a record from Mdbm and try to
 // store a record of the same size. It should succeed
-// This test case fails. Filed ticket for this. Ticket #5486732
 void TestSplitFuncSuite::test_split_func_09() {
     const string mdbm_name  = _testDir + "/test09.mdbm";
     const char* db_name = mdbm_name.c_str();
     datum k, v;
-    int ret = -1, oldMdbmSize = 0;
+    int oldMdbmSize = 0;
     char* largeObj = new char[_largeObjSize];
 
     // Create key-value pair
@@ -545,32 +549,86 @@ void TestSplitFuncSuite::test_split_func_09() {
     v.dsize = strlen(v.dptr);
 
     // Create a Mdbm
-    MdbmHolder mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MdbmHolder mdbm = createMdbm(db_name, _largeObjectFlags, _pageSize, _initialDbSize, _spillSize);
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
+    int max_records = 112;
     // Store few records until Mdbm is full
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < max_records; i++) {
         // Store large object value into Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     }
+    CPPUNIT_ASSERT_EQUAL(-1, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
 
-    // Verify that the Mdbm has exactly 50 records with this key.
-    CPPUNIT_ASSERT_EQUAL(50, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Now Mdbm is full. Delete a key value pair
     CPPUNIT_ASSERT_EQUAL(0, mdbm_delete(mdbm, k));
 
-    // Verify that the Mdbm has exactly 49 records with this key.
-    CPPUNIT_ASSERT_EQUAL(49, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X-1 records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records-1, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
 
     // Now Mdbm has grown to max. size. Any store calls after this should fail
-    //CPPUNIT_ASSERT((ret = mdbm_store(mdbm, k, v, MDBM_INSERT_DUP)) == 0);
-    // Filed ticket for this #5486732
-    CPPUNIT_ASSERT((ret = mdbm_store(mdbm, k, v, MDBM_INSERT_DUP)) != 0);
+    CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+
+    delete[] largeObj;
+}
+
+// Test case 09 - Mdbm has created with max Db size. Store some records
+// with psuedo-large objects until Mdbm has grown to max. size. Any attempt to
+// store record after that should fail Delete a record from Mdbm and try to
+// store a record of the same size. It should succeed
+void TestSplitFuncSuite::test_split_func_09b() {
+    const string mdbm_name  = _testDir + "/test09b.mdbm";
+    const char* db_name = mdbm_name.c_str();
+    datum k, v;
+    int oldMdbmSize = 0;
+    char* largeObj = new char[_largeObjSize];
+
+    // Create key-value pair
+    k.dptr = (char*)("key");
+    k.dsize = strlen(k.dptr);
+
+    // Create a value with large object
+    for (int i = 0; i < _largeObjSize; i++) {
+        largeObj[i] = 'a';
+    }
+    largeObj[_largeObjSize-1] = '\0';
+    v.dptr = largeObj;
+    v.dsize = strlen(v.dptr);
+
+    // Create a Mdbm
+    MdbmHolder mdbm = createMdbmNoLO(db_name, flags, _pageSize, _initialDbSize);
+    CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
+    CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
+
+    // Store few records until Mdbm is full
+    int max_records = 51;
+    for (int i = 0; i < max_records; i++) {
+        // Store large object value into Mdbm
+        CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+    }
+    CPPUNIT_ASSERT_EQUAL(-1, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
+
+    // Now Mdbm is full. Delete a key value pair
+    CPPUNIT_ASSERT_EQUAL(0, mdbm_delete(mdbm, k));
+
+    // Verify that the Mdbm has exactly X-1 records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records-1, getNumberOfRecords(mdbm, k));
+
+    // Get the size of Mdbm
+    CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
+
+    // Now Mdbm has grown to max. size. Any store calls after this should fail
+    CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
 
     delete[] largeObj;
 }
@@ -579,7 +637,6 @@ void TestSplitFuncSuite::test_split_func_09() {
 // with large objects until Mdbm has grown to max. size. Any attempt to
 // store record after that should fail. Delete a record from Mdbm and try
 // to store a record of small size. It should succeed
-// This test case fails. Filed ticket for this. Ticket #5486732
 void TestSplitFuncSuite::test_split_func_10() {
     const string mdbm_name  = _testDir + "/test10.mdbm";
     const char* db_name = mdbm_name.c_str();
@@ -600,24 +657,25 @@ void TestSplitFuncSuite::test_split_func_10() {
     v.dsize = strlen(v.dptr);
 
     // Create a Mdbm
-    MdbmHolder mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MdbmHolder mdbm = createMdbm(db_name, _largeObjectFlags, _pageSize, _initialDbSize, _spillSize);
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
+    int max_records = 112;
     // Store few records until Mdbm is full
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < max_records; i++) {
         // Store large object value into Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     }
 
-    // Verify that the Mdbm has exactly 50 records with this key.
-    CPPUNIT_ASSERT_EQUAL(50, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Now Mdbm is full. Delete a key value pair
     CPPUNIT_ASSERT_EQUAL(0, mdbm_delete(mdbm, k));
 
     // Verify that the Mdbm has exactly 49 records with this key.
-    CPPUNIT_ASSERT_EQUAL(49, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records-1, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
@@ -631,17 +689,21 @@ void TestSplitFuncSuite::test_split_func_10() {
     v.dsize = strlen(v.dptr);
 
     // Now Mdbm has grown to max. size. Any store calls after this should fail
-    //CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
-    // Filed ticket for this #5486732
-    CPPUNIT_ASSERT((ret = mdbm_store(mdbm, k, v, MDBM_INSERT_DUP)) != 0);
+    CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+    CPPUNIT_ASSERT_EQUAL(-1,  mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     CPPUNIT_ASSERT((newMdbmSize = mdbm_get_size(mdbm)) != 0);
+    CPPUNIT_ASSERT_EQUAL(-1,  mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+    CPPUNIT_ASSERT_EQUAL(-1,  mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+    CPPUNIT_ASSERT_EQUAL(-1,  mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+    CPPUNIT_ASSERT_EQUAL(-1,  mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
+    CPPUNIT_ASSERT_EQUAL(-1,  mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
 
     // Verify that the Mdbm has exactly 49 records with this key.
-    CPPUNIT_ASSERT_EQUAL(49, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Verify that new value is added in Mdbm
     ret = findRecord(mdbm, k, v);
-    CPPUNIT_ASSERT_EQUAL(ret, -1);
+    CPPUNIT_ASSERT_EQUAL(ret, 0);
 
     delete[] largeObj;
 }
@@ -655,7 +717,7 @@ void TestSplitFuncSuite::test_split_func_11() {
     const char* db_name = mdbm_name.c_str();
     datum k, v;
     int ret = -1, oldMdbmSize = 0, newMdbmSize = 0;
-    char* largeObj = new char[_largeObjSize];
+    char* largeObj = new char[_pageSize+1];
 
     // Create key-value pair
     k.dptr = (char*)("key");
@@ -670,18 +732,19 @@ void TestSplitFuncSuite::test_split_func_11() {
     v.dsize = strlen(v.dptr);
 
     // Create a Mdbm
-    MdbmHolder mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MdbmHolder mdbm = createMdbm(db_name, _largeObjectFlags, _pageSize, _initialDbSize, _spillSize);
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
+    int max_records = 112;
     // Store few records until Mdbm is full (reached to max. size).
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < max_records; i++) {
         // Store large object value into Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     }
 
-    // Verify that the Mdbm has exactly 50 records with this key.
-    CPPUNIT_ASSERT_EQUAL(50, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
@@ -690,15 +753,16 @@ void TestSplitFuncSuite::test_split_func_11() {
     CPPUNIT_ASSERT_EQUAL(0, mdbm_delete(mdbm, k));
 
     // Verify that the Mdbm has exactly 49 records with this key.
-    CPPUNIT_ASSERT_EQUAL(49, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records-1, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((newMdbmSize = mdbm_get_size(mdbm)) != 0);
 
     // Create a record with size > deleted record size
-    for (int j = 0; j < 3074; j++) {
+    for (int j = 0; j < _pageSize; j++) {
         largeObj[j] = 'a';
     }
+    largeObj[_pageSize] = 0;
     v.dptr = largeObj;
     v.dsize = strlen(v.dptr);
 
@@ -706,7 +770,7 @@ void TestSplitFuncSuite::test_split_func_11() {
     CPPUNIT_ASSERT((ret = mdbm_store(mdbm, k, v, MDBM_INSERT_DUP)) != 0);
 
     // Verify that the Mdbm has exactly 49 records with this key.
-    CPPUNIT_ASSERT_EQUAL(49, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records-1, getNumberOfRecords(mdbm, k));
 
     delete[] largeObj;
 }
@@ -735,18 +799,19 @@ void TestSplitFuncSuite::test_split_func_12() {
     v.dsize = strlen(v.dptr);
 
     // Create a Mdbm
-    MdbmHolder mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MdbmHolder mdbm = createMdbm(db_name, _largeObjectFlags, _pageSize, _initialDbSize, _spillSize);
     CPPUNIT_ASSERT(NULL != (MDBM*)mdbm);
     CPPUNIT_ASSERT_EQUAL(0, mdbm_limit_size_v3(mdbm, _limitSize, NULL, NULL));
 
+    int max_records = 112;
     // Store few records until Mdbm is full (reached to max. size).
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < max_records; i++) {
         // Store large object value into Mdbm
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     }
 
-    // Verify that the Mdbm has exactly 50 records with this key.
-    CPPUNIT_ASSERT_EQUAL(50, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly X records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records, getNumberOfRecords(mdbm, k));
 
     // Get the size of Mdbm
     CPPUNIT_ASSERT((oldMdbmSize = mdbm_get_size(mdbm)) != 0);
@@ -755,7 +820,7 @@ void TestSplitFuncSuite::test_split_func_12() {
     CPPUNIT_ASSERT_EQUAL(0, mdbm_delete(mdbm, k));
 
     // Verify that the Mdbm has exactly 49 records with this key.
-    CPPUNIT_ASSERT_EQUAL(49, getNumberOfRecords(mdbm, k));
+    CPPUNIT_ASSERT_EQUAL(max_records-1, getNumberOfRecords(mdbm, k));
 
     // Create value having very small size
     v.dptr = (char*)("abc");
@@ -765,13 +830,14 @@ void TestSplitFuncSuite::test_split_func_12() {
     CPPUNIT_ASSERT((newMdbmSize = mdbm_get_size(mdbm)) != 0);
 
     // Add few records of small size
-    for (int j = 0; j < 30; j++) {
+    int max_small = 30;
+    for (int j = 0; j < max_small; j++) {
         // Now Mdbm has grown to max. size. Any store calls after this should fail
         CPPUNIT_ASSERT_EQUAL(0, mdbm_store(mdbm, k, v, MDBM_INSERT_DUP));
     }
 
-    // Verify that the Mdbm has exactly 79 (49+30) records with this key.
-    CPPUNIT_ASSERT_EQUAL(79, getNumberOfRecords(mdbm, k));
+    // Verify that the Mdbm has exactly max-1+small records with this key.
+    CPPUNIT_ASSERT_EQUAL(max_records-1+max_small, getNumberOfRecords(mdbm, k));
 
     delete[] largeObj;
 }

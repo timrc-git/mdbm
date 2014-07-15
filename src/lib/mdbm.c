@@ -4845,7 +4845,7 @@ mdbm_store_r(MDBM *db, datum* key, datum* val, int flags, MDBM_ITER* iter)
     esize = kvsize + MDBM_ENTRY_T_SIZE;
     maxesize = db->db_pagesize-MDBM_PAGE_T_SIZE-MDBM_ENTRY_T_SIZE;
 
-    if (esize > maxesize || (db->db_spillsize && vsize >= db->db_spillsize)) {
+    if (esize > maxesize || (db->db_spillsize && MDBM_LOB_ENABLED(db) && vsize >= db->db_spillsize)) {
         if (db->db_spillsize) {
             want_large = 1;
             vsize = MDBM_ALIGN_LEN(db,MDBM_ENTRY_LOB_T_SIZE);
@@ -6644,6 +6644,11 @@ mdbm_setspillsize(MDBM* db, int size)
     }
     if (size <= 1) {
         mdbm_log(LOG_ERR, "%s: mdbm_setspillsize invalid size %u ", db->db_filename, size);
+        errno = EINVAL;
+        return -1;
+    }
+    if (!MDBM_LOB_ENABLED(db)) {
+        mdbm_log(LOG_ERR, "%s: mdbm_setspillsize on db without large object support ", db->db_filename);
         errno = EINVAL;
         return -1;
     }

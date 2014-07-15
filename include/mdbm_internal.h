@@ -695,6 +695,12 @@ MDBM_ENTRY_LEN(const MDBM* db, const mdbm_entry_t* ep)
     return MDBM_KEY_OFFSET(ep) + ep->e_key.key.len - MDBM_VAL_OFFSET(db,ep);
 }
 
+static inline int
+MDBM_LOB_ENABLED (const MDBM* db)
+{
+  return db->db_hdr->h_dbflags & MDBM_HFLAG_LARGEOBJ;
+}
+
 static inline mdbm_entry_lob_t*
 MDBM_LOB_PTR1 (const MDBM* db, const mdbm_page_t* p, const mdbm_entry_t* ep)
 {

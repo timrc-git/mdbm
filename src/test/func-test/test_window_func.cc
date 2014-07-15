@@ -253,11 +253,11 @@ void WindowingFuncTestSuite::test_window_func_05() {
     const char* cache_mdbm = cache_name.c_str();
 
     // Create a Mdbm as cache
-    MDBM *cache_db = createCacheMdbm(cache_mdbm, flags, _pageSize, _initialDbSize, _limitSize);
+    MDBM *cache_db = createCacheMdbm(cache_mdbm, flagsLO, _pageSize, _initialDbSize, _limitSize);
     CPPUNIT_ASSERT(cache_db != NULL);
 
     // Create another Mdbm as backing store
-    MDBM *bs_db = createBSMdbmWithLO(bs_mdbm, flags, _pageSize, _initialDbSize, _limitSize, _spillSize, _windowSize);
+    MDBM *bs_db = createBSMdbmWithLO(bs_mdbm, flagsLO, _pageSize, _initialDbSize, _limitSize, _spillSize, _windowSize);
     CPPUNIT_ASSERT(bs_db != NULL);
 
     // Link cache and backing store
@@ -418,7 +418,7 @@ void WindowingFuncTestSuite::test_window_func_11() {
 
     // Create a Mdbm as cache
     MDBM *cache_db = NULL;
-    CPPUNIT_ASSERT((cache_db = createMdbm(cache_mdbm, flags, _pageSize,
+    CPPUNIT_ASSERT((cache_db = createMdbm(cache_mdbm, flagsLO, _pageSize,
         _initialDbSize, _spillSize)) != NULL);
 
     // Set cache mode
@@ -506,7 +506,7 @@ void WindowingFuncTestSuite::test_window_func_12() {
 
     // Create a Mdbm as cache
     MDBM *cache_db = NULL;
-    CPPUNIT_ASSERT((cache_db = createMdbm(cache_mdbm, flags, _pageSize,
+    CPPUNIT_ASSERT((cache_db = createMdbm(cache_mdbm, flagsLO, _pageSize,
         _initialDbSize, _spillSize)) != NULL);
 
     // Set cache mode
@@ -790,7 +790,7 @@ void WindowingFuncTestSuite::test_window_func_19() {
     datum k, v1, value;
 
     // Create a Mdbm as cache
-    MDBM *mdbm = createMdbm(db_name, flags, _pageSize, _initialDbSize, _spillSize);
+    MDBM *mdbm = createMdbm(db_name, flagsLO, _pageSize, _initialDbSize, _spillSize);
     CPPUNIT_ASSERT(mdbm != NULL);
 
     // Set max Db size and window size
@@ -875,7 +875,7 @@ void WindowingFuncTestSuite::test_window_func_20() {
     size_t offset = sizeof(mdbm_window_stats_t);
 
     // Create a Mdbm as cache
-    MDBM *mdbm = createMdbm(db_name, _flagsPartition, _pageSize, _initialDbSize, _spillSize);
+    MDBM *mdbm = createMdbmNoLO(db_name, _flagsPartition, _pageSize, _initialDbSize);
     CPPUNIT_ASSERT(mdbm != NULL);
 
     // Set max Db size and window size
