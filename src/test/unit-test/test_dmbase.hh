@@ -24,7 +24,7 @@
 
 #include "TestBase.hh"
 
-//typedef int (*shakernew_funcp_t)(MDBM *, const datum*, const datum*, mdbm_shake_data *);
+typedef int (*shakernew_funcp_t)(MDBM *, const datum*, const datum*, mdbm_shake_data_v3 *);
 
 class DataMgmtBaseTestSuite : public CppUnit::TestFixture, public TestBase
 {
@@ -134,7 +134,7 @@ protected:
     string makeKeyName(int incr, const string &keyBaseName);
     int deleteAllEntriesOnPage(MDBM *dbh);
     //void verifyDefaultConfig(MdbmHolder &dbh, const string &prefix, bool truncateDB, int defAlignVal, int defHashID, shakernew_funcp_t shaker = 0, int npagesLimit = -1);
-    void verifyDefaultConfig(MdbmHolder &dbh, const string &prefix, bool truncateDB, int defAlignVal, int defHashID, int npagesLimit = -1);
+    void verifyDefaultConfig(MdbmHolder &dbh, const string &prefix, bool truncateDB, int defAlignVal, int defHashID, int npagesLimit = -1, shakernew_funcp_t shaker=NULL, void* shakerData=NULL);
 
     // can only set the cache flag before data is added, thus a special needs method to fill the
     // DB without going into an infinite loop

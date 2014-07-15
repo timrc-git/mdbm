@@ -4,7 +4,6 @@
 // FIX BZ 5447216 - v2: mdbm_truncate: does not reset configuration params to defaults
 // FIX BZ 5469518 - v3: mdbm_chk_page: get an abort specifying page num=2 in a DB of 4 pages
 // FIX BZ 5447216 - v2: mdbm_truncate: does not reset configuration params to defaults
-// FIX BZ 5461114 - v2, v3: mdbm_purge: loses number of pages configuration set via mdbm_limit_size
 
 #include <unistd.h>
 #include <string.h>
@@ -59,15 +58,13 @@ DataMgmtBaseTestSuite::makeKeyName(int incr, const string &keyBaseName)
 int
 DataMgmtBaseTestSuite::createAndAddData(MdbmHolder &dbh, int numPages, const string &keyBaseName, const char *value, int &defAlignVal, int &defHashID, int extraFlags = 0)
 {
-    if (numPages < 0) // valid range is >= 0
-    {
+    if (numPages < 0) { // valid range is >= 0
         numPages = 0;
     }
 
     int openFlags = MDBM_O_RDWR | MDBM_O_CREAT | MDBM_O_TRUNC | versionFlag | extraFlags;
     int dbret = dbh.Open(openFlags, 0644, 512, 512 * numPages);
-    if (dbret == -1)
-    {
+    if (dbret == -1) {
         int errnum = errno;
         cout << "WARNING:(CDB): " << SUITE_PREFIX()
              << " MdbmHolder:Open FAILed with errno=" << errnum
@@ -78,8 +75,7 @@ DataMgmtBaseTestSuite::createAndAddData(MdbmHolder &dbh, int numPages, const str
     }
 
     int numRecs = 1;
-    if (numPages > 0)
-    {
+    if (numPages > 0) {
         dbret = mdbm_limit_size_v3(dbh, numPages, 0, NULL); // limit to numPages and no shake function
         numRecs = -1;
     }
@@ -87,8 +83,7 @@ DataMgmtBaseTestSuite::createAndAddData(MdbmHolder &dbh, int numPages, const str
     defAlignVal = mdbm_get_alignment(dbh);
     int alignVal = defAlignVal < MDBM_ALIGN_32_BITS ? MDBM_ALIGN_32_BITS : MDBM_ALIGN_16_BITS;
     int ret = mdbm_set_alignment(dbh, alignVal);
-    if (ret == -1)
-    {
+    if (ret == -1) {
         cout << "WARNING:(CDB): " << SUITE_PREFIX()
              << " mdbm_set_alignment FAILed. default mask=" << defAlignVal
              << " Tried to set mask=" << alignVal << endl << flush;
@@ -97,8 +92,7 @@ DataMgmtBaseTestSuite::createAndAddData(MdbmHolder &dbh, int numPages, const str
     defHashID = mdbm_get_hash(dbh);
     int hashID = (defHashID + 1) % (MDBM_MAX_HASH + 1);
     ret = mdbm_sethash(dbh, hashID);
-    if (ret != 1)
-    {
+    if (ret != 1) {
         cout << "WARNING:(CDB): " << SUITE_PREFIX()
              << " mdbm_sethash FAILed. default hash ID=" << defHashID
              << " Tried to set hash ID=" << hashID << endl;
@@ -1502,7 +1496,7 @@ DataMgmtBaseTestSuite::PartFilledMultiPageDbChkAllPagesE5()
 // NOTE: number of pages will be doubled via mdbm_limit_size
 void
 //DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix, bool truncateDB, int defAlignVal, int defHashID, shakernew_funcp_t shaker, int npagesLimit)
-DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix, bool truncateDB, int defAlignVal, int defHashID, int npagesLimit)
+DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix, bool truncateDB, int defAlignVal, int defHashID, int npagesLimit, shakernew_funcp_t shaker, void* shakerData)
 {
     // lets set non-defaults for these config params: alignment, hashfunc, pagesize, limitsize
     int presetPageSize = mdbm_get_page_size(dbh);
@@ -1516,8 +1510,8 @@ DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix
 
     uint64_t numPagesLimit = (npagesLimit == -1) ? 4 : npagesLimit;
 
-    //int ret = mdbm_limit_size_new(dbh, numPagesLimit, shaker, 0);
-    int ret = mdbm_limit_size_v3(dbh, numPagesLimit, 0, NULL);
+    int ret = mdbm_limit_size_v3(dbh, numPagesLimit, shaker, shakerData);
+fprintf(stderr, "SETTING LIMIT SIZE SHAKE KEY to %s\n", (char*)shakerData);
     stringstream limerr;
     limerr << prefix
            << " mdbm_limit_size FAILed. Starting limit number of pages=" << startNumPagesLimit
@@ -1537,13 +1531,14 @@ DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix
         TRACE_TEST_CASE(trmsg.str())
     }
 
+    //fprintf(stderr, "------------ PRE-CLEAR setlimit:%lu gotlimit:%lu ----------------\n", 
+    //    numPagesLimit, mdbm_get_limit_size(dbh));
     string trunc = "truncation";
-    if (truncateDB)
-    {
+    if (truncateDB) {
+        //fprintf(stderr, "------------ TRUNCATE ----------------\n");
         mdbm_truncate(dbh);
-    }
-    else
-    {
+    } else {
+        //fprintf(stderr, "------------ PURGE ----------------\n");
         trunc = "purge";
         mdbm_purge(dbh);
     }
@@ -1564,14 +1559,13 @@ DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix
     uint64_t postTruncNumPagesLimit = mdbm_get_limit_size(dbh) / postTruncPageSize;
     stringstream cfgss;
     cfgss << prefix;
-    if (truncateDB)
-    {
+    if (truncateDB) {
         cfgss << " Verifying defaults reset after truncation: " << endl;
-    }
-    else
-    {
+    } else {
         cfgss << " Verifying defaults NOT reset after purge: " << endl;
     }
+    //fprintf(stderr, "------------ setlimit:%lu gotlimit:%lu ----------------\n", 
+    //    numPagesLimit, mdbm_get_limit_size(dbh));
 
     cfgss << " : Preset Page size=" << presetPageSize
           << " : Post-" << trunc <<" Page size=" << postTruncPageSize << endl
@@ -1587,14 +1581,11 @@ DataMgmtBaseTestSuite::verifyDefaultConfig(MdbmHolder &dbh, const string &prefix
 
     CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncPageSize == presetPageSize));
 
-    if (truncateDB)
-    {
+    if (truncateDB) {
         CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncAlignVal == defAlignVal));
         CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncHashID == defHashID));
         CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncNumPagesLimit == 0));
-    }
-    else  // purge
-    {
+    } else { // purge
         CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncAlignVal == alignVal));
         CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncHashID == hashID));
         CPPUNIT_ASSERT_MESSAGE(cfgss.str(), (postTruncNumPagesLimit >= numPagesLimit));
@@ -1689,54 +1680,51 @@ DataMgmtBaseTestSuite::FilledMultiPageDbNonDefaultsTruncF4()
     verifyDefaultConfig(dbh, prefix, true, defAlignVal, defHashID);
 }
 
-//// RETURN 1 == match therefore delete the record, else 0
-//Static int shakerTC5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_shake_data *pagedata, const char *suffix)
-//{
-//    int ret = 0;
-//    string keytc5(key->dptr, key->dsize);
-//    if (!pagedata) // just looking for match of the known key
-//    {
-//        // look for key that ends with suffix
-//        if (keytc5.find(suffix) != string::npos)
-//        {
-//            ret = 1;
-//        }
-//        if (ret && GetUnitTestLogLevelEnv() > LOG_NOTICE)
-//        {
-//            cout << "Shaker-tc5: found matching key=" << keytc5 << endl << flush;
-//        }
-//    }
-//    else // delete key
-//    {
-//        // find the key on the page and mark it as deleted
-//        for (uint16_t cnt = 0; cnt < pagedata->page_num_items; ++cnt)
-//        {
-//            kvpair *page_item = pagedata->page_items + cnt;
-//
-//            keytc5.assign(page_item->key.dptr, page_item->key.dsize);
-//
-//            if (keytc5.find(suffix) != string::npos)
-//            {
-//                page_item->key.dsize = 0;
-//                ret = 1;
-//                break;
-//            }
-//        }
-//    }
-//
-//    return ret;
-//}
-//static int shakerTCF5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_shake_data *pagedata)
+// RETURN 1 == match therefore delete the record, else 0
+static int shakerTC5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_shake_data_v3 *pagedata)
+{
+    int ret = 0;
+    static const char* toMatch = NULL;
+    if (pagedata) {
+      toMatch = (const char*)pagedata->user_data;
+    }
+    string keytc5(key->dptr, key->dsize);
+    if (!pagedata) { // just looking for match of the known key
+        // look for key that contains toMatch
+        if (keytc5.find(toMatch) != string::npos) {
+            ret = 1;
+        }
+        if (ret && GetUnitTestLogLevelEnv() > LOG_NOTICE) {
+            cout << "Shaker-tc5: found matching key=" << keytc5 << endl << flush;
+        }
+        //fprintf(stderr,  "Shaker-tc5: found matching key=%s\n", keytc5.c_str());
+    } else { // delete key
+        // find the key on the page and mark it as deleted
+        for (uint16_t cnt = 0; cnt < pagedata->page_num_items; ++cnt) {
+            kvpair *page_item = pagedata->page_items + cnt;
+
+            keytc5.assign(page_item->key.dptr, page_item->key.dsize);
+
+            if (keytc5.find(toMatch) != string::npos) {
+                page_item->key.dsize = 0;
+                ret = 1;
+                //fprintf(stderr,  "Shaker-tc5: found matching (to delete) key=%s (vs %s)\n", 
+                //    keytc5.c_str(), toMatch);
+                break;
+            }
+        }
+    }
+
+    return ret;
+}
+//static int shakerTCF5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_shake_data_v3 *pagedata)
 //{
 //    return shakerTC5(dbh, key, val, pagedata, "tcF5key");
 //}
-#if 0
-// FIX BZ 5461114 - v2, v3: mdbm_purge: loses number of pages configuration set via mdbm_limit_size
-static int shakerTCG5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_shake_data *pagedata)
+static int shakerTCG5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_shake_data_v3 *pagedata)
 {
-    return shakerTC5(dbh, key, val, pagedata, "tcG5key");
+    return shakerTC5(dbh, key, val, pagedata);
 }
-#endif
 //void
 //DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncTruncF5()
 //{
@@ -1920,8 +1908,6 @@ DataMgmtBaseTestSuite::FilledMultiPagedDbNotDefaultsPurgeG4()
 void
 DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
 {
-#if 0
-// FIX BZ 5461114 - v2, v3: mdbm_purge: loses number of pages configuration set via mdbm_limit_size
     string baseName = "dmtcG5";
     string dbName   = GetTmpName(baseName);
     MdbmHolder dbh(dbName);
@@ -1930,6 +1916,7 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
     int defAlignVal;
     int defHashID;
     int numRecsAdded = createAndAddData(dbh, 1, keyBaseName, value.c_str(), defAlignVal, defHashID);
+    uint64_t count_orig = mdbm_count_records(dbh);
 
     stringstream cdss;
     cdss << SUITE_PREFIX()
@@ -1940,21 +1927,32 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
     string prefix = SUITE_PREFIX();
     prefix += "TC G5: ";
     shakernew_funcp_t shaker = shakerTCG5;
-    verifyDefaultConfig(dbh, prefix, false, defAlignVal, defHashID, shaker, 2);
+    string shakeKey = makeKeyName(1, keyBaseName);
+    verifyDefaultConfig(dbh, prefix, false, defAlignVal, defHashID, 2, shaker, (void*)shakeKey.c_str());
 
+    uint64_t size_prior = mdbm_get_size(dbh);
+    uint64_t count_prior = mdbm_count_records(dbh);
     // now lets refill it with numRecsAdded * 5; try to go over limits
     // why 5? because verifyDefaultConfig will set the page limit to 2
     // (since the original limit set was 1)
     int refillAddCnt = 0;
-    for (; refillAddCnt < (numRecsAdded * 5); ++refillAddCnt)
-    {
+    for (; refillAddCnt < (numRecsAdded * 20); ++refillAddCnt) {
         string dkey = makeKeyName(refillAddCnt, keyBaseName);
         int len = value.size() + 1;
-        if (store(dbh, dkey.c_str(), const_cast<char*>(value.c_str()), len, 0) == -1)
-        {
+        int ret = store(dbh, dkey.c_str(), const_cast<char*>(value.c_str()), len, 0);
+        if (ret) {
+          fprintf(stderr, "STORE returned %d for key %d\n", ret,refillAddCnt);
+        }
+        if (ret == -1) {
             break;
         }
     }
+    uint64_t size_post = mdbm_get_size(dbh);
+    uint64_t count_post = mdbm_count_records(dbh);
+
+    fprintf(stderr, "MDBM SIZE went from %lu to %lu after %d entries (orig:%lu ent-prior:%lu post:%lu)\n", 
+        size_prior, size_post, refillAddCnt, count_orig, count_prior, count_post);
+
     // Should only be able to add twice the number of entries as first time
     // since verifyDefaultConfig performs mdbm_limit_size with twice the number of pages
     stringstream adss;
@@ -1968,7 +1966,6 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
          << " : Refill number of records=" << refillAddCnt << endl;
     CPPUNIT_ASSERT_MESSAGE(adss.str(), (refillAddCnt >= ((numRecsAdded*2)-2) && (refillAddCnt < (numRecsAdded*5))));
 
-    // confirm the shaker was used to remove a known key
     MDBM_ITER iter;
     datum key = mdbm_firstkey_r(dbh, &iter);
     stringstream itss;
@@ -1977,10 +1974,10 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
          << endl;
     CPPUNIT_ASSERT_MESSAGE(itss.str(), (key.dsize > 0));
 
+    // confirm the shaker was used to remove a known key
     bool existInDB = false;
     datum valunused;
-    while (key.dsize > 0)
-    {
+    while (key.dsize > 0) {
         key = mdbm_nextkey_r(dbh, &iter);
         int found = shaker(dbh, &key, &valunused, 0);
         existInDB = existInDB ? existInDB : found == 1;
@@ -1992,7 +1989,6 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
          << ": Original number of records=" << numRecsAdded
          << " : Refill number of records=" << refillAddCnt << endl;
     CPPUNIT_ASSERT_MESSAGE(inss.str(), (existInDB == false));
-#endif
 }
 
 // Find a full or partial match of the param in the given key.
