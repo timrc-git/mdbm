@@ -929,6 +929,7 @@ Options:\n\
                          rw             Open backing-store for read-write access\n\
                          rwlock         Use mdbm read-write locking\n\
                          size=<mb>      Create mdbm-based backing store of specified size\n\
+                                          If you don't specify size, the db must already exist.\n\
                          win=<bytes>    Use mdbm window of specified size\n\
                          winmin=<bytes> Use mdbm window (min mode) of specified size\n\
         -b <bytes>      Enable windowed mode with specified window size.\n\
@@ -994,7 +995,12 @@ Options:\n\
         -Y              Don't create db but load it (use existing db)\n\
         -y              Answer yes to prompts\n\
         -Z              Don't create or load db (use existing db and values created with -Y)\n\
-        -z              Don't load db (create empty db but do not load)\n");
+        -z              Don't load db (create empty db but do not load)\n\
+\n\
+Examples:\n\
+    mdbm_bench -c100 -y -K -F /tmp/foo-part.mdbm -l2 -n5:5 \n\
+    mdbm_bench -3 -c 100 -y -K  -B mdbm=/tmp/bs.mdbm,size=100M -F /tmp/foo.mdbm \n\
+");
     exit(1);
 }
 
