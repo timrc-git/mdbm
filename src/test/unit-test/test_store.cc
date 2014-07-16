@@ -612,7 +612,7 @@ MdbmUnitTestStore::test_StoreR17()
 {
     TRACE_TEST_CASE(__func__);
 //    Bugzilla bug 5385076
-//    reserveAndStoreLarge(data.fileNameLarge, versionFlag);
+    reserveAndStoreLarge(data.fileNameLarge, versionFlag);
 }
 
 
@@ -1843,13 +1843,13 @@ MdbmUnitTestStore::reserveAndStore(const string &fname, int openFlags)
 void
 MdbmUnitTestStore::reserveAndStoreLarge(const string &fname, int openFlags)
 {
-    MdbmHolder mdbm(EnsureNewNamedMdbm(fname, openFlags, 0644, PAGESZ_TLRG, 0));
+    MdbmHolder mdbm(EnsureNewNamedMdbm(fname, openFlags|MDBM_LARGE_OBJECTS, 0644, PAGESZ_TLRG, 0));
     MDBM_ITER mIter;
     MDBM_ITER_INIT(&mIter);
 
     string key, msg;
     // Keys must be smaller than the page size, so I won't use the ky return value
-    datum ky, val;
+    datum ky={0,0}, val={0,0};
     ky = CreateTestValue("",  MUCH_LARGER_DATA, val);
     int curSize = (++val.dsize);  // store the null
     char *baseline = val.dptr;
@@ -1865,7 +1865,6 @@ MdbmUnitTestStore::reserveAndStoreLarge(const string &fname, int openFlags)
         memcpy(val.dptr, baseline, curSize);
         baseline[(--curSize)] = '\0';  // shorten by 1
     }
-    mdbm_close(mdbm);
 }
 
 // Store too many duplicates and don't use limit_size
