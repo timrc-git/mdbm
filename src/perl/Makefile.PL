@@ -42,7 +42,7 @@ EOT
 }
 
 my $ccflags = '$(COMP_CFLAGS_RELAXED)';
-my $ldflags = '-shared -L/usr/local/lib64 -Wl,-rpath,$(LIBDIR)';
+my $ldflags = ' -Wl,--no-as-needed -shared -L/usr/local/lib64 -Wl,-rpath,$(LIBDIR)';
 my $libs = "-L\$(LIBDIR) -L../lib/\$(OBJDIR) -lmdbm -lstdc++ ";
 
 #my $makefileSuffix = ($ObjDir eq '.' ? '' : '.' . $ObjDir);
@@ -83,7 +83,7 @@ WriteMakefile(
       AUTHOR            => 'Yahoo! MDBM developers') : ()),
     CCFLAGS           => $ccflags,
     #LIBS              => ":nosearch $libs",
-    LDDLFLAGS         => "$libs $ldflags",
+    LDDLFLAGS         => " $ldflags $libs ",
     DEFINE            => '',     # e.g., '-DHAVE_SOMETHING'
     INC               => '-I$(INCDIR) -I../../include',
     'XSOPT'             => '-C++',
