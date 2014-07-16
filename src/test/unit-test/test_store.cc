@@ -431,16 +431,15 @@ void
 MdbmUnitTestStore::test_StoreQ15()
 {
     TRACE_TEST_CASE(__func__);
-    const vector<int> &pageSizes = GetLargeDataPageSizes();
+    // const vector<int> &pageSizes = GetLargeDataPageSizes();
 
-    // Create large-object test files: mode=REPLACE is not important for this test
-    createBigTestFiles(MDBM_LARGE_OBJECTS|versionFlag, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
-    replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE, MDBM_MODIFY);
+    // // Create large-object test files: mode=REPLACE is not important for this test
+    // createBigTestFiles(MDBM_LARGE_OBJECTS|versionFlag, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
+    // replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE, MDBM_MODIFY);
 
-    // // bugzilla bug 5381866 - when fixed, replace V3 version of above with
-    // replaceTestXLobj(DO_STORE, MDBM_MODIFY);
-    // createBigDataV3(MDBM_REPLACE, DO_STORE);
-    // replaceLargeObjects(data.largeFiles, LargeDataPageSizesVectV3, DO_STORE, MDBM_MODIFY);
+    createBigDataV3(MDBM_REPLACE, DO_STORE);
+    replaceTestXLobj(DO_STORE, MDBM_MODIFY);
+    replaceLargeObjects(data.largeFiles, LargeDataPageSizesVectV3, DO_STORE, MDBM_MODIFY);
 }
 
 // mdbm_store_r() tests
@@ -588,15 +587,14 @@ MdbmUnitTestStore::test_StoreR15()
 {
     TRACE_TEST_CASE(__func__);
     const vector<int> &pageSizes = GetLargeDataPageSizes();
-    // Create large-object test files: mode=REPLACE is not important for this test
-    int openFlags = MDBM_LARGE_OBJECTS | versionFlag;
-    createBigTestFiles(openFlags, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE_R);
-    replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_R, MDBM_MODIFY);
+    // // Create large-object test files: mode=REPLACE is not important for this test
+    // int openFlags = MDBM_LARGE_OBJECTS | versionFlag;
+    // createBigTestFiles(openFlags, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE_R);
+    // replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_R, MDBM_MODIFY);
 
-//    bugzilla bug 5381866 - when fixed, replace V3 above with
-//    createBigDataV3(MDBM_REPLACE, DO_STORE_R);
-//    replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_R, MDBM_MODIFY);
-//    replaceTestXLobj(DO_STORE_R, MDBM_MODIFY);
+    createBigDataV3(MDBM_REPLACE, DO_STORE_R);
+    replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_R, MDBM_MODIFY);
+    replaceTestXLobj(DO_STORE_R, MDBM_MODIFY);
 }
 
 void
@@ -781,7 +779,6 @@ MdbmUnitTestStore::test_StoreS15()
     createBigTestFiles(openFlags, data.largeFiles, pageSizes, MDBM_REPLACE, DO_STORE);
     replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR, MDBM_MODIFY);
 
-//    bugzilla bug 5381866 - when fixed, replace V3 above with
 //    createBigDataV3(MDBM_REPLACE, DO_STORE_STR);
 //    replaceLargeObjects(data.largeFiles, pageSizes, DO_STORE_STR, MDBM_MODIFY);
 //    replaceTestXLobj(DO_STORE_STR, MDBM_MODIFY);
@@ -1616,13 +1613,14 @@ MdbmUnitTestStore::replaceTestXLobj(StoreType storeType, int mode)
     int lastEntry = pageSizes.size()-1;
     int pgsize = pageSizes[lastEntry];
     CPPUNIT_ASSERT((mdbm = mdbm_open(data.largeFiles[lastEntry].c_str(),  MDBM_O_RDWR, 0644, pgsize, 0)) != NULL);
+
     datum ky, val;
     const char *prfx = "ReplaceHuge";
     int  plen = strlen(prfx);
     ky = CreateTestValue(prfx, pgsize * 10, val);
     char *baselineData = ky.dptr;
     string key(SIMPLE_KEY_PREFIX);
-    key += "00";
+    key += "11";
     ky.dptr = const_cast<char *> (key.c_str());
     ky.dsize = key.size() + 1;
     val.dsize = (pgsize * 10) + plen + (storeType == DO_STORE_STR ? 1 : 0);
@@ -1766,24 +1764,23 @@ MdbmUnitTestStore::modifyTestXLobj(StoreType storeType)
     int lastEntry = pageSizes.size() - 1;
     int pgsize = pageSizes[lastEntry];
     CPPUNIT_ASSERT((mdbm = mdbm_open(data.largeFiles[lastEntry].c_str(),  MDBM_O_RDWR, 0644, pgsize, 0)) != NULL);
-    datum ky, val;
+    datum ky, val, cval;
     ky = CreateTestValue("", pgsize * 10, val);
     string key(SIMPLE_KEY_PREFIX);
 
-//    bugzilla bug 5381866 - when fixed, uncomment out
-#if 0
-    key += "00";
+    key += "0";
     char *baselineData = val.dptr + SLIGHTLY_SMALLER_DELTA;
     ky.dptr = const_cast<char *> (key.c_str());
     ky.dsize = key.size() + 1;
     val.dsize = (pgsize * 10) + SLIGHTLY_SMALLER_DELTA + (storeType == DO_STORE_STR ? 1 : 0);
     val.dptr = baselineData;
     CPPUNIT_ASSERT_EQUAL(0, doStore( mdbm, ky, val, MDBM_MODIFY, storeType));
-    CPPUNIT_ASSERT_EQUAL(0, errno);
-    val.dptr = baselineData;
-    val.dsize = (pgsize * 10) + SLIGHTLY_SMALLER_DELTA + (storeType == DO_STORE_STR ? 1 : 0);
-    compareLargeData(mdbm, &ky, val);
-#endif
+    //CPPUNIT_ASSERT_EQUAL(0, errno);
+    //val.dptr = baselineData;
+    //val.dsize = (pgsize * 10) + SLIGHTLY_SMALLER_DELTA + (storeType == DO_STORE_STR ? 1 : 0);
+    cval.dptr = val.dptr;
+    cval.dsize = (storeType==DO_STORE_STR) ? strlen(val.dptr)+1 : val.dsize; 
+    compareLargeData(mdbm, &ky, cval);
 
     key = SIMPLE_KEY_PREFIX;
     key += "11";
@@ -1793,7 +1790,10 @@ MdbmUnitTestStore::modifyTestXLobj(StoreType storeType)
     //CPPUNIT_ASSERT_EQUAL(0, errno);
     val.dptr = ky.dptr = const_cast<char *> (key.c_str());
     val.dsize = ky.dsize = key.size() + 1;
-    compareLargeData(mdbm, &ky, val);
+    cval.dptr = val.dptr;
+    cval.dsize = (storeType==DO_STORE_STR) ? strlen(val.dptr)+1 : val.dsize; 
+    compareLargeData(mdbm, &ky, cval);
+
     mdbm_close(mdbm);
 }
 
