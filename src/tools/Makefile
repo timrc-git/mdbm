@@ -1,5 +1,5 @@
-
-TOPDIR=$(shell realpath $(shell pwd)/../..)
+CANONICALIZE=readlink -m -n -q
+TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../..)
 include $(TOPDIR)/Makefile.base
 
 #  bench_data_utils.hh 
