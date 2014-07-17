@@ -22,7 +22,8 @@ Usage: mdbm_copy [options] SOURCE DEST\n\
 Options:\n\
         -h      This help message\n\
         -l      Lock the entire database during copy\n\
-        -L      Do not lock the database at all\n");
+        -L      Do not lock the database at all\n\
+        -s      Make the resulting file sparse.\n");
     exit(ec);
 }
 
@@ -33,12 +34,14 @@ main(int argc, char** argv)
     int opt;
     int lock = 0;
     MDBM *db;
+    const char *dest, *src;
     int f;
     int oflags = MDBM_ANY_LOCKS;
     int nolock = 0;
+    int sparse = 0;
     const int MAX_TRIES = 3;
 
-    while ((opt = getopt(argc,argv,"hLl")) != -1) {
+    while ((opt = getopt(argc,argv,"hLls")) != -1) {
         switch (opt) {
         case 'h':
             usage(0);
@@ -54,6 +57,10 @@ main(int argc, char** argv)
             lock = 1;
             break;
 
+        case 's':
+            sparse = 1;
+            break;
+
         default:
             usage(1);
         }
@@ -64,24 +71,33 @@ main(int argc, char** argv)
         usage(1);
     }
 
+    src =  argv[optind];
+    dest = argv[optind+1];
     if (lock && nolock) {
         fputs(PROG ": Options '-L' and '-l' conflict and cannot be used together\n",stderr);
         usage(1);
     }
 
-    if ((db = mdbm_open(argv[optind],MDBM_O_RDONLY|oflags,0,0,0)) == NULL) {
-        perror(argv[optind]);
+    if ((db = mdbm_open(src,MDBM_O_RDONLY|oflags,0,0,0)) == NULL) {
+        perror(src);
         exit(2);
     }
 
-    if ((f = open(argv[optind+1],O_RDWR|O_CREAT|O_TRUNC,0666)) < 0) {
-        perror(argv[optind+1]);
+    if ((f = open(dest,O_RDWR|O_CREAT|O_TRUNC,0666)) < 0) {
+        perror(dest);
         exit(2);
     }
 
     if (mdbm_internal_fcopy(db,f,lock ? MDBM_COPY_LOCK_ALL : 0, MAX_TRIES) < 0) {
         perror("fcopy");
         exit(2);
+    }
+    if (sparse) {
+      if (mdbm_sparsify_file(dest, -1) < 0) {
+        fprintf(stderr, "Warning! sparsify failed errno:%d (%s)\n", errno, strerror(errno));
+        fprintf(stderr, "You may be able to create a sparse copy with:\n"
+                           "dd if=%s of=%s.sparse conv=sparse\n", dest, dest);
+      }
     }
 
     close(f);

@@ -9501,6 +9501,86 @@ int mdbm_preload(MDBM* db)
     return 0;
 }
 
+#ifdef __linux__
+#include <linux/falloc.h>
+#ifdef FALLOC_FL_PUNCH_HOLE
+#define HAVE_SPARSIFY
+int
+mdbm_sparsify_file(const char* filename, int blocksize) 
+{
+  struct stat st;
+  off_t filesize, cur;
+  int ret, retval = -1;
+  char *zbuf = NULL, *rbuf=NULL;
+  int fd = open(filename, O_RDWR);
+
+  if (fd<0) {
+    mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() could not open.\n", filename);
+    errno=EINVAL;
+    goto sparsify_exit;
+  }
+
+  ret = fstat(fd, &st);
+  if (ret<0) {
+    mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() could not fstat.\n", filename);
+    errno=EINVAL;
+    goto sparsify_exit;
+  }
+  filesize = st.st_size;
+  if (blocksize<1) {
+    blocksize = st.st_blksize;
+  }
+  if (blocksize<1) {
+    mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() invalid blocksize %d.\n", filename, blocksize);
+    errno=EINVAL;
+    goto sparsify_exit;
+  }
+
+  zbuf = (char*)malloc(blocksize);
+  rbuf = (char*)malloc(blocksize);
+  if ((!zbuf) || (!rbuf)) {
+    mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() could not allocate buffers.\n", filename);
+    errno=ENOMEM;
+    goto sparsify_exit;
+  }
+  memset(zbuf, 0, blocksize);
+  for (cur=0; cur<filesize; cur += blocksize) {
+    /* mmap() would be faster, but system-page-size might not match blocksize */
+    if (pread(fd, rbuf, blocksize, cur) < 0) {
+      mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() pread() error at offset %lu.\n", filename, cur);
+      errno=EINVAL;
+      goto sparsify_exit;
+    }
+    if (0 == memcmp(zbuf, rbuf, blocksize)) {
+      ret = fallocate(fd, FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE, cur, blocksize);
+      if (ret < 0) {
+        mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() punch-hole failed at offset:%lu size:%d fd:%d "
+            "errno:%d (%s).\n", 
+            filename, cur, blocksize, fd, errno, strerror(errno));
+        errno=EINVAL;
+        goto sparsify_exit;
+      }
+    }
+  }
+
+sparsify_exit:
+  if (zbuf) { free(zbuf); }
+  if (rbuf) { free(rbuf); }
+  if (fd>=0) { close(fd); }
+  return retval;
+}
+#endif /* FALLOC_FL_PUNCH_HOLE */
+#endif /* __linux__ */
+
+#ifndef HAVE_SPARSIFY
+int
+mdbm_sparsify_file(const char* filename, int blocksize) 
+{
+  errno = ENOSYS;
+  return -1;
+}
+#endif
+
 /* mlock() does all the rounding of sizes to system page size internally */
 
 static int

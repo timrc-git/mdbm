@@ -2721,6 +2721,21 @@ extern mdbm_ubig_t mdbm_get_page(MDBM *db, const datum *key);
 extern int mdbm_preload(MDBM* db);
 
 /**
+ * Make a file sparse. Read every blockssize bytes and for all-zero blocks punch a hole in the file.
+ * This can make a file with lots of zero-bytes use less disk space.
+ * NOTE: For MDBM files that may be modified, the DB should be opened, and exclusive-locked
+ * for the duration of the sparsify operation.
+ * NOTE: This function is linux-only.
+ *
+ * \param[in] filename Name of the file to make sparse.
+ * \param[in] blocksize Minimum size to consider for hole-punching, <=0 to use the system block-size
+ * \return sparsify status
+ * \retval -1 Error
+ * \retval  0 Success
+ */
+extern int mdbm_sparsify_file(const char* filename, int blocksize);
+
+/**
  * mdbm_lock_pages: Locks MDBM data pages into memory.
  *
  * When running MDBM as root, mdbm_lock_pages will expand the amount of RAM that can be locked to
