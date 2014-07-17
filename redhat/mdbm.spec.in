@@ -1,0 +1,51 @@
+Name:           mdbm
+Version:        4.3.2
+Release:        1%{?dist}
+Summary:        MDBM is a fast dbm clone originally based on Ozan Yigit's sdbm.
+
+
+License:        BSD
+URL:            https://github.com/yahoo/mdbm
+Source0:        mdbm-4.3.2-0.tgz
+
+BuildRequires:  readline-devel, cppunit-devel
+Requires:       openssl
+# not sure this is correct.
+Provides: libmdbm.so.4()(64bit), libmdbm.so()(64bit)
+
+
+
+%description
+
+%define _unpackaged_files_terminate_build 1
+
+%package devel
+Summary:        Mdbm header files.
+
+%description devel
+
+
+%prep
+%setup -qn %{name}-4.3.2-0
+
+%build
+make %{?_smp_mflags} LIBDIR=/usr/lib64 INCDIR=/usr/include
+
+
+%install
+rm -rf %{buildroot}
+#mdbm installs directly to prefix, rpm looks for /usr
+make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install
+
+%files
+%doc README LICENSE
+%{_bindir}/*
+%{_libdir}/*
+
+%files devel
+%{_includedir}/*
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+%changelog
