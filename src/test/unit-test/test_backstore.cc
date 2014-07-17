@@ -6,7 +6,6 @@
 // FIX BZ 5455314 - mdbm_open generates core with MDBM_OPEN_WINDOWED flag
 // FIX BZ 5518388: v3: mdbm_set_window_size: returns success if window size=0; but SEGV in mdbm_store_r
 // FIX BZ 5530655: v3: mdbm_get_window_stats: SEGV with null mdbm_window_stats_t parameter
-// FIX BZ 5535994: v3: mdbm_set_window_size: improper cleanup upon failure; then call mdbm_close causes glibc detected *** double free or corruption
 // FIX BZ 5536317: v3: mdbm_set_backingstore: MDBM_BSOPS_FILE reuse old BS file with new cache - cannot fetch any data
 #include <unistd.h>
 #include <string.h>
@@ -1339,27 +1338,6 @@ void BackStoreTestSuite::BsSetWindowSizeMaxIntB3()
 void BackStoreTestSuite::BsSetWindowSizeMinusOneB4()
 {
 #if 0
-// FIX BZ 5535994: v3: mdbm_set_window_size: improper cleanup upon failure; then call mdbm_close causes glibc detected *** double free or corruption
-// FIX E 11-165554.850194 23525 /tmp/mdbm/mlakes-23525/mdbm-00004tcbackstoreB4: map: mmap failure: Invalid argument
-// *** glibc detected *** double free or corruption (!prev): 0x000000000b0651b0 ***
-// Aborted
-
-// FIX BZ 5535994
-// FIX B4 set win size=18446744073709551615 ULLONG_MAX=18446744073709551615
-// FIX set_windowsize:
-// FIX set_windowsize: b4 munmap db_window.base
-// FIX set_windowsize: b4 free db_window.buckets
-// FIX set_windowsize: b4 free db_window.wpages
-// E 19-125238.138161 16632 /tmp/mdbm/mlakes-16632/mdbm-00058tcbackstoreB4: map: mmap failure: Invalid argument
-// FIX B4 win size=18446744073709551615Backing Store TestSuite - v3: TC B4: Back Store: Set Invalid Window size=18446744073709551615 and expected FAILure. mdbm_set_window_size returned=-1
-// FIX mdbm_close: b4 set_windowsize
-// FIX set_windowsize:
-// FIX set_windowsize: b4 free db_window.buckets
-// FIX set_windowsize: b4 free db_window.wpages
-// *** glibc detected *** double free or corruption (!prev): 0x000000001c97fad0 ***
-// Aborted
-
-
     // set invalid window size = -1=ULLONG_MAX=18446744073709551615
     string prefix = "TC B4: Back Store: ";
     TRACE_TEST_CASE(prefix);
@@ -1378,9 +1356,10 @@ void BackStoreTestSuite::BsSetWindowSizeMinusOneB4()
     stringstream wsss;
     wsss << prefix << "Set Invalid Window size=" << wsize
          << " and expected FAILure. mdbm_set_window_size returned=" << ret << endl;
-    CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == -1));
+    //CPPUNIT_ASSERT_MESSAGE(wsss.str(), (ret == -1));
 #endif
 }
+
 void BackStoreTestSuite::BsSetWindowSizeZeroB5()
 {
     // create DB; set window size=0; expect failure
