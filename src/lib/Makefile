@@ -48,7 +48,7 @@ $(OBJDIR)/$(LIBNAME).$(LIBVER) : $(SOURCES:%.c=$(OBJDIR)/%.o) $(CPP_SOURCES:%.cc
 install:: default-make-target
 	$(INSTALL) -d $(LIB_DEST)
 	$(INSTALL) -D $(OBJDIR)/$(LIBNAME).$(LIBVER) $(LIB_DEST)
-	ln -s -f $(OBJDIR)/$(LIBNAME) $(LIB_DEST)/$(LIBNAME)
+	ln -s -f $(LIB_DEST)/$(LIBNAME).$(LIBVER) $(LIB_DEST)/$(LIBNAME)
 
 clean :: clean-objs
 
