@@ -1,0 +1,6 @@
+src/lib/object/
+src/test/func-test/object/
+src/test/pool_test/object/
+src/test/smoke-test/object/
+src/test/unit-test/object/
+src/tools/object/
