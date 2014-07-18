@@ -133,7 +133,7 @@ $(OBJDIR)/%.o: %.cc
 #	$(CC) $(CFLAGS) $(PEDANTIC) -c $< -o $@
 
 # TODO ensure we have all gcov generated files
-CLEAN_OBJECTS=*.o *.d *.lib *.so *.xml *.gcov *.gcda
+CLEAN_OBJECTS=*.o *.d *.lib *.so.* *.xml *.gcov *.gcda
 CLEAN_OB_DIRS=. $(OBJDIR_BASE) $(OBJDIR_PROF)
 .PHONY: clean-objs
 clean-objs:
