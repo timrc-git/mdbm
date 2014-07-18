@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 print <<EOF
 MDBM is a fast dbm clone originally based on Ozan Yigit's sdbm.
