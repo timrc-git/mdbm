@@ -14,8 +14,7 @@ HEADERS= \
   mdbm_util.h
 
 
-HDR_DEST=$(PREFIX)/include
 install:: default-make-target
-	$(INSTALL) -d $(HDR_DEST)
-	$(INSTALL) -t $(HDR_DEST) $(HEADERS)
+	$(INSTALL) -d $(INC_PREFIX)
+	$(INSTALL) -t $(INC_PREFIX) $(HEADERS)
 

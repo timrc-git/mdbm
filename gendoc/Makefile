@@ -38,9 +38,8 @@ docs-clean: clean
 docs-force: clean
 	$(MAKE) docs
 
-MAN_DEST=$(PREFIX)/share/man
 install:: docs
-	$(INSTALL) -d $(MAN_DEST)
-	$(INSTALL) -d $(MAN_DEST)/man1
-	$(INSTALL) -t $(MAN_DEST)/man1 $(shell find -L ./man/man1 -type f)
+	$(INSTALL) -d $(MAN_PREFIX)
+	$(INSTALL) -d $(MAN_PREFIX)/man1
+	$(INSTALL) -t $(MAN_PREFIX)/man1 $(shell find -L ./man/man1 -type f)
 

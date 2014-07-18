@@ -29,11 +29,15 @@ INSTALL=install
 # assume 64-bit, comment out for 32-bit
 # TODO auto-detect
 ARCH_SUFFIX=64
+
 # where to install files:
 #PREFIX=/usr/local
-PREFIX=/tmp/install
-BIN_PREFIX=$(PREFIX)/bin
-PERL_PREFIX=/tmp/install
+PREFIX ?= /tmp/install
+BIN_PREFIX ?= $(PREFIX)/bin
+PERL_PREFIX ?= $(PREFIX)
+MAN_PREFIX ?= $(PREFIX)/share/man
+INC_PREFIX ?= $(PREFIX)/include
+
 ############################################################
 
 ifeq ($(strip $(YROOT_NAME)),)
