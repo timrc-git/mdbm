@@ -25,6 +25,8 @@ PERL=perl
 # command for building reST documentation
 SPHINXBUILD   = /usr/bin/sphinx-build
 INSTALL=install
+# Uncomment to set rpath to LIBDIR
+#USE_RPATH=1
 
 # assume 64-bit, comment out for 32-bit
 # TODO auto-detect

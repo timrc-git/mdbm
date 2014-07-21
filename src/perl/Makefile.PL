@@ -42,7 +42,10 @@ EOT
 }
 
 my $ccflags = '$(COMP_CFLAGS_RELAXED)';
-my $ldflags = ' -Wl,--no-as-needed -shared -L/usr/local/lib64 -Wl,-rpath,$(LIBDIR)';
+my $ldflags = ' -Wl,--no-as-needed -shared -L/usr/lib64';
+# for a small population, they want rpath, but I'm not sure how to get that in here.
+# they also want -L/usr/local/lib64
+# -Wl,-rpath,$(LIBDIR)';
 my $libs = "-L\$(LIBDIR) -L../lib/\$(OBJDIR) -lmdbm -lstdc++ ";
 
 #my $makefileSuffix = ($ObjDir eq '.' ? '' : '.' . $ObjDir);

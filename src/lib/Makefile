@@ -33,7 +33,9 @@ SONAME=-Wl,-soname,$(LIBNAME).$(LIBVER)
 LIB_BUILD_FLAGS += -lrt
 
 LIB_DEST=$(PREFIX)/lib$(ARCH_SUFFIX)
+ifeq ($(SET_RPATH),1)
 LIB_BUILD_FLAGS += -Wl,-rpath=$(LIB_DEST)
+endif
 
 default-make-target: $(OBJDIR)/$(LIBNAME) $(OBJDIR)/$(LIBNAME).$(LIBVER)
 
