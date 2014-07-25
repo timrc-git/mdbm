@@ -5550,7 +5550,16 @@ mdbm_limit_size_new_common(MDBM* db,
     int npages;
     int want_pages;
 
-    for (dir_shift = 0, npages = 1; 2*npages <= pages; dir_shift++, npages <<= 1);
+    for (dir_shift = 0, npages = 1; npages && (2*npages <= pages); dir_shift++, npages <<= 1);
+    if (!npages) {
+        mdbm_log(LOG_ERR,
+                 "%s: mdbm_limit_size*() maximum pages is too large"
+                 ", existing pages=%d"
+                 ", new limit pages=%u",
+                 db->db_filename, db->db_hdr->h_num_pages, pages);
+        errno = EINVAL;
+        return -1;
+    }
     want_pages = pages;
     pages += MDBM_NUM_DIR_PAGES(db->db_pagesize,dir_shift);
 

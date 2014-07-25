@@ -35,7 +35,6 @@ typedef int (*shaker_funcp_t)(struct mdbm *, datum, datum, void *);
 /*
     bugzilla tickets:
     BZ ticket 5262467: V2: mdbm_limit_size neither reports a warning nore returns error upon num pages=UINT_MAX
-    BZ ticket 5262509: V3: mdbm_limit_size hangs indefinitely upon num pages=UINT_MAX
     BZ ticket 5354822: v2: mdbm_limit_size: no effect unless presized during the mdbm_open
     BZ ticket 5354923: v2: mdbm_limit_size: returns success upon invalid number of pages
 
@@ -374,9 +373,9 @@ void LimitSizeTestSuite::MaxNumPagesUIntV3_lsv3()  // TC D-5
     // Specify maximum number of pages possible.
     // Test maximum limits by using largest unsigned int allowed (UINT_MAX).
     // System dependent: 32 bit allows 2 giB, 64 bit allows 128 TB
-// FIX    //LimitSizeV3FO lsfo(0, 0);
-// FIX    LimitSizeV3FO lsfo(0);
-// FIX hangs    maxNumPagesUInt(lsfo, MDBM_CREATE_V3, "TC D-5: MaxNumPagesUIntV3_lsv3: mdbm_limit_size_v3: ");
+    //LimitSizeV3FO lsfo(0, 0);
+    LimitSizeV3FO lsfo(0);
+    maxNumPagesUInt(lsfo, "TC D-5: MaxNumPagesUIntV3_lsv3: mdbm_limit_size_v3: ");
 }
 
 void LimitSizeTestSuite::maxNumPages(LimitSizeFO & lsfo, const string& tcprefix)  // TC D-6
