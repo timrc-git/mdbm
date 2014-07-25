@@ -856,7 +856,7 @@ MdbmUnitTestStore::test_StoreChurnLob()
 
     //for (i=0; i<10; i+=2) {
     for (i=0; i<4; i+=2) {
-fprintf(stderr, "**** DELETE ENTRY %d size:%d\n", i, vdat.dsize);
+      //fprintf(stderr, "**** DELETE ENTRY %d size:%d\n", i, vdat.dsize);
       kdat.dsize = 1+ snprintf(key, 16, "%d", i);
       ret = mdbm_delete(db, kdat);
       if (ret) {
@@ -876,7 +876,7 @@ fprintf(stderr, "**** DELETE ENTRY %d size:%d\n", i, vdat.dsize);
     }
     for (i=1; i<7; i+=2) {
       vdat.dsize = 12000;
-fprintf(stderr, "**** TRIPLE-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
+      //fprintf(stderr, "**** TRIPLE-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
       kdat.dsize = 1+ snprintf(key, 16, "%d", i);
       ret = mdbm_store(db, kdat, vdat, MDBM_REPLACE);
       if (ret) {
@@ -888,13 +888,13 @@ fprintf(stderr, "**** TRIPLE-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
     CPPUNIT_ASSERT(0 == mdbm_limit_size_v3 (db, 16+15, NULL, NULL));
     for (i=1; i<6; i+=2) {
       vdat.dsize = 16000;
-fprintf(stderr, "**** QUAD-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
+      //fprintf(stderr, "**** QUAD-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
       kdat.dsize = 1+ snprintf(key, 16, "%d", i);
       ret = mdbm_store(db, kdat, vdat, MDBM_REPLACE);
       CPPUNIT_ASSERT(0 == ret);
     }
     CPPUNIT_ASSERT(0 == mdbm_limit_size_v3 (db, 16+19, NULL, NULL));
-fprintf(stderr, "**** QUAD-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
+      //fprintf(stderr, "**** QUAD-SIZE ENTRY %d size:%d\n", i, vdat.dsize);
       kdat.dsize = 1+ snprintf(key, 16, "%d", i);
       ret = mdbm_store(db, kdat, vdat, MDBM_REPLACE);
       CPPUNIT_ASSERT(0 == ret);
@@ -938,6 +938,10 @@ MdbmUnitTestStore::test_StoreT4()   // Test T4
 
     datum dret = mdbm_fetch(dbh, key);
     CPPUNIT_ASSERT_MESSAGE(tcPrefix + "FAILed to fetch large object in memory only db", (dret.dsize > 0 && dret.dptr != NULL));
+
+    //dump_mdbm_header(dbh);
+    //dump_chunk_headers(dbh);
+    //mdbm_dump_all_page(dbh);
 
     mdbm_close(dbh);
 }

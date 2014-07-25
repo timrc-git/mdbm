@@ -853,11 +853,6 @@ void TestBase::StoreFetchKnownValues(int openflags, vector<int> &pageSizeRange, 
         if (openflags) {
             dbh = GetTmpMdbm(openflags|MDBM_O_RDWR|MDBM_O_CREAT|MDBM_O_TRUNC, 0644, pageSizeRange[cnt]);
         } else {
-// FIX BZ 5763998: mdbm: memory-only db - fails when using pagesize = 256
-            if (pageSizeRange[cnt] == 256) {
-                cerr << "Warning: memory-only db has bug(BZ 5763998) for pagesize = 256, skipping this page size" << endl << flush;
-                continue;
-            }
             int numPages = presplitpages ? presplitpages : 8;
             dbh = mdbm_open(NULL, 0, 0, pageSizeRange[cnt], pageSizeRange[cnt] * numPages); // memory only
             if (dbh == NULL) {
@@ -865,7 +860,8 @@ void TestBase::StoreFetchKnownValues(int openflags, vector<int> &pageSizeRange, 
                        << "Memory-only test FAILed: mdbm_open returned null" << endl;
                 CPPUNIT_ASSERT_MESSAGE(prefix.str(), (dbh != NULL));
             }
-            maxkeys = 500; // reset smaller since memory-only db cannot grow
+            //maxkeys = 500; // reset smaller since memory-only db cannot grow
+            maxkeys = 100; // reset smaller since memory-only db cannot grow
         }
         MdbmHolder dbholder(dbh);
 
@@ -881,6 +877,10 @@ void TestBase::StoreFetchKnownValues(int openflags, vector<int> &pageSizeRange, 
 
         // store maxkeys key/values
         StoreKnownValues(dbh, maxkeys, openflags, pageSizeRange[cnt], prefix.str() + psss.str());
+
+        //dump_mdbm_header(dbh);
+        //dump_chunk_headers(dbh);
+        //mdbm_dump_all_page(dbh);
 
         if (compresstree) {
             mdbm_compress_tree(dbh);

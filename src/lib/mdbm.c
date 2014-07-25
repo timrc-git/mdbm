@@ -1655,12 +1655,14 @@ int
 mdbm_internal_remap(MDBM *db, size_t dbsize, int flags)
 {
     mdbm_hdr_t hdr;
+    mdbm_page_t page;
     int got_hdr = 0;
 
     /* Save a copy of the header, then unmap current db. */
     if (db->db_base) {
         assert(sizeof(hdr) <= db->db_base_len);
-        memcpy(&hdr,db->db_base+MDBM_PAGE_T_SIZE,sizeof(hdr));
+        memcpy(&page, db->db_base, MDBM_PAGE_T_SIZE);
+        memcpy(&hdr, db->db_base+MDBM_PAGE_T_SIZE, sizeof(hdr));
         got_hdr = 1;
         if (munmap(db->db_base,db->db_base_len) < 0) {
             mdbm_logerror(LOG_ERR,0,"munmap(%p,%llu)",
@@ -1761,6 +1763,7 @@ mdbm_internal_remap(MDBM *db, size_t dbsize, int flags)
         db->db_hdr = (mdbm_hdr_t*)(db->db_base + MDBM_PAGE_T_SIZE);
         if (db->db_flags & MDBM_DBFLAG_MEMONLYCACHE) {
             memcpy(db->db_hdr, &hdr,sizeof(hdr));
+            memcpy(db->db_base, &page, MDBM_PAGE_T_SIZE);
         }
 
         if (check_db_header(db,db->db_hdr,1) > 0) {
@@ -2140,7 +2143,7 @@ MDBM_MAX_PGMAP_ENTRIES(const MDBM* db)
 static mdbm_page_t*
 pagenum_to_page(MDBM* db, int pagenum, int alloc, int map)
 {
-    mdbm_page_t* page;
+    mdbm_page_t* page = NULL;
     int p;
 #ifdef MDBM_SANITY_CHECKS
     if (pagenum < 0 || pagenum > db->db_max_dirbit) {
@@ -2161,9 +2164,9 @@ pagenum_to_page(MDBM* db, int pagenum, int alloc, int map)
             }
         }
 #ifdef MDBM_SANITY_CHECKS
-        if (p > db->db_num_pages || page->p_type != MDBM_PTYPE_DATA) {
+        if (p > db->db_num_pages || !page || page->p_type != MDBM_PTYPE_DATA) {
             mdbm_log(LOG_CRIT, "%s: invalid page (%d/%d type:%d vs %d) in pagenum_to_page",
-                     db->db_filename,p,db->db_num_pages, page->p_type, MDBM_PTYPE_DATA);
+                     db->db_filename,p,db->db_num_pages, page?page->p_type:-1, MDBM_PTYPE_DATA);
             abort();
         }
 #endif
@@ -5663,6 +5666,11 @@ void dump_mdbm_header(MDBM* db) {
     /*mdbm_hdr_stats_t    h_stats;         // store/fetch/delete statistics */
 }
 
+/* prints out the page direcory 
+void dump_mdbm_directory(MDBM* db) {
+  // TODO 
+}
+*/
 /* Debugging function. Walks from chunk to chunk, dumping info about each one. */
 void dump_chunk_headers(MDBM* db) {
   int pg = 0;
