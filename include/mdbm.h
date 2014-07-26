@@ -445,6 +445,22 @@ extern int mdbm_replace_db(MDBM* db, const char* newfile);
 extern int mdbm_replace_file(const char* oldfile, const char* newfile);
 
 /**
+ * Atomically replaces the backing store database behind \a cache with the new
+ * database in \a newfile.  Functions the same as mdbm_replace_db() for the
+ * backing store, but in addition, it locks the cache for the entire operation,
+ * and purges the cache of old entries if the replace succeeds.
+ *
+ * This function will delete the old file; and rename the new file.
+ *
+ * \param[in,out] db Database handle (cache with an MDBM backing-store)
+ * \param[in]     newfile Path of new file
+ * \return Replace status
+ * \retval -1 Error and errno is set.  The MDBM was not replaced.
+ * \retval  0 Success and the MDBM was replaced
+ */
+extern int mdbm_replace_backing_store(MDBM* cache, const char* newfile);
+
+/**
  * Forces a db to split, creating N pages.  Must be called before any data is
  * inserted.  If N is not a multiple of 2, it will be rounded up.
  *

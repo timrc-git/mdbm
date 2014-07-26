@@ -6652,6 +6652,7 @@ mdbm_replace_file(const char* oldfile, const char* newfile)
     return ret;
 }
 
+
 int
 mdbm_setspillsize(MDBM* db, int size)
 {
@@ -8761,6 +8762,43 @@ mdbm_set_backingstore(MDBM* db, const mdbm_bsops_t* bsops, void* opt, int flags)
     }
     db->db_bsops = bsops;
     return 0;
+}
+
+int
+mdbm_replace_backing_store(MDBM* cache, const char* newfile) 
+{
+  int ret=0, retval=0;
+  mdbm_bsop_mdbm_t* d = (mdbm_bsop_mdbm_t*)cache->db_bsops_data;
+  if (!cache->db_bsops || cache->db_bsops != &mdbm_bsops_mdbm) {
+    mdbm_logerror(LOG_ERR,0,"%s: mdbm_replace_backing_store(): "
+        "'cache' must be a cache with MDBM backing-store", cache->db_filename);
+    errno = EINVAL;
+    return -1;
+  }
+  ret = mdbm_lock(cache);
+  if (ret <= 0) {
+    mdbm_logerror(LOG_ERR,0,"%s: mdbm_replace_backing_store(): "
+        "failed to lock cache.", cache->db_filename);
+    errno = EINVAL;
+    return -1;
+  }
+  mdbm_replace_db(d->bsdb, newfile);
+  if (ret <= 0) {
+    mdbm_logerror(LOG_ERR,0,"%s: mdbm_replace_backing_store(): "
+        "failed to replace backing-store: %s.", cache->db_filename, d->bsdb->db_filename);
+    errno = EINVAL;
+    retval = -1;
+  } else {
+    mdbm_purge(cache);
+  }
+  ret = mdbm_unlock(cache);
+  if (ret <= 0) {
+    mdbm_logerror(LOG_ERR,0,"%s: mdbm_replace_backing_store(): "
+        "failed to unlock cache.", cache->db_filename);
+    errno = EINVAL;
+    retval = -1;
+  }
+  return retval;
 }
 
 

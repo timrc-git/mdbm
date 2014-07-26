@@ -2398,6 +2398,102 @@ void BackStoreTestSuite::BsTestReplaceA24()
     CPPUNIT_ASSERT_EQUAL(0, VerifyData(dbh));  // Verify again post-replace
 }
 
+void BackStoreTestSuite::BsTestReplaceWithCache()
+{
+    string prefix = "Back Store Test Replace With Cache Purge ";
+    TRACE_TEST_CASE(prefix);
+
+    int ret;
+    string baseName("bs_replace_cache");
+    int pageSize = sysconf(_SC_PAGESIZE);
+
+    // create a Backing Store DB
+    int openflags = MDBM_O_RDWR | MDBM_O_CREAT | MDBM_O_TRUNC | versionFlag;
+    prefix = SUITE_PREFIX() + prefix;
+    string bsbaseName = baseName + string("BS");
+
+    string bsdbName = GetTmpName(bsbaseName);
+    MDBM *bsdbh = mdbm_open(bsdbName.c_str(), openflags, 0644, pageSize, 0);
+    CPPUNIT_ASSERT_MESSAGE(prefix, (bsdbh != 0));
+    MdbmHolder bsdbholder(bsdbName);
+
+    string bsdb2Name = GetTmpName(bsbaseName);
+    MDBM *bsdbh2 = mdbm_open(bsdb2Name.c_str(), openflags, 0644, pageSize, 0);
+    CPPUNIT_ASSERT_MESSAGE(prefix, (bsdbh2 != 0));
+    MdbmHolder bsdb2holder(bsdb2Name);
+
+    const char* oldStr = "old-entry";
+    const char* newStr = "new-entry";
+    datum oldKv = {(char*)oldStr, 10};
+    datum newKv = {(char*)newStr, 10};
+    datum found = {NULL, 0};
+
+    // add entry to backstore
+    mdbm_store(bsdbh,  oldKv, oldKv, MDBM_REPLACE);
+    // add different entry to replacement backstore
+    mdbm_store(bsdbh2, newKv, newKv, MDBM_REPLACE);
+
+    // create the cache
+    string dbName = GetTmpName(baseName);
+    MdbmHolder dbh(dbName);
+    ret = dbh.Open(openflags, 0644, pageSize, 0);
+    CPPUNIT_ASSERT_MESSAGE(prefix, (ret != -1));
+
+    // try to mdbm_replace_backing_store(), expect FAIL
+    ret = mdbm_replace_backing_store(dbh, bsdb2Name.c_str());
+    {
+      stringstream msg;
+      msg << prefix << "mdbm_set_backingstore expected fail, return= " << ret << endl
+           << " Using DB cache file=" << dbName << endl;
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(ret != 0));
+    }
+    
+
+    // set BS
+    ret = mdbm_set_backingstore(dbh, MDBM_BSOPS_MDBM, bsdbh, 0);
+    {
+      stringstream msg;
+      msg << prefix << "mdbm_set_backingstore failed, return= " << ret << endl
+           << " Using DB cache file=" << dbName << endl;
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(ret == 0));
+    }
+
+    // check for old key, expect success
+    found = mdbm_fetch(dbh, oldKv);
+    {
+      stringstream msg;
+      msg << prefix << "fetch old-key failed" << endl
+           << " Using DB cache file=" << dbName << endl;
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(found.dptr != NULL));
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(found.dsize != 0));
+    }
+
+    ret = mdbm_replace_backing_store(dbh, bsdb2Name.c_str());
+    {
+      stringstream msg;
+      msg << prefix << "MDBM mdbm_replace_backing_store failed: " << strerror(errno) << endl;
+      CPPUNIT_ASSERT_MESSAGE(msg.str(), ret == 0);
+    }
+
+    // TODO verify that old entry is gone, and new entry is present
+    found = mdbm_fetch(dbh, oldKv);
+    {
+      stringstream msg;
+      msg << prefix << "fetch old-key succeeded" << endl
+           << " Using DB cache file=" << dbName << endl;
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(found.dptr == NULL));
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(found.dsize == 0));
+    }
+    found = mdbm_fetch(dbh, newKv);
+    {
+      stringstream msg;
+      msg << prefix << "fetch new-key failed" << endl
+           << " Using DB cache file=" << dbName << endl;
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(found.dptr != NULL));
+      CPPUNIT_ASSERT_MESSAGE(msg.str(),(found.dsize != 0));
+    }
+}
+
 void BackStoreTestSuite::BsUseMdbmBsInsertDataDeleteDataA25()
 {
     // create DB with backing store as MDBM; fill DB; delete DB close the DB;
