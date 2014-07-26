@@ -117,6 +117,7 @@ class MdbmOpenUnitTest : public CppUnit::TestFixture, public TestBase
     void test_mdbm_openA27();
     void test_mdbm_openA28();
     void test_mdbm_openA29();
+    void test_readonly_protection();
 
     // Helper functions
     void testA29Helper(const string &fname, int flags);
@@ -1034,6 +1035,42 @@ MdbmOpenUnitTest::test_mdbm_openA29()
     unlink(buf.c_str());
 }
 
+void
+MdbmOpenUnitTest::test_readonly_protection()
+{
+    const char *fname = fileName.c_str();
+    unlink(fname);
+    errno = 0;
+    MDBM *db = mdbm_open(fname, MDBM_O_RDWR | MDBM_O_CREAT, 0644, PAGESZ, 0);
+    CPPUNIT_ASSERT( db != NULL);
+
+    mdbm_close(db);
+    db = mdbm_open(fname, MDBM_O_RDONLY, 0644, PAGESZ, 0);
+
+    {
+      int status, retsig = 0;
+      pid_t mypid = fork();
+      if (mypid == 0) { // Child
+          // make a pointer to the middle of the map
+          char* p = db->db_base + (db->db_base_len/2);
+          *p = 1;   // Should cause a SEGV
+          mdbm_close(db);   // In case it doesn't SEGV
+          exit(1);
+      } else {  // Parent
+          CPPUNIT_ASSERT(mypid >= 0);
+          waitpid(mypid, &status, 0);
+          if (WIFSIGNALED(status)) {
+              retsig = WTERMSIG(status);
+          }
+      }
+
+      CPPUNIT_ASSERT_EQUAL(SIGSEGV, retsig);
+    }
+
+    mdbm_close(db);
+    unlink(fname);
+}
+
 
 
 // ------------------------------------
@@ -1331,6 +1368,7 @@ class MdbmOpenUnitTestV3 : public MdbmOpenUnitTest
       CPPUNIT_TEST(test_mdbm_openA27);   // Test A27 (V3 only)
       CPPUNIT_TEST(test_mdbm_openA28);   // Test A28 (V3 only)
       CPPUNIT_TEST(test_mdbm_openA29);   // Test A29
+      CPPUNIT_TEST(test_readonly_protection);
       CPPUNIT_TEST(test_mdbm_openWindowedModeThreaded);  // V3 only - V2 doesn't support threads
       CPPUNIT_TEST(test_mdbm_remapIsLimited);
       CPPUNIT_TEST(test_mdbm_openWindowedMode);
