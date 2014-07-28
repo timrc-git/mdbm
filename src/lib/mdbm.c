@@ -4807,6 +4807,7 @@ mdbm_store_r(MDBM *db, datum* key, datum* val, int flags, MDBM_ITER* iter)
     int db_locked = 0;
     int key_locked = 0;
     int tries = 0;
+    int deleted_old = 0;
     static const int MAX_LOCK_TRIES = 8;
 
     store_increment(db);
@@ -4959,7 +4960,10 @@ mdbm_store_r(MDBM *db, datum* key, datum* val, int flags, MDBM_ITER* iter)
                 }
             }
         }
+        /* Note: old entry can be deleted and the new entry not stored. */
+        /* Make a note and return EOVERFLOW, if it happens. */
         del_entry(db,page,ep);
+        deleted_old = 1;
     } else if (MDBM_STORE_MODE(flags) == MDBM_MODIFY) {
         if (stored) {
             ret = 0;
@@ -4986,7 +4990,7 @@ mdbm_store_r(MDBM *db, datum* key, datum* val, int flags, MDBM_ITER* iter)
                 int size = MDBM_ENTRY_SIZE(db,ep);
                 del_bytes += size;
                 if (size == esize) {
-                    /* Exact size deleted entry found. Finshed looking. */
+                    /* Exact size deleted entry found. Finished looking. */
                     free_index = i;
                     free_size = size;
                     break;
@@ -5244,6 +5248,9 @@ store_error_unlocked:
     }
 
 
+    if (ret && deleted_old && !stored) {
+      errno = EOVERFLOW;
+    }
     if (stored && ret < 0 && (errno == ENOMEM || errno == EINVAL)) {
         ret = 0;
     }

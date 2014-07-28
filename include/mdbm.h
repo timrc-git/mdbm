@@ -1169,6 +1169,10 @@ extern int mdbm_delete_str(MDBM *db, const char *key);
  * the same size.  This internal optimization is subject to change in any future
  * release.
  *
+ * NOTE: It is possible, under some circumstances, with MDBM_REPLACE for the old
+ * entry to be deleted, but insufficient space to be available for the new entry.
+ * In this case, the errno will be EOVERFLOW.
+ *
  * \todo doc, example MDBM_RESERVE
  */
 extern int mdbm_store(MDBM *db, datum key, datum val, int flags);
