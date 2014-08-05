@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef DONT_MULTI_INCLUDE__TEST_BASE
-#define DONT_MULTI_INCLUDE__TEST_BASE
+#ifndef DONT_MULTI_INCLUDE_TEST_BASE
+#define DONT_MULTI_INCLUDE_TEST_BASE
 
 #include <errno.h>
 #include <pwd.h>
@@ -324,4 +324,4 @@ public:
 
 
 
-#endif //DONT_MULTI_INCLUDE__TEST_BASE
+#endif //DONT_MULTI_INCLUDE_TEST_BASE

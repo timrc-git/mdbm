@@ -72,8 +72,8 @@
  * event will the author be liable for any lost revenue or profits or
  * other special, indirect and consequential damages.
  */
-#ifndef __MDBM_H_
-#define __MDBM_H_
+#ifndef MDBM_H_ONCE
+#define MDBM_H_ONCE
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -2886,5 +2886,5 @@ extern  mdbm_ubig_t  mdbm_hash6(unsigned char *, int);
 }
 #endif
 
-#endif  /* __MDBM_H__ */
+#endif  /* MDBM_H_ONCE */
 

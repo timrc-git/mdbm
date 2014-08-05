@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef __MDBM_LOG_H__
-#define __MDBM_LOG_H__
+#ifndef MDBM_LOG_H_ONCE
+#define MDBM_LOG_H_ONCE
 
 #include <syslog.h>
 #include <stdarg.h>
@@ -103,4 +103,4 @@ int mdbm_log_register_plugin(mdbm_log_plugin_t plugin);
 #endif
 
 
-#endif /*__MDBM_LOG_H__*/
+#endif /* MDBM_LOG_H_ONCE */

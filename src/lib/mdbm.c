@@ -4517,7 +4517,7 @@ mdbm_get_stat_counter(MDBM *db, mdbm_stat_type type, mdbm_counter_t *value)
 {
     int rc = 0;
 
-#ifdef __MDBM_V2_COMPAT__
+#ifdef MDBM_V2_COMPAT
     if ((db == NULL) || (db->db_ver_flag != MDBM_DBVER_3)) {
         return -1;
     }
@@ -4548,7 +4548,7 @@ mdbm_get_stat_time(MDBM *db, mdbm_stat_type type, time_t *value)
 {
     int rc = 0;
 
-#ifdef __MDBM_V2_COMPAT__
+#ifdef MDBM_V2_COMPAT
     if ((db == NULL) || (db->db_ver_flag != MDBM_DBVER_3)) {
         return -1;
     }
@@ -4610,7 +4610,7 @@ delete_increment(MDBM *db)
 void
 mdbm_reset_stat_operations(MDBM *db)
 {
-#ifdef __MDBM_V2_COMPAT__
+#ifdef MDBM_V2_COMPAT
     if ((db == NULL) || (db->db_ver_flag != MDBM_DBVER_3)) {
         return;
     }

@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef __MDBM3_STATS_H_
-#define __MDBM3_STATS_H_
+#ifndef MDBM3_STATS_H_ONCE
+#define MDBM3_STATS_H_ONCE
 
 #include <stdint.h>
 
@@ -64,4 +64,4 @@ void mdbm_diff_rstats (mdbm_rstats_t* base, mdbm_rstats_t* sample, mdbm_rstats_t
 }
 #endif
 
-#endif  /* __MDBM3_STATS_H_ */
+#endif  /* MDBM3_STATS_H_ONCE */

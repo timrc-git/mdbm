@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef __Y_MDBM_UTIL_H__
-#define __Y_MDBM_UTIL_H__
+#ifndef MDBM_UTIL_H_ONCE
+#define MDBM_UTIL_H_ONCE
 
 #ifdef  __cplusplus
 extern "C" {
@@ -61,4 +61,4 @@ mdbm_util_lockstr_to_flags(const char* lock_string, int *lock_flags);
 }
 #endif
 
-#endif  /* __Y_MDBM_UTIL_H__ */
+#endif  /* MDBM_UTIL_H_ONCE */

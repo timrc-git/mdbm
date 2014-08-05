@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef DONT_MULTI_INCLUDE_MULTI_LOCK_H__
-#define DONT_MULTI_INCLUDE_MULTI_LOCK_H__
+#ifndef DONT_MULTI_INCLUDE_MULTI_LOCK_H
+#define DONT_MULTI_INCLUDE_MULTI_LOCK_H
 
 
 #include <stdio.h>
@@ -220,4 +220,4 @@ public:
 };
 #endif /* __cplusplus */
 
-#endif /* DONT_MULTI_INCLUDE_MULTI_LOCK_H__ */
+#endif /* DONT_MULTI_INCLUDE_MULTI_LOCK_H */

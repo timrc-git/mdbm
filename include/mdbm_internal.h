@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef __Y_MDBM3_INTERNAL_H__
-#define __Y_MDBM3_INTERNAL_H__
+#ifndef MDBM3_INTERNAL_H_ONCE
+#define MDBM3_INTERNAL_H_ONCE
 
 #include <assert.h>
 #include <ctype.h>
@@ -1220,4 +1220,4 @@ extern char mdbm_internal_hex_to_byte(int c1, int c2);
 #endif
 
 
-#endif  /* __Y_MDBM3_INTERNAL_H__ */
+#endif  /* MDBM3_INTERNAL_H_ONCE */

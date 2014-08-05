@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef __MDBM_SHMEM_H__
-#define __MDBM_SHMEM_H__
+#ifndef MDBM_SHMEM_H_ONCE
+#define MDBM_SHMEM_H_ONCE
 
 #ifdef  __cplusplus
 extern "C" {
@@ -69,4 +69,4 @@ int mdbm_shmem_fd (mdbm_shmem_t* shmem);
 }
 #endif
 
-#endif
+#endif /* MDBM_SHMEM_H_ONCE */

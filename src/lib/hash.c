@@ -281,11 +281,11 @@ mdbm_hash5(uint8_t *buf, int len)
 mdbm_ubig_t
 mdbm_hash6(uint8_t *buf, int len)
 {
-    unsigned long __h = 0;
+    unsigned long h = 0;
     uint8_t* end = buf + len;
     for ( ; buf < end; ++buf)
-        __h = 5*__h + *buf;
-    return __h;
+        h = 5*h + *buf;
+    return h;
 }
 
 #ifndef PROVIDE_SSL_HASHES

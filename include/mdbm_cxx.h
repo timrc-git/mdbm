@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef __MDBM_CXX_H__
-#define __MDBM_CXX_H__
+#ifndef MDBM_CXX_H_ONCE
+#define MDBM_CXX_H_ONCE
 
 #include <errno.h>
 #include <fcntl.h>

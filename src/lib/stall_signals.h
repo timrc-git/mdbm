@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef DONT_MULTI_INCLUDE_STALL_SIGNALS_H__
-#define DONT_MULTI_INCLUDE_STALL_SIGNALS_H__
+#ifndef DONT_MULTI_INCLUDE_STALL_SIGNALS_H
+#define DONT_MULTI_INCLUDE_STALL_SIGNALS_H
 
 /// Called by the user to begin delaying signals, 
 /// (i.e. in a critical section to avoid shared memory being left in 
@@ -18,4 +18,4 @@ extern void hold_signals();
 /// Any pending signals may be sent out before this call returns.
 extern void resume_signals();
 
-#endif /* DONT_MULTI_INCLUDE_STALL_SIGNALS_H__ */
+#endif /* DONT_MULTI_INCLUDE_STALL_SIGNALS_H */

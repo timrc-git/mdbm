@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef DONT_MULTI_INCLUDE_MDBM_ATOMIC_H__
-#define DONT_MULTI_INCLUDE_MDBM_ATOMIC_H__
+#ifndef DONT_MULTI_INCLUDE_MDBM_ATOMIC_H
+#define DONT_MULTI_INCLUDE_MDBM_ATOMIC_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -97,4 +97,4 @@ static inline uint32_t gettid() {
 #endif
 
 
-#endif /* DONT_MULTI_INCLUDE_MDBM_ATOMIC_H__ */
+#endif /* DONT_MULTI_INCLUDE_MDBM_ATOMIC_H */

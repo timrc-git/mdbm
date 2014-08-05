@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef DONT_MULTI_INCLUDE_MDBM_LOCK_HH__
-#define DONT_MULTI_INCLUDE_MDBM_LOCK_HH__
+#ifndef DONT_MULTI_INCLUDE_MDBM_LOCK_HH
+#define DONT_MULTI_INCLUDE_MDBM_LOCK_HH
 
 #include "atomic.h"
 #include "mdbm.h"
@@ -131,4 +131,4 @@ inline MdbmLockBase::~MdbmLockBase() {}
 
 
 
-#endif /* DONT_MULTI_INCLUDE_MDBM_LOCK_HH__ */
+#endif /* DONT_MULTI_INCLUDE_MDBM_LOCK_HH */

@@ -1,8 +1,8 @@
 /* Copyright 2013 Yahoo! Inc.                                         */
 /* See LICENSE in the root of the distribution for licensing details. */
 
-#ifndef DONT_MULTI_INCLUDE_MDBM_UTIL_HH__
-#define DONT_MULTI_INCLUDE_MDBM_UTIL_HH__
+#ifndef DONT_MULTI_INCLUDE_MDBM_UTIL_HH
+#define DONT_MULTI_INCLUDE_MDBM_UTIL_HH
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -133,4 +133,4 @@ public:
     fprintf(stderr, buf);                                                        \
   }
 
-#endif /* DONT_MULTI_INCLUDE_MDBM_UTIL_HH__ */
+#endif /* DONT_MULTI_INCLUDE_MDBM_UTIL_HH */
