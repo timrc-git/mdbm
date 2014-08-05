@@ -354,6 +354,7 @@ MDBM *mdbm_pool_acquire_handle(mdbm_pool_t *pool) {
 }
 
 int mdbm_pool_release_handle(mdbm_pool_t *pool, MDBM *db) {
+  int ret = 1;
   mdbm_pool_entry_t *reserve_entry = NULL;
   if (pool == NULL || db == NULL) {
     return 0;
@@ -385,7 +386,9 @@ int mdbm_pool_release_handle(mdbm_pool_t *pool, MDBM *db) {
 
   /* notify other waiting threads that we released a handle */
 
-  pthread_cond_signal(&pool->locks->handle_cond);
+  if (pthread_cond_signal(&pool->locks->handle_cond)){
+    ret = 0;
+  }
 
   if (pthread_mutex_unlock(&pool->locks->transfer_handle_lock) != 0) {
     LOG_LOCK_RELEASE_FAILURE("transfer_handle_lock","safe exit from release_handle");
@@ -395,7 +398,7 @@ int mdbm_pool_release_handle(mdbm_pool_t *pool, MDBM *db) {
     LOG_LOCK_RELEASE_FAILURE("duplication_lock", "safe exit from release_handle");
   }
     
-  return 1;
+  return ret;
 }
 
 MDBM *mdbm_pool_acquire_excl_handle(mdbm_pool_t *pool) {

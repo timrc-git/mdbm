@@ -249,6 +249,11 @@ static int PRIMES[] = {
 };
 */
 
+#define malloc_or_die(sz)                                              \
+  void* chunk = malloc(sz);                                            \
+  if (!chunk) {                                                        \
+    fprintf("malloc() failed %s:%d exiting...\n", __FILE__, __LINE__); \
+    exit(1);
 
 static void
 set_random (uint32_t seed)
@@ -501,8 +506,8 @@ load_data(struct mdbm_bench_config* config, MDBM *possible_dup)
         db = possible_dup;
     }
 
-    keybuf = (char*)malloc(keysize);
-    val = (char*)malloc(valsize);
+    keybuf = (char*)malloc_or_die(keysize);
+    val = (char*)malloc_or_die(valsize);
 
     tstart = tlast = get_time_usec();
     treport = tstart + 1000000;
@@ -574,9 +579,9 @@ bench (struct mdbm_bench_config* config)
     int mode = config->mode;
     char* gkeys = config->gkeys;
 
-    keybuf = (char*)malloc(keysize);
+    keybuf = (char*)malloc_or_die(keysize);
 
-    val = (char*)malloc(valsize);
+    val = (char*)malloc_or_die(valsize);
     b.dptr = val;
     b.dsize = valsize;
 
@@ -1538,7 +1543,7 @@ main (int argc, char** argv)
     set_random(70194039);
     if (!seq_keys) {
         fprintf(outfile, "Generating keys ... ");
-        gkeys = (char*)malloc(count * keysize);
+        gkeys = (char*)malloc_or_die(count * keysize);
         get_random_bytes(gkeys,count * keysize);
         {
             uint8_t md[SHA_DIGEST_LENGTH];
@@ -1585,7 +1590,7 @@ main (int argc, char** argv)
     }
 
     if (thread) {
-        threads = (pthread_t*)malloc(maxprocs * sizeof(pthread_t));
+        threads = (pthread_t*)malloc_or_die(maxprocs * sizeof(pthread_t));
     }
 
     for (numprocs = minprocs; numprocs <= maxprocs;) {
@@ -1648,7 +1653,7 @@ main (int argc, char** argv)
             bench_stats->nstart = bench_stats->nfinish = 0;
             for (i = 0; i < numprocs; i++) {
                 struct mdbm_bench_config* c;
-                c = (struct mdbm_bench_config*)malloc(sizeof(*c));
+                c = (struct mdbm_bench_config*)malloc_or_die(sizeof(*c));
                 c->proc = i;
                 c->numprocs = numprocs;
                 c->gkeys = gkeys;
