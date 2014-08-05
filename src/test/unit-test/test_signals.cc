@@ -72,12 +72,13 @@ MdbmUnitTestSignals::initialSetup()
 }
 
 
-int signal_count = 0;
+sig_atomic_t signal_count = 0;
 void sig_handler(int signum)
 {
-   printf("Caught signal %d\n",signum);
+   // printf("Caught signal %d\n",signum);
    ++signal_count;
 }
+
 void MdbmUnitTestSignals::testSignals() {
   TRACE_TEST_CASE(__func__)
   int sig = SIGHUP;

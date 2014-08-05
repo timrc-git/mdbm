@@ -1356,12 +1356,6 @@ void MdbmUnitTestOther::testShmem() {
   CPPUNIT_ASSERT(mdbm_shmem_fd(NULL) < 0);
 }
 
-int signal_count = 0;
-void sig_handler(int signum)
-{
-   printf("Caught signal %d\n",signum);
-   ++signal_count;
-}
 
 void MdbmUnitTestOther::testRstatsChurn() {
     string prefix = "RstatsChurn";
