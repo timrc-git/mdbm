@@ -249,11 +249,15 @@ static int PRIMES[] = {
 };
 */
 
-#define malloc_or_die(sz)                                              \
-  void* chunk = malloc(sz);                                            \
-  if (!chunk) {                                                        \
-    fprintf("malloc() failed %s:%d exiting...\n", __FILE__, __LINE__); \
+void* malloc_or_die_str(size_t sz, const char* file, int line) {
+  void* chunk = malloc(sz);
+  if (!chunk) {
+    fprintf(stderr, "malloc() failed %s:%d exiting...\n", __FILE__, __LINE__);
     exit(1);
+  }
+  return chunk;
+}
+#define malloc_or_die(sz) malloc_or_die_str(sz, __FILE__, __LINE__);
 
 static void
 set_random (uint32_t seed)
