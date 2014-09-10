@@ -2620,7 +2620,7 @@ public:
             return -1;
         }
         ret = mdbm_preload(db);
-        mdbm_close(db);
+        MdbmData.DropHandle(db);
         return ret;
     }
 
