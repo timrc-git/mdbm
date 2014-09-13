@@ -1,5 +1,5 @@
 PACKAGE := mdbm
-VERSION := 4.3.2
+VERSION := $(shell egrep ^Version ../README -m1 | awk '{print $2}')
 RELEASE := 0
 RPM_VERSION := ${VERSION}-${RELEASE}
 PACKAGE_WITH_VERSION := $(PACKAGE)-$(RPM_VERSION)
