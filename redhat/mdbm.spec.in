@@ -1,12 +1,12 @@
 Name:           mdbm
-Version:        4.3.2
+Version:        VERSION
 Release:        1%{?dist}
 Summary:        MDBM is a fast dbm clone originally based on Ozan Yigit's sdbm.
 
 
 License:        BSD
 URL:            https://github.com/yahoo/mdbm
-Source0:        mdbm-4.3.2-0.tgz
+Source0:        mdbm-VERSION-0.tgz
 
 BuildRequires:  readline-devel, cppunit-devel
 Requires:       openssl
@@ -26,7 +26,7 @@ Summary:        Mdbm header files.
 
 
 %prep
-%setup -qn %{name}-4.3.2-0
+%setup -qn %{name}-VERSION-0
 
 %build
 make %{?_smp_mflags} LIBDIR=/usr/lib64 INCDIR=/usr/include
