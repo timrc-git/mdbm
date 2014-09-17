@@ -43,6 +43,8 @@ void pass_signal(int sig) {
         delayed_signals[i].installed = 0;
         handler_installed = 0;
         kill(getpid(), sig); 
+      } else if (delayed_signals[i].handler == SIG_IGN) {
+        /* do nothing SIG_IGN == ignore */
       } else {
         /* user handler installed... invoke it directly */
         delayed_signals[i].handler(sig);

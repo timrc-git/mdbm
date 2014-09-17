@@ -82,10 +82,12 @@ void sig_handler(int signum)
 void MdbmUnitTestSignals::testSignals() {
   TRACE_TEST_CASE(__func__)
   int sig = SIGHUP;
+  int sig2 = SIGUSR1;
 
   signal_count = 0;
   // install signal handler
   signal(sig, sig_handler);
+  signal(sig2, SIG_IGN);
 
   printf("Delaying signals (count:%d)\n", signal_count);
   hold_signals();
@@ -93,6 +95,7 @@ void MdbmUnitTestSignals::testSignals() {
   // fire signal
   printf("Sending signal %d\n", sig);
   kill(getpid(), sig);
+  kill(getpid(), sig2);
   sleep(1);
   CPPUNIT_ASSERT(0 == signal_count);
 
