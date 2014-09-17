@@ -2653,7 +2653,7 @@ public:
         if (ret) {
           fprintf(stdout, "mdbm_check_residency() error %d, %s\n", errno, strerror(errno));
         }
-        fprintf(stdout, "Pages: %llu resident,  %llu swapped-out\n", 
+        fprintf(stdout, "Pages: %llu resident,  %llu nonresident\n", 
                         (unsigned long long)in, (unsigned long long)out);
         MdbmData.DropHandle(db);
         return ret;

@@ -395,7 +395,7 @@ print_residency_info(MDBM *db)
     mdbm_check_residency(db, &pages_in, &pages_out);
     fprintf(stdout, "pages_resident = %llu, bytes_resident = %llu\n", 
         (unsigned long long) pages_in, ((unsigned long long)pages_in)*sysconf(_SC_PAGESIZE));
-    fprintf(stdout, "pages_swapped_out = %llu, bytes_swapped_out = %llu\n", 
+    fprintf(stdout, "pages_nonresident = %llu, bytes_nonresident = %llu\n", 
         (unsigned long long) pages_out, ((unsigned long long)pages_out)*sysconf(_SC_PAGESIZE));
 }
 
