@@ -9563,6 +9563,53 @@ int mdbm_preload(MDBM* db)
     return 0;
 }
 
+int mdbm_check_residency(MDBM* db, mdbm_ubig_t *pgs_in, mdbm_ubig_t *pgs_out) 
+{
+    int ret = 0;
+    size_t max_pages = 1024*1024;
+    size_t sys_pg, page_count, cur_pages;
+    unsigned char* page_bits=NULL;
+    char* base = NULL;
+
+    if (db == NULL) {
+        mdbm_logerror(LOG_ERR,0,"database is NULL");
+        return -1;
+    }
+    if (MDBM_IS_WINDOWED(db)) {
+        mdbm_logerror(LOG_ERR,0," mdbm_check_residency does not support windowed mode");
+        return -1;
+    }
+
+    *pgs_in = 0; *pgs_out = 0;
+    sys_pg = db->db_sys_pagesize;
+    base = db->db_base;
+    page_count = (db->db_base_len+sys_pg-1)/sys_pg;
+
+    while (page_count) {
+        size_t i;
+        cur_pages = (page_count > max_pages) ? max_pages : page_count;
+        if (!page_bits) { page_bits = (unsigned char*)malloc(cur_pages); }
+        memset(page_bits, 0, cur_pages);
+
+        if (0 != (ret = mincore(base, cur_pages*sys_pg, page_bits)) ) {
+            mdbm_logerror(LOG_ERR,0," mdbm_check_residency: mincore() failed %d : %s", 
+                errno, strerror(errno));
+            goto resident_out;
+        }
+        for (i=0; i<cur_pages; ++i) {
+            /* only LSB counts for each byte */
+            if (page_bits[i]&1) { ++(*pgs_in); } 
+            else { ++(*pgs_out); }
+        }
+        page_count -= cur_pages;
+        base += cur_pages * sys_pg;
+    }
+
+resident_out: 
+    free(page_bits);
+    return ret;
+}
+
 #ifdef __linux__
 #include <linux/falloc.h>
 #ifdef FALLOC_FL_PUNCH_HOLE

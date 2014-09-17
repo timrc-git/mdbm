@@ -1124,6 +1124,7 @@ class MdbmUnitTestStatsV3 : public MdbmUnitTestStats
     CPPUNIT_TEST(test_UsedPages);
     CPPUNIT_TEST(test_FreePages);
     CPPUNIT_TEST(test_new_mdbm_stat_HeaderOption);
+    CPPUNIT_TEST(test_new_mdbm_stat_ResidentOption);
     CPPUNIT_TEST(test_SetTimeFunc);
     //CPPUNIT_TEST(test_GetTscUsec);
     CPPUNIT_TEST(new_mdbm_stat_OversizedNoLargeOneSize);
@@ -1150,6 +1151,7 @@ class MdbmUnitTestStatsV3 : public MdbmUnitTestStats
     MdbmUnitTestStatsV3() : MdbmUnitTestStats(MDBM_CREATE_V3, 0) { }
     virtual void checkMdbmStatInfo(MDBM *mdbm, mdbm_stats_t *refInfo, bool empty = false);
     void test_new_mdbm_stat_HeaderOption();
+    void test_new_mdbm_stat_ResidentOption();
     void test_StatPerformance();
     void test_StatNullCallbackPerformance();
     void test_StatCountingCallbackPerformance();
@@ -1237,6 +1239,20 @@ MdbmUnitTestStatsV3::test_new_mdbm_stat_HeaderOption()
     CPPUNIT_ASSERT_EQUAL(0, mdbm_stat_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args));
 }
 
+void MdbmUnitTestStatsV3::test_new_mdbm_stat_ResidentOption()
+{
+    string prefix = string("new_mdbm_stat_ResidentOption") + versionString + ":";
+    TRACE_TEST_CASE(__func__)
+
+    string filename;
+    MdbmHolder mdbm(createMixedObjFile(prefix, KEY_COUNT_DEFAULT, &filename)); // store counters
+    fetchMixedObjFile(mdbm, KEY_COUNT_DEFAULT);   // set Fetch counters
+    deleteEveryOther(mdbm, prefix);  // Set deletes counters
+
+    const char *args[] = { "mdbm_stat", "-i", "resident", filename.c_str(), NULL };
+    optind = 1;
+    CPPUNIT_ASSERT_EQUAL(0, mdbm_stat_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args));
+}
 
 // Compare MDBM store+fetch w/o any stats, with a data of size DataSiz, against:
 // 1. enable_stat_operations(STATS_BASIC) and get a count: test_StatPerformance()

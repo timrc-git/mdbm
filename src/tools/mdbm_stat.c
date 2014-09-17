@@ -13,8 +13,9 @@
 #include "mdbm_internal.h"
 #include "mdbm_util.h"
 
-#define FREE_PAGE_FLAG   "freepg"  /* Option to the "-i" command line arg */
-#define ENTRY_COUNT_FLAG "ecount"  /* Option to the "-i" command line arg */
+#define FREE_PAGE_FLAG     "freepg"    /* Option to the "-i" command line arg */
+#define ENTRY_COUNT_FLAG   "ecount"    /* Option to the "-i" command line arg */
+#define RESIDEN_COUNT_FLAG "resident"  /* Option to the "-i" command line arg */
 
 typedef struct {
     uint32_t data;
@@ -64,14 +65,15 @@ Usage: mdbm_stat [Options] <db filename>\n\
 Options:\n\
         -H            Show db header\n\
         -h            This help information\n\
-        -i %s     Show total number of free pages and free-list pages\n\
-          or\n\
-        -i %s     Print the number of entries\n\
+        -i "FREE_PAGE_FLAG"     Show total number of free pages and free-list pages\n\
+        -i "ENTRY_COUNT_FLAG"     Print the number of entries\n\
+        -i "RESIDEN_COUNT_FLAG"   Print memory-resident page info\n\
         -L            Do not lock db\n\
         -o            Show oversized pages distribution\n\
         -u            Show db utilization statistics\n\
+        -R            Show page memory-residency information\n\
         -w  <size>    Open db in windowed mode\n\
-", FREE_PAGE_FLAG, ENTRY_COUNT_FLAG);
+");
     exit(exit_code);
 }
 
@@ -387,6 +389,17 @@ print_oversized_pages(MDBM *db, uint32_t db_page_size, uint32_t num_oversized_pa
 }
 
 static void
+print_residency_info(MDBM *db)
+{
+    mdbm_ubig_t pages_in=0, pages_out=0;
+    mdbm_check_residency(db, &pages_in, &pages_out);
+    fprintf(stdout, "pages_resident = %llu, bytes_resident = %llu\n", 
+        (unsigned long long) pages_in, ((unsigned long long)pages_in)*sysconf(_SC_PAGESIZE));
+    fprintf(stdout, "pages_swapped_out = %llu, bytes_swapped_out = %llu\n", 
+        (unsigned long long) pages_out, ((unsigned long long)pages_out)*sysconf(_SC_PAGESIZE));
+}
+
+static void
 print_entry_count(MDBM *db)
 {
     fprintf(stdout, "entries    = %llu\n", (unsigned long long) mdbm_count_records(db));
@@ -416,6 +429,7 @@ main(int argc, char** argv)
     int get_free_pages = 0;
     int get_oversized_pages = 0;
     int get_entry_count = 0;
+    int show_residency = 0;
 
     while ((opt = getopt(argc,argv,"Hhi:Louw:")) != -1) {
         switch (opt) {
@@ -431,8 +445,10 @@ main(int argc, char** argv)
                 get_free_pages = 1;
             } else if (strncasecmp(ENTRY_COUNT_FLAG, optarg, strlen(ENTRY_COUNT_FLAG)) == 0) {
                 get_entry_count = 1;
+            } else if (strncasecmp(RESIDEN_COUNT_FLAG, optarg, strlen(RESIDEN_COUNT_FLAG)) == 0) {
+                show_residency = 1;
             } else {
-                fprintf(stderr, "-i option only allows options %s or %s\n", FREE_PAGE_FLAG, ENTRY_COUNT_FLAG);
+                fprintf(stderr, "-i invalid option (%s)\n", optarg);
                 usage(1);
             }
             break;
@@ -508,6 +524,13 @@ main(int argc, char** argv)
         mdbm_close(db);
         return 0;
     }
+
+    if (show_residency) {
+        print_residency_info(db);
+        mdbm_close(db);
+        return 0;
+    }
+
 
     hdr = mdbm_get_header(db);
 

@@ -1656,6 +1656,15 @@ MdbmUnitTestOther::test_OtherAJ33()
     CPPUNIT_ASSERT(0 == mdbm_preload(mdbm_db));
 }
 
+static size_t GetNumPages(const string& filename) {
+    size_t syspg = sysconf(_SC_PAGESIZE);
+    struct stat file_stat;
+    int fd = open(filename.c_str(), 0);
+    fstat(fd, &file_stat);
+    close(fd);
+    return ((file_stat.st_size+syspg-1) / syspg);
+}
+
 void
 MdbmUnitTestOther::test_OtherAJ34()
 {
@@ -1673,15 +1682,34 @@ MdbmUnitTestOther::test_OtherAJ34()
     CPPUNIT_ASSERT_EQUAL(1, mdbm_sethash(mdbm_db, MDBM_HASH_MD5));
     ret = mdbm_pre_split(mdbm_db, 10000);
     CPPUNIT_ASSERT(ret == 0);
+    mdbm_ubig_t pg_in_pre=0, pg_out_pre=0;
+    mdbm_ubig_t pg_in_post=0, pg_out_post=0;
+
+
+    size_t total_pages = GetNumPages(fname.c_str());
+    CPPUNIT_ASSERT(0 == mdbm_check_residency(mdbm_db, &pg_in_pre, &pg_out_pre));
+    CPPUNIT_ASSERT_EQUAL(pg_in_pre+pg_out_pre, (mdbm_ubig_t)total_pages);
 
     getrusage(who,&rusage1);
     printf("\nPage faults:Before Store  = %ld\n",rusage1.ru_majflt);
     InsertData(mdbm_db, DEFAULT_KEY_SIZE, DEFAULT_PAGE_SIZE*2, 1000000, true);
     getrusage(who,&rusage2);
     printf("Page faults:After Store   = %ld\n",rusage2.ru_majflt);
+
+    // InsertData changed page-count ...
+    total_pages = GetNumPages(fname.c_str());
+    CPPUNIT_ASSERT(0 == mdbm_check_residency(mdbm_db, &pg_in_pre, &pg_out_pre));
+
     mdbm_preload(mdbm_db);
     getrusage(who,&rusage3);
     printf("Page faults:After preload = %ld\n",rusage3.ru_majflt);
+
+    CPPUNIT_ASSERT(0 == mdbm_check_residency(mdbm_db, &pg_in_post, &pg_out_post));
+    CPPUNIT_ASSERT_EQUAL(pg_in_pre+pg_out_pre, (mdbm_ubig_t)total_pages);
+    CPPUNIT_ASSERT_EQUAL(pg_in_post+pg_out_post, (mdbm_ubig_t)total_pages);
+    CPPUNIT_ASSERT(pg_in_pre <= pg_in_post);
+    CPPUNIT_ASSERT(pg_out_pre >= pg_out_post);
+
 
     kvpair kv;
     datum dta;

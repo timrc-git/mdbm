@@ -2740,6 +2740,20 @@ extern mdbm_ubig_t mdbm_get_page(MDBM *db, const datum *key);
  */
 extern int mdbm_preload(MDBM* db);
 
+
+/**
+ * Check mdbm page residency: count the number of DB pages mapped into memory.
+ * The counts are in units of the system-page-size (typically 4k)
+ *
+ * \param[in,out] db Database handle
+ * \param[out] pgs_in count of memory resident pages 
+ * \param[out] pgs_out count of swapped out pages 
+ * \return check status
+ * \retval -1 Error
+ * \retval  0 Success
+ */
+extern int mdbm_check_residency(MDBM* db, mdbm_ubig_t *pgs_in, mdbm_ubig_t *pgs_out);
+
 /**
  * Make a file sparse. Read every blockssize bytes and for all-zero blocks punch a hole in the file.
  * This can make a file with lots of zero-bytes use less disk space.

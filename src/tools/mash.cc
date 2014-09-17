@@ -2627,6 +2627,41 @@ public:
 };
 REGISTER_MASH_COMMAND(MdbmPreloadCommand)
 
+///  mresident (mdbm_check_residency)
+class MdbmResidentCommand : public MdbmCommand {
+public:
+    MdbmResidentCommand() :
+        MdbmCommand("mresident", "Count the resident pages of an MDBM") {
+        parser = new OptionParser();
+        parser->AddLockModeOption();
+    }
+
+    virtual int Run(const vector<string> &args) {
+        string usageMsg;
+        int ret = 0, stopNow = 0;
+        if ((ret = ParseVerify(args, usageMsg, stopNow) || stopNow)) {
+            return ret;
+        }
+
+        std::string fullPath;
+        MDBM *db = NULL;
+        if (!(db = OpenExisting(0,  parser->optionsData.extra[0], fullPath, true))) {
+            return -1;
+        }
+        mdbm_ubig_t in, out;
+        ret = mdbm_check_residency(db, &in, &out);
+        if (ret) {
+          fprintf(stdout, "mdbm_check_residency() error %d, %s\n", errno, strerror(errno));
+        }
+        fprintf(stdout, "Pages: %llu resident,  %llu swapped-out\n", 
+                        (unsigned long long)in, (unsigned long long)out);
+        MdbmData.DropHandle(db);
+        return ret;
+    }
+
+};
+REGISTER_MASH_COMMAND(MdbmResidentCommand)
+
 ///  mdelete_lockfiles (mdbm_delete_lockfiles)
 
 class MdbmDeleteLockfilesCommand : public MdbmSimpleCommand
