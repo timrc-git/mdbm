@@ -20,7 +20,7 @@ static void usage()
           "  -h           Help\n"
           "  -f           Fast mode (don't lock db while reading)\n"
           "  -L mode      Specify lock-mode, one of: \n"
-          "                 exclusive, partition, shared, any, or none \n"
+          lockstr_to_flags_usage("                 ")
           "  -c           Export cdbdump format (default db_dump format)\n"
           "  -o outfile   Write to <outfile> instead of stdout\n"
           "  -r           Only write record metadata information.\n"

@@ -48,6 +48,14 @@ mdbm_util_get_size (const char* arg, int default_multiplier);
 extern int
 mdbm_util_get_size_ref (const char* arg, int default_multiplier, uint64_t *val);
 
+
+#define lockstr_to_flags_usage(prefix)                                    \
+  prefix "exclusive  -  Exclusive locking \n"                             \
+  prefix "partition  -  Partition locking (requires a fixed size MDBM)\n" \
+  prefix "shared     -  Shared locking\n"                                 \
+  prefix "any        -  use whatever locks exist\n"                       \
+  prefix "none       -  no locking\n"
+
 /* Converts lock_string to suitable mdbm_open flags, placed in lock_flags.
  * lock_string should be one of "exclusive", "partition", "shared", or "none".
  * returns 0 on success, -1 on failure.

@@ -1787,12 +1787,7 @@ public:
     {
         // option to set lock mode: descriptive name is "LockMode"
         RegisterOption(string("L"), OPTION_TYPE_STRING, LockMode,
-                       string("Locking mode:\n"
-"                   exclusive - Exclusive locking (default)\n"
-"                   partition - Partition locking\n"
-"                   shared    - Shared locking\n"
-"                   any       - use whatever locks exist\n"
-"                   none      - no locking"));
+            string("Locking mode:\n" lockstr_to_flags_usage("                   ") ));
         set<string> lockModeValues;
         lockModeValues.insert("exclusive");
         lockModeValues.insert("partition");

@@ -22,43 +22,40 @@
 static void
 usage()
 {
-    fprintf(stderr, "\
-usage: mdbm_import [options] outfile.mdbm\n\
-  -3           Create V3 DB\n\
-  -c           Input is in cdbdump format (default db_dump)\n\
-  -D           Delete keys with zero-length values.\n\
-  -d dbsize    Create DB with initial <dbsize> DB size.\n\
-               Suffix k/m/g may be used to override default of m.\n\
-  -f           Fast mode (don't lock DB while reading)\n\
-  -h           Help\n\
-  -i infile    Read from <infile> instead of stdin\n\
-  -l           Create DB with Large Object support\n\
-  -L locking   Specify the type of locking to use:\n\
-                 exclusive  -  Exclusive locking (default)\n\
-                 partition  -  Partition locking (requires a fixed size MDBM)\n\
-                 shared     -  Shared locking\n\
-                 any        -  use whatever locks exist\n\
-                 none       -  no locking\n\
-  -p pgsize    Create DB with page size.\n\
-               Suffix k/m/g may be used to override default of bytes.\n\
-  -s hash      Create DB with <hash> hash function\n\
-  -S flag      Store flag value:\n\
-                 0 - MDBM_INSERT -- Store fails if there is an existing key\n\
-                 1 - MDBM_REPLACE -- Store replaces an existing entry, \n\
-                     or creates a new one (default)\n\
-                 2 - MDBM_INSERT_DUP -- Store adds a duplicate entry for an existing key\n\
-                 3 - MDBM_MODIFY -- Store fails if an existing key does not exist\n\
-  -T           Input has no db_dump header\n\
-  -y pgcnt     Set DB maximum size with <pgcnt> pages\n\
-               Suffix k/m/g may be used.\n\
-  -z size      Set large object spill size (requires Large Objects enabled)\n\
-               Suffix k/m/g may be used to override default of bytes.\n\
-  -Z           Truncate existing DB before importing\n\
-\n\
-Creation time options are used only when an mdbm is created, and not on\n\
-subsequent imports.\n\
-\n\
-Truncating a DB will remove the previous creation-time configuration.\n");
+    fprintf(stderr, 
+"usage: mdbm_import [options] outfile.mdbm\n"
+"  -3           Create V3 DB\n"
+"  -c           Input is in cdbdump format (default db_dump)\n"
+"  -D           Delete keys with zero-length values.\n"
+"  -d dbsize    Create DB with initial <dbsize> DB size.\n"
+"               Suffix k/m/g may be used to override default of m.\n"
+"  -f           Fast mode (don't lock DB while reading)\n"
+"  -h           Help\n"
+"  -i infile    Read from <infile> instead of stdin\n"
+"  -l           Create DB with Large Object support\n"
+"  -L locking   Specify the type of locking to use:\n"
+lockstr_to_flags_usage("                 ")
+"  -p pgsize    Create DB with page size.\n"
+"               Suffix k/m/g may be used to override default of bytes.\n"
+"  -s hash      Create DB with <hash> hash function\n"
+"  -S flag      Store flag value:\n"
+"                 0 - MDBM_INSERT -- Store fails if there is an existing key\n"
+"                 1 - MDBM_REPLACE -- Store replaces an existing entry, \n"
+"                     or creates a new one (default)\n"
+"                 2 - MDBM_INSERT_DUP -- Store adds a duplicate entry for an existing key\n"
+"                 3 - MDBM_MODIFY -- Store fails if an existing key does not exist\n"
+"  -T           Input has no db_dump header\n"
+"  -y pgcnt     Set DB maximum size with <pgcnt> pages\n"
+"               Suffix k/m/g may be used.\n"
+"  -z size      Set large object spill size (requires Large Objects enabled)\n"
+"               Suffix k/m/g may be used to override default of bytes.\n"
+"  -Z           Truncate existing DB before importing\n"
+"\n"
+"Creation time options are used only when an mdbm is created, and not on\n"
+"subsequent imports.\n"
+"\n"
+"Truncating a DB will remove the previous creation-time configuration.\n"
+);
 }
 
 static char inputFile[PATH_MAX + 1];
@@ -438,14 +435,8 @@ main(int argc, char** argv)
               int lock_flags = 0;
               if (mdbm_util_lockstr_to_flags(optarg, &lock_flags)) {
                 fprintf(stderr, "Invalid locking argument, argument=%s, ignoring\n", optarg);
-              } else {
-                if (lock_flags != (int)MDBM_OPEN_NOLOCK) {
-                  locking_requested = true;
-                } else {
-                  opt_fast = 1;
-                }
-                flags |= lock_flags;
               }
+              flags |= lock_flags;
             }
             break;
         case 's':
@@ -476,6 +467,14 @@ main(int argc, char** argv)
     if (err_flag || ((argc - optind) != 1)) {
         usage();
         return 1;
+    }
+
+    if (flags & MDBM_OPEN_NOLOCK) {
+      locking_requested = true;
+      opt_fast = 0;
+    } else {
+      locking_requested = false;
+      opt_fast = 1;
     }
 
     if (flags & MDBM_PARTITIONED_LOCKS) {

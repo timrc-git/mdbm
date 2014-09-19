@@ -60,20 +60,22 @@ kmg(char* buf, uint64_t val)
 static void
 usage(int exit_code)
 {
-    fprintf(stderr, "\
-Usage: mdbm_stat [Options] <db filename>\n\
-Options:\n\
-        -H            Show db header\n\
-        -h            This help information\n\
-        -i "FREE_PAGE_FLAG"     Show total number of free pages and free-list pages\n\
-        -i "ENTRY_COUNT_FLAG"     Print the number of entries\n\
-        -i "RESIDEN_COUNT_FLAG"   Print memory-resident page info\n\
-        -L            Do not lock db\n\
-        -o            Show oversized pages distribution\n\
-        -u            Show db utilization statistics\n\
-        -R            Show page memory-residency information\n\
-        -w  <size>    Open db in windowed mode\n\
-");
+    fprintf(stderr,
+"Usage: mdbm_stat [Options] <db filename>\n"
+"Options:\n"
+"        -H            Show db header\n"
+"        -h            This help information\n"
+"        -i "FREE_PAGE_FLAG"     Show total number of free pages and free-list pages\n"
+"        -i "ENTRY_COUNT_FLAG"     Print the number of entries\n"
+"        -i "RESIDEN_COUNT_FLAG"   Print memory-resident page info\n"
+"        -l mode       Lock mode\n"
+lockstr_to_flags_usage("                          ")
+"        -L            Do not lock the DB\n"
+"        -o            Show oversized pages distribution\n"
+"        -u            Show db utilization statistics\n"
+"        -R            Show page memory-residency information\n"
+"        -w  <size>    Open db in windowed mode\n"
+    );
     exit(exit_code);
 }
 
@@ -431,7 +433,7 @@ main(int argc, char** argv)
     int get_entry_count = 0;
     int show_residency = 0;
 
-    while ((opt = getopt(argc,argv,"Hhi:Louw:")) != -1) {
+    while ((opt = getopt(argc,argv,"Hhi:Ll:ouw:")) != -1) {
         switch (opt) {
         case 'H':
             header = 1;
@@ -450,6 +452,20 @@ main(int argc, char** argv)
             } else {
                 fprintf(stderr, "-i invalid option (%s)\n", optarg);
                 usage(1);
+            }
+            break;
+
+        case 'l':
+            {
+              int lock_flags = 0;
+              if (mdbm_util_lockstr_to_flags(optarg, &lock_flags)) {
+                fprintf(stderr, "Invalid locking argument, argument=%s, ignoring\n", optarg);
+                usage(1);
+              }
+              oflags |= lock_flags;
+            }
+            if (oflags & MDBM_OPEN_NOLOCK) {
+                flags |= MDBM_STAT_NOLOCK;
             }
             break;
 
@@ -477,6 +493,7 @@ main(int argc, char** argv)
             break;
         }
     }
+
 
     if (optind+1 != argc) {
         usage(1);

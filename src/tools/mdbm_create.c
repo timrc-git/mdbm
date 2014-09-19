@@ -18,41 +18,37 @@
 static void
 usage (void)
 {
-    printf("\
-Usage: mdbm_create [options] <file name> ...\n\
-Options:\n\
-    -a <bytes>  Set record alignment (8-, 16-, 32-, 64-bits; default: 8)\n\
-    -c <mode>   Set cache mode (1=lfu 2=lru 3=gdsf; default: disabled)\n\
-    -D <mbytes> Specify initial/maximum size of db (default: no size limit)\n\
-    -d <mbytes> Specify initial size of db (default: minimum).\n\
-                Suffix k/m/g may be used to override default of m.\n\
-    -h <hash>   Hash function (default: 5/FNV32)\n\
-                   0  CRC-32\n\
-                   1  EJB\n\
-                   2  PHONG\n\
-                   3  OZ\n\
-                   4  TOREK\n\
-                   5  FNV32\n\
-                   6  STL\n\
-                   7  MD5\n\
-                   8  SHA-1\n\
-                   9  Jenkins\n\
-                  10  Hsieh SuperFast\n\
-    -L          Enable large-object mode\n\
-    -l <bytes>  Set the spill size for data to be put on large-object heap. Dependent on -L\n\
-    -m <int>    File permissions (default: 0666)\n\
-    -n locking  Specify the type of locking to use:\n\
-                  exclusive  -  Exclusive locking (default)\n\
-                  partition  -  Partition locking (requires a fixed size MDBM)\n\
-                  shared     -  Shared locking\n\
-                  any        -  use whatever locks exist\n\
-                  none       -  no locking\n\
-    -N          Open without locking\n\
-    -p <bytes>  Page size (default: 4096).\n\
-                Suffix k/m/g may be used to override the default of bytes.\n\
-    -s <mbytes> Specify size of main db (remainder is large-object/overflow space).\n\
-                Suffix k/m/g may be used to override default of m.\n\
-    -z          Truncate db if it already exists\n"
+    printf(
+"Usage: mdbm_create [options] <file name> ...\n"
+"Options:\n"
+"    -a <bytes>  Set record alignment (8-, 16-, 32-, 64-bits; default: 8)\n"
+"    -c <mode>   Set cache mode (1=lfu 2=lru 3=gdsf; default: disabled)\n"
+"    -D <mbytes> Specify initial/maximum size of db (default: no size limit)\n"
+"    -d <mbytes> Specify initial size of db (default: minimum).\n"
+"                Suffix k/m/g may be used to override default of m.\n"
+"    -h <hash>   Hash function (default: 5/FNV32)\n"
+"                   0  CRC-32\n"
+"                   1  EJB\n"
+"                   2  PHONG\n"
+"                   3  OZ\n"
+"                   4  TOREK\n"
+"                   5  FNV32\n"
+"                   6  STL\n"
+"                   7  MD5\n"
+"                   8  SHA-1\n"
+"                   9  Jenkins\n"
+"                  10  Hsieh SuperFast\n"
+"    -K mode     locking mode \n"
+lockstr_to_flags_usage("                  ")
+"    -L          Enable large-object mode\n"
+"    -l <bytes>  Set the spill size for data to be put on large-object heap. Dependent on -L\n"
+"    -m <int>    File permissions (default: 0666)\n"
+"    -N          Do not lock the DB.\n"
+"    -p <bytes>  Page size (default: 4096).\n"
+"                Suffix k/m/g may be used to override the default of bytes.\n"
+"    -s <mbytes> Specify size of main db (remainder is large-object/overflow space).\n"
+"                Suffix k/m/g may be used to override default of m.\n"
+"    -z          Truncate db if it already exists\n"
     );
     exit(1);
 }
@@ -85,7 +81,7 @@ main (int argc, char** argv)
     verflag = MDBM_CREATE_V3;
 #endif
 
-    while ((opt = getopt(argc,argv,"23a:c:D:d:h:Ll:m:Nn:p:s:w:z")) != -1) {
+    while ((opt = getopt(argc,argv,"23a:c:D:d:h:K:Ll:m:Np:s:w:z")) != -1) {
         switch (opt) {
         case '3':
 #ifdef MDBM_CREATE_V3
@@ -166,17 +162,22 @@ main (int argc, char** argv)
             break;
         }
 
-        case 'n': {
-            if (mdbm_util_lockstr_to_flags(optarg, &lockflag)) {
-              fprintf(stderr, "Invalid locking argument, argument=%s\n", optarg);
-              exit(1);
+        case 'K': {
+            {
+              int lflags=0;
+              if (mdbm_util_lockstr_to_flags(optarg, &lflags)) {
+                fprintf(stderr, "Invalid locking argument, argument=%s\n", optarg);
+                usage();
+              }
+              lockflag |= lflags;
             }
             break;
         }
 
-        case 'N':
-            lockflag = MDBM_OPEN_NOLOCK;
+        case 'N': {
+            lockflag |= MDBM_OPEN_NOLOCK;
             break;
+        }
 
         case 'p':
             pagesize = mdbm_util_get_size(optarg,1);

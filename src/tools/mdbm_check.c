@@ -15,37 +15,27 @@
 static void
 usage(int exit_code)
 {
-#ifdef MDBM_CREATE_V3
-    printf("\
-Usage: mdbm_check [options] <db filename>\n\
-\n\
-Options:\n\
-        -d <level>      Set database check level (0-4, default: 3)\n\
-                        Each check level includes checks at lower levels.\n\
-                          0 - no header checks (invokes page level checking only)\n\
-                          1 - header, chunks (list of free pages and allocated pages)\n\
-                          2 - directory pages\n\
-                          3 - data pages and large objects\n\
-        -h              This help message\n\
-        -L              Do not lock database during check\n\
-        -p <n>          Check specified page\n\
-        -V              Display mdbm file version.\n\
-                        This option may only be used with the -v option.\n\
-                        Use `-v 0' to return just the unadorned version number.\n\
-        -v <level>      Set verbosity level\n\
-        -w <size>       Use windowed mode with specified window size.\n\
-        -X <n>          Verify that the mdbm file version matches this number\n");
-#else
-    printf("\
-Usage: mdbm_check [options] <db filename>\n\
-\n\
-Options:\n\
-        -h      This help message\n\
-        -p <n>  Check specified page\n\
-        -V      Display mdbm file version.\n\
-                This option may not be used with other options.\n");
-#endif
-
+    printf(
+"Usage: mdbm_check [options] <db filename>\n"
+"\n"
+"Options:\n"
+"        -d <level>      Set database check level (0-4, default: 3)\n"
+"                        Each check level includes checks at lower levels.\n"
+"                          0 - no header checks (invokes page level checking only)\n"
+"                          1 - header, chunks (list of free pages and allocated pages)\n"
+"                          2 - directory pages\n"
+"                          3 - data pages and large objects\n"
+"        -h              This help message\n"
+"        -L              Do not lock the DB.\n"
+"        -l mode         Lock mode \n"
+lockstr_to_flags_usage("                          ")
+"        -p <n>          Check specified page\n"
+"        -V              Display mdbm file version.\n"
+"                        This option may only be used with the -v option.\n"
+"                        Use `-v 0' to return just the unadorned version number.\n"
+"        -v <level>      Set verbosity level\n"
+"        -w <size>       Use windowed mode with specified window size.\n"
+"        -X <n>          Verify that the mdbm file version matches this number\n");
     exit(exit_code);
 }
 
@@ -70,13 +60,12 @@ main(int argc, char* argv[])
     int pno = -1;
     const char* fn;
     int oflags = MDBM_ANY_LOCKS;
-#ifdef MDBM_CREATE_V3
     int verbose = 1;
     int dbcheck = 3;
     int lock = 1;
     uint64_t winsize = 0;
 
-    while ((opt = getopt(argc,argv,"d:hLp:Vv:w:X:")) != -1) {
+    while ((opt = getopt(argc,argv,"d:hLl:p:Vv:w:X:")) != -1) {
         switch (opt) {
         case '2':
             break;
@@ -94,8 +83,24 @@ main(int argc, char* argv[])
         case 'L':
             opt_nonversion = 1;
             checkVersionUsage(opt_version);
+            oflags |= MDBM_OPEN_NOLOCK;
             lock = 0;
-            oflags = MDBM_OPEN_NOLOCK;
+            break;
+
+        case 'l':
+            opt_nonversion = 1;
+            checkVersionUsage(opt_version);
+            {
+              int lock_flags = 0;
+              if (mdbm_util_lockstr_to_flags(optarg, &lock_flags)) {
+                fprintf(stderr, "Invalid locking argument, argument=%s, ignoring\n", optarg);
+                usage(1);
+              }
+              oflags |= lock_flags;
+            }
+            if (oflags & MDBM_OPEN_NOLOCK) {            
+              lock = 0;
+            }
             break;
 
         case 'p':
@@ -135,28 +140,6 @@ main(int argc, char* argv[])
             usage(1);
         }
     }
-
-#else
-    while ((opt = getopt(argc,argv,"hp:V")) != -1) {
-        switch (opt) {
-        case 'h':
-            usage(0);
-
-        case 'p':
-            checkVersionUsage(opt_version);
-            pno = atoi(optarg);
-            break;
-
-        case 'V':
-            opt_version = 1;
-            break;
-
-        default:
-            checkVersionUsage(opt_version);
-            usage(1);
-        }
-    }
-#endif
 
     if (optind+1 != argc) {
         usage(1);
