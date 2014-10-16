@@ -637,24 +637,6 @@ extern int mdbm_sethash(MDBM *db, int hashid);
 extern int mdbm_setspillsize(MDBM* db, int size);
 
 
-/**
- * Sets the size of item data value which will be put on the large-object heap
- * rather than inline.  The spill size can be changed at any point after the
- * db has been created.  However, it's a recommended practice to set the spill
- * size at creation time.
- *
- * NOTE: The database has to be opened with the MDBM_LARGE_OBJECTS flag for
- * spillsize to take effect.
- *
- * \param[in,out] db Database handle
- * \param[in]     size New large-object threshold size
- * \return Set spill size status
- * \retval -1 Error, and errno is set
- * \retval  0 Success
- */
-extern int mdbm_setspillsize(MDBM* db, int size);
-
-
 /*
  * mdbm_set_alignment flags
  */
