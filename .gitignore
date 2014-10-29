@@ -7,3 +7,6 @@ src/tools/object/
 redhat/build
 redhat/mdbm.spec
 redhat/mdbm*.tar
+
+src/java/target
+src/java/object
