@@ -1,0 +1,11 @@
+format=print
+type=hash
+mdbm_pagesize=4096
+mdbm_pagecount=1
+HEADER=END
+key1
+value1
+key20
+some_value 20
+noval ky
+

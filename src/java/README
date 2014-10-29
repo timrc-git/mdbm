@@ -1,0 +1,5 @@
+jni wrappers for mdbm.
+Currently the build is a little hacky because of the lack of rpath, so:
+LD_LIBRARY_PATH=../lib/object/ mvn verify -DnativeDir=../lib/object/ -DlibDir=object/
+
+
