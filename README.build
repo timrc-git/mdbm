@@ -34,6 +34,6 @@ For building on RHEL7 the following will help:
 
   If you have yum groups configured correctly:
   sudo yum group install "Development Tools" 
-  sudo yum install git openssl-devel readline-devel cppunit-devel
+  sudo yum install git openssl-devel readline-devel cppunit-devel rpm-build
 
 
