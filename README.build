@@ -29,3 +29,11 @@ NOTE:
   You may need to edit the "Configuration section" of Makefile.base
   for specific locations and options on your platform.
   
+For building on RHEL7 the following will help:
+  sudo yum install git gcc\* openssl-devel readline-devel cppunit-devel
+
+  If you have yum groups configured correctly:
+  sudo yum group install "Development Tools" 
+  sudo yum install git openssl-devel readline-devel cppunit-devel
+
+
