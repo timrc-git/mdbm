@@ -280,8 +280,10 @@ public class SynchronizedMdbm extends ClosedBaseChecked implements MdbmInterface
 
     @Override
     protected synchronized boolean release() {
-        if (null != proxy)
+        if (null != proxy) {
             proxy.close();
+        }
+
         return true;
     }
 

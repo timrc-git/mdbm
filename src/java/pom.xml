@@ -28,7 +28,7 @@
 		<testngReporter>org.testng.reporters.FailedReporter,org.testng.reporters.XMLReporter,org.testng.reporters.JUnitXMLReporter</testngReporter>
 		<min_maven_version>2.1</min_maven_version>
 		<javadoc_options>-J-XX:-UseLargePages</javadoc_options>
-		<checkstyle.skip>true</checkstyle.skip>
+		<checkstyle.skip>false</checkstyle.skip>
 	</properties>
 
 	<build>
@@ -264,6 +264,11 @@
 						<id>validate</id>
 						<phase>validate</phase>
 						<configuration>
+							<configLocation>
+								style.xml
+							</configLocation>
+							<suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+							<suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
 							<encoding>UTF-8</encoding>
 							<consoleOutput>true</consoleOutput>
 							<failsOnError>false</failsOnError>

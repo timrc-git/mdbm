@@ -3,10 +3,6 @@
 package com.yahoo.db.mdbm.exceptions;
 
 public class SharedLockViolationException extends MdbmInvalidStateException {
-
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = 1L;
 
     public SharedLockViolationException() {

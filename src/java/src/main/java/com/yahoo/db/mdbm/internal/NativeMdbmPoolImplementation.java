@@ -112,8 +112,9 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
     @Override
     public void validate() throws MdbmInvalidStateException {
         boolean closed = isClosed();
-        if (0 == pointer || closed)
+        if (0 == pointer || closed) {
             throw new MdbmInvalidStateException("Mdbm is closed or not open: " + pointer + " closed: " + closed);
+        }
     }
 
 }

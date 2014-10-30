@@ -31,8 +31,8 @@ public class Open {
     public static final int MDBM_O_RDWR = 0x00000002;
 
     /**
-	 * 
-	 */
+     * 
+     */
     public static final int MDBM_O_ACCMODE = (MDBM_O_RDONLY | MDBM_O_WRONLY | MDBM_O_RDWR);
 
     /**
@@ -69,61 +69,47 @@ public class Open {
     /**
      * MDBM_NO_DIRTY do not not track clean/dirty status
      */
-    public static final int MDBM_NO_DIRTY = 0x00010000;/*
-                                                        * do not not track clean/dirty status
-                                                        */
+    public static final int MDBM_NO_DIRTY = 0x00010000;
 
     /**
      * MDBM_OPEN_WINDOWED_MIN use windowing (minimum footprint)
      */
-    public static final int MDBM_OPEN_WINDOWED_MIN = 0x00020000;/*
-                                                                 * use windowing (minimum footprint)
-                                                                 */
+    public static final int MDBM_OPEN_WINDOWED_MIN = 0x00020000;
 
     /**
      * MDBM_OPEN_WINDOWED use windowing to access db, only available with MDBM_O_RDWR
      */
-    public static final int MDBM_OPEN_WINDOWED = 0x00100000;/*
-                                                             * use windowing to access db
-                                                             */
+    public static final int MDBM_OPEN_WINDOWED = 0x00100000;
 
     /**
      * MDBM_PROTECT protect database except when locked
      */
-    public static final int MDBM_PROTECT = 0x00200000;/*
-                                                       * protect database except when locked
-                                                       */
+    public static final int MDBM_PROTECT = 0x00200000;
 
     /**
      * MDBM_DBSIZE_MB dbsize is specific in MB
      */
-    public static final int MDBM_DBSIZE_MB = 0x00400000;/*
-                                                         * dbsize is specific in MB
-                                                         */
+    public static final int MDBM_DBSIZE_MB = 0x00400000;
 
     /**
      * MDBM_LARGE_OBJECTS support large objects - obsolete
      */
-    public static final int MDBM_LARGE_OBJECTS = 0x01000000;/*
-                                                             * support large objects - obsolete
-                                                             */
+    public static final int MDBM_LARGE_OBJECTS = 0x01000000;
 
     /**
      * MDBM_PARTITIONED_LOCKS partitioned locks
      */
-    public static final int MDBM_PARTITIONED_LOCKS = 0x02000000;/*
-                                                                 * partitioned locks
-                                                                 */
+    public static final int MDBM_PARTITIONED_LOCKS = 0x02000000;
 
     /**
      * MDBM_RW_LOCKS read-write locks
      */
-    public static final int MDBM_RW_LOCKS = 0x08000000;/* read-write locks */
+    public static final int MDBM_RW_LOCKS = 0x08000000;
 
     /**
      * MDBM_CREATE_V3 create a V3 db
      */
-    public static final int MDBM_CREATE_V3 = 0x20000000;/* create a V3 db */
+    public static final int MDBM_CREATE_V3 = 0x20000000;
 
     /**
      * MDBM_HEADER_ONLY map header only (internal use)
@@ -134,9 +120,7 @@ public class Open {
     /**
      * MDBM_OPEN_NOLOCK don't lock during open
      */
-    public static final int MDBM_OPEN_NOLOCK = 0x80000000;/*
-                                                           * don't lock during open
-                                                           */
+    public static final int MDBM_OPEN_NOLOCK = 0x80000000;
 
     // #define MDBM_DEMAND_PAGING 0x04000000 /* (v2 only) */
     // #define MDBM_DBSIZE_MB_OLD 0x04000000 /* (don't use -- conflicts with

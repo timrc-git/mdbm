@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+     "-//Puppy Crawl//DTD Suppressions 1.0//EN"
+     "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+
+	<suppress checks="com.puppycrawl.tools.checkstyle.checks.naming.ConstantNameCheck"
+		files="src/main/java/com/yahoo/db/mdbm/Constants.java" lines="0-9999" />
+
+	<suppress
+		checks="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck"
+		files="src/main/java/com/yahoo/db/mdbm/internal/NativeMdbmAccess.java" lines="0-9999" />
+
+	<suppress
+		checks="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck"
+		files="src/main/java/com/yahoo/db/mdbm/internal/NativeMdbmImplementation.java" lines="440-500" />
+
+	<suppress
+		checks="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAroundCheck"
+		files="src/java/src/main/java/com/yahoo/db/mdbm/MdbmDatum.java" lines="16" />
+
+</suppressions>
