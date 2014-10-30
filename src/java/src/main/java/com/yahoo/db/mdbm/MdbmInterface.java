@@ -35,8 +35,8 @@ public interface MdbmInterface extends Closeable {
     public static final int MDBM_LOC_ARENA = 1;
 
     /**
-	 * 
-	 */
+     * 
+     */
     // TODO: mdbmv2 interface.
     // public static final int MDBM_DEMAND_PAGING = 0x04000000;/* (v2 only) */
     // public static final int MDBM_DBSIZE_MB_OLD = 0x04000000;/* (don't use --
@@ -321,7 +321,7 @@ public interface MdbmInterface extends Closeable {
     void trySharedLock() throws MdbmException;
 
     /**
-	 */
+     */
     void sharedUnlock() throws MdbmException;
 
     public void lockSmart(MdbmDatum key, int flags) throws MdbmException;
@@ -343,15 +343,15 @@ public interface MdbmInterface extends Closeable {
      *         Available Hash IDs are:
      * 
      *         <code> 
-     *     MDBM_HASH_CRC32		Table based 32bit crc
-     *     MDBM_HASH_EJB		From hsearch
-     *     MDBM_HASH_PHONG		Congruential hash
-     *     MDBM_HASH_OZ			From sdbm
-     *     MDBM_HASH_TOREK		From Berkeley db
-     *     MDBM_HASH_FNV		Fowler/Vo/Noll hash (DEFAULT)
-     *     MDBM_HASH_STL		STL string hash
-     *     MDBM_HASH_MD5		MD5
-     *     MDBM_HASH_SHA_1		SHA_1
+     *     MDBM_HASH_CRC32        Table based 32bit crc
+     *     MDBM_HASH_EJB          From hsearch
+     *     MDBM_HASH_PHONG        Congruential hash
+     *     MDBM_HASH_OZ           From sdbm
+     *     MDBM_HASH_TOREK        From Berkeley db
+     *     MDBM_HASH_FNV          Fowler/Vo/Noll hash (DEFAULT)
+     *     MDBM_HASH_STL          STL string hash
+     *     MDBM_HASH_MD5          MD5
+     *     MDBM_HASH_SHA_1        SHA_1
      * </code>
      * 
      */

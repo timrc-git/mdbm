@@ -439,8 +439,9 @@ public class NativeMdbmImplementation extends DeallocatingClosedBase implements 
     @Override
     public void validate() throws MdbmInvalidStateException {
         boolean closed = isClosed();
-        if (0 == pointer || closed)
+        if (0 == pointer || closed) {
             throw new MdbmInvalidStateException("Mdbm is closed or not open: " + pointer + " closed: " + closed);
+        }
     }
 
     public static NativeMdbmImplementation mdbm_open(String file, int flags, int mode, int psize, int presize) {

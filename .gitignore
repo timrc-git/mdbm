@@ -10,3 +10,6 @@ redhat/mdbm*.tar
 
 src/java/target
 src/java/object
+src/java/.classpath
+src/java/.project
+src/java/.settings
