@@ -11,10 +11,8 @@ import com.yahoo.db.mdbm.internal.NativeMdbmImplementation;
 import com.yahoo.db.mdbm.internal.SynchronizedMdbm;
 
 /**
- * Returns a registered implementation of the {@link MdbmInterface} interface. The implementation class that is used is
- * specified by the <code>yjava.db.mdbm.MDBMImpl</code> property. If this property is not defined, the default JNI
- * implementation will be used.
- * 
+ * Returns a registered implementation of the {@link MdbmInterface} interface.
+ *
  * The best way to use this is to call com.yahoo.db.mdbm.MdbmProvider.openPool(String, int, int, int, int, int) This
  * will open a pool of mdbm handles, and you can acquire and release a handle from the pool for use within a single
  * thread. Mdbm handles are not thread safe and must not be shared.
