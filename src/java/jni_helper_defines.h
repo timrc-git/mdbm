@@ -46,10 +46,12 @@
 #define POP_AND_RETURN_NULL_IF_EXCEPTION() if (jenv->ExceptionCheck()) { jenv->PopLocalFrame(NULL); return 0; }
 #define POP_AND_RETURN_NULL_IF_EXCEPTION_OR_NULL(p) if (NULL == p || jenv->ExceptionCheck()) { jenv->PopLocalFrame(NULL); return 0; }
 #define RETURN_NULL_IF_0_OR_EXCEPTION(p) { if (0 == p || jenv->ExceptionCheck()) { return 0; } }
+#define RETURN_NULL_IF_NOT_0_OR_EXCEPTION(p) { if (0 != p || jenv->ExceptionCheck()) { return 0; } }
 #define RETURN_IF_EXCEPTION_OR_NULL(p) { if (0 == p || jenv->ExceptionCheck()) { return; } }
 #define RETURN_NULL_AND_THROW_IF_NULL(p,mesg) { if (jenv->ExceptionCheck()) { return 0; } if (0==p) { ThrowNullPointerException(jenv, mesg); return 0; } }
 #define RETURN_FALSE_AND_THROW_IF_NULL(p,mesg) { if (jenv->ExceptionCheck()) { return JNI_FALSE; } if (0==p) { ThrowNullPointerException(jenv, mesg); return JNI_FALSE; } }
 #define RETURN_AND_THROW_IF_NULL(p,mesg) { if (jenv->ExceptionCheck()) { return; } if (0==p) { ThrowNullPointerException(jenv, mesg); return; } }
+#define RETURN_AND_THROW_IF_NOT_ZERO(p,mesg) { if (jenv->ExceptionCheck()) { return; } if (0!=p) { ThrowException(jenv,RUNTIME_EXCEPTION , mesg); return; } }
 #define RETURN_FALSE_IF_EXCEPTION() { if (jenv->ExceptionCheck()) { return false; } }
 #define RETURN_FALSE_IF_EXCEPTION_OR_NULL(p)  { if (NULL == p || jenv->ExceptionCheck()) { return false; } }
 #define RETURN_IF_EXCEPTION() { if (jenv->ExceptionCheck()) { return; } }
@@ -124,6 +126,17 @@ DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferToStringID, "toString", 
 
 DECLARE_CACHED_CLASS(stringClass, "java/lang/String")
 
+
+#define OUT_OF_MEMORY_ERROR "java/lang/OutOfMemoryError"
+#define IO_EXCEPTION "java/io/IOException"
+#define RUNTIME_EXCEPTION "java/lang/RuntimeException"
+#define INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/IndexOutOfBoundsException"
+#define ARITHMETIC_EXCEPTION "java/lang/ArithmeticException"
+#define ILLEGAL_ARGUMENT_EXCEPTION "java/lang/IllegalArgumentException"
+#define NULL_POINTER_EXCEPTION "java/lang/NullPointerException"
+#define UNKNOWN_HOST_EXCEPTION "java/net/UnknownHostException"
+#define UNSUPPORTED_ENCODING_EXCEPTION "java/io/UnsupportedEncodingException"
+
 static void ThrowException(JNIEnv *jenv, const char *exceptionClass,
         const char *message) {
     jclass clazz = 0;
@@ -145,15 +158,9 @@ static void ThrowException(JNIEnv *jenv, const char *exceptionClass,
     jenv->ThrowNew(clazz, message);
 }
 
-#define OUT_OF_MEMORY_ERROR "java/lang/OutOfMemoryError"
-#define IO_EXCEPTION "java/io/IOException"
-#define RUNTIME_EXCEPTION "java/lang/RuntimeException"
-#define INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/IndexOutOfBoundsException"
-#define ARITHMETIC_EXCEPTION "java/lang/ArithmeticException"
-#define ILLEGAL_ARGUMENT_EXCEPTION "java/lang/IllegalArgumentException"
-#define NULL_POINTER_EXCEPTION "java/lang/NullPointerException"
-#define UNKNOWN_HOST_EXCEPTION "java/net/UnknownHostException"
-#define UNSUPPORTED_ENCODING_EXCEPTION "java/io/UnsupportedEncodingException"
+static void ThrowNullPointerException(JNIEnv *jenv, const char *mesg) {
+    ThrowException(jenv, NULL_POINTER_EXCEPTION, mesg);
+}
 
 class ScopedMemory {
 public:
