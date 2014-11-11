@@ -1195,7 +1195,9 @@ void MdbmUnitTestOther::testMLock() {
       //CPPUNIT_ASSERT(0 > get_lockfile_name(fname.c_str(), NULL, 0));
       CPPUNIT_ASSERT(0 > ensure_lock_path(NULL, 0));
       CPPUNIT_ASSERT(0 > ensure_lock_path((char*)"", 0));
-      CPPUNIT_ASSERT(0 > ensure_lock_path((char*)"/blort", 0));
+      if (0 != getuid()) { // expected fail doesn't happen for root
+        CPPUNIT_ASSERT(0 > ensure_lock_path((char*)"/blort", 0));
+      }
       mdbm_delete_lockfiles(fname.c_str());
     }
 
