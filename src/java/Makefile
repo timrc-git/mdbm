@@ -16,15 +16,15 @@ SONAME=-Wl,-soname,$(LIBNAME).$(LIBVER)
 #-Wl,-rpath,$(DEFAULT_LIB_INSTALL_PATH)
 
 # TODO: Fix this to not be rh specific
-INCDIR += -I/usr/lib/jvm/java-1.7.0/include -I/usr/lib/jvm/java-1.7.0/include/linux
-LIB_BUILD_FLAGS += -lrt  -L$(TOPDIR)/src/lib/$(OBJDIR)  -lmdbm -Wall  -fno-strict-aliasing -Wno-unused-function -D_FILE_OFFSET_BITS=64
+INCDIR += -I/usr/lib/jvm/java/include -I/usr/lib/jvm/java/include/linux
+LIB_BUILD_FLAGS +=  -L/usr/lib/jvm/java/jre/lib/amd64/ -ljsig -lrt  -L$(TOPDIR)/src/lib/$(OBJDIR)  -lmdbm -Wall  -fno-strict-aliasing -Wno-unused-function -D_FILE_OFFSET_BITS=64
 
 LIB_DEST=$(PREFIX)/lib$(ARCH_SUFFIX)
 ifeq ($(SET_RPATH),1)
 LIB_BUILD_FLAGS += -Wl,-rpath=$(LIB_DEST)
 endif
 
-default-make-target: $(OBJDIR)/$(LIBNAME) $(OBJDIR)/$(LIBNAME).$(LIBVER)
+default-make-target: $(OBJDIR)/$(LIBNAME) $(OBJDIR)/$(LIBNAME).$(LIBVER) maven
 
 # generic library
 $(OBJDIR)/$(LIBNAME) : $(SOURCES:%.c=$(OBJDIR)/%.o) $(CPP_SOURCES:%.cc=$(OBJDIR)/%.o) $(HEADERS)
@@ -41,5 +41,5 @@ install:: default-make-target
 
 clean :: clean-objs
 
-maven:
-	mvn -B clean verify -Djava.awt.headless=true -DfailIfNoTests=false 
+maven: 
+	LD_LIBRARY_PATH=../lib/object/ mvn -B clean verify -Djava.awt.headless=true -DfailIfNoTests=false  -DnativeDir=../lib/object/ -DlibDir=object/
