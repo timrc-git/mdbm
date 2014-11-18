@@ -1,0 +1,184 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Internal MDBM Information &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Glossary" href="glossary.html" />
+    <link rel="prev" title="Performance" href="performance.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="glossary.html" title="Glossary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="performance.html" title="Performance"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="internal-mdbm-information">
+<span id="internals"></span><h1>Internal MDBM Information<a class="headerlink" href="#internal-mdbm-information" title="Permalink to this headline">¶</a></h1>
+<p><strong>MDBM V3 File Format</strong></p>
+<blockquote>
+<div><p>The information below should only be used to understand the workings of MDBM!!  However,
+please do not use the information provided below to access data in MDBM Files, as it may
+change in the future.  Compatibility with the data format below is NOT guaranteed,
+so please use only APIs and tools that were provided by the MDBM team.</p>
+<p>An MDBM file that uses the V3 file format always contains 2 or more pages.</p>
+<p>The MDBM file is broken up into &#8220;chunks&#8221;, with each chunk being 1 or more contiguous
+whole physical pages.
+A page has a fixed size, and is different than a chunk.  A chunk is a logical contiguous
+collection of one or more pages, that is treated internally as though it is one logical page.
+In most cases, a chunk contains only one page, but a large object chunk or an oversized
+chunk will most likely be more than one page long.</p>
+<p>Each chunk starts with a mdbm_page_t structure (including the initial one).
+Each chunk contains a size (p_num_pages), and an offset to the previous chunk
+(p_prev_num_pages). Together, these form a doubly linked list.</p>
+<p>The p_type field of mdbm_page_t near the start of each chunk identifies the chunk type,
+which is one of MDBM_PTYPE_DIR, MDBM_PTYPE_DATA, MDBM_PTYPE_LOB, or MDBM_PTYPE_FREE.</p>
+<p>The first chunk (type DIR) contains the file header, directory bit vector, and
+page-table.  Successive chunks include normal/data pages, oversized pages, large-object pages,
+and free-pages.</p>
+<p>Free-pages (type FREE) contain a &#8220;next&#8221; pointer (p_next_free), and the first page is
+referenced by h_first_free, forming a singly-linked-list. Newly freed pages should
+be inserted into the free list sorted by address, and adjacent free pages should be
+coalesced into a single chunk.</p>
+<p>The directory is a linear array of bits, used to convert hash values of keys
+into a &#8220;logical page number&#8221;.  These bits internally represent a trie, which tells
+MDBM how to find the logical page number where a particular data item is stored using
+a hash of the data item&#8217;s key.  A logical page number determines the index into the page
+table, which is a linear array of integers that point to actual physical pages in the db.
+This provides a level of indirection that allows physical pages to be changed
+(moved/expanded/defragged/rearranged) very quickly.</p>
+<p>Data pages (type DATA) contain a series of entry meta-data structures (mdbm_entry_t)
+at the beginning (lowest VMA) of the page, and the actual key and value data grows
+down from the end (highest VMA) of the page(s).  Oversized data chunk may span multiple
+contiguous physical pages.  An oversized chunk has mdbm_page_t.p_num_pages of more than 1.</p>
+<p>The mdbm_entry_t structure contains the length and part of the hash for the key to enable
+fast scanning of a page. Deleted entries are signaled by a key length of 0, to allow
+for fast deletion, at the cost of possible defragmentation later.</p>
+<p>Large-object (type LOB) chunks contain db entries that exceed the capacity of a single
+data page.  Because we return found entries to users as a pointer+length pair, we
+cannot fragment these entries, so they are stored externally to the data page to
+which they logically belong. The l_pagenum entry points back to the logical page
+the large-object belongs to.</p>
+</div></blockquote>
+<p><strong>File Format Notes</strong></p>
+<blockquote>
+<div>Some DBs may contain an extra, unmerged free-page at the end of the DB, which
+is not listed in the free-list.  The existence of h_num_pages (which gives the last
+physical page in the DB) and h_last_chunk (which gives the last used physical chunk
+in the db) creates some ambiguity, and the various check_xxx() functions, for example
+check_db_dir(), stop at h_last_chunk. It is currently unclear if this ambiguity is
+by design, or accidental.</div></blockquote>
+<p><strong>MDBM File Handle Notes</strong></p>
+<blockquote>
+<div><p>The MDBM file handle (MDBM *) contains a lock count, which allows for very fast checking
+of whether an MDBM is locked by your process or thread.  This also means that MDBM handles
+cannot be shared among processes or threads.  It is also necessary because pthreads
+does not provide a way to get the lock-count (how many times a lock has been locked).
+With a multi-process/single-thread use case, each process should first fork, then mdbm_open()
+the MDBM.  With a multi-threaded use case, one thread (e.g. by using pthread_once), should
+create a handle pool using mdbm_dup_handle(), and then allow other threads to acquire a
+handle, use it, and release it.</p>
+<p>With MDBM V4, partitioned locking and shared locking have a different
+path to the file used to open the ysys multi-mutex, so MDBM is better able to enforce the
+&#8220;one locking type per MDBM&#8221; rule, meaning that you should never mix shared and partitioned
+locking.</p>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="performance.html"
+                        title="previous chapter">Performance</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="glossary.html"
+                        title="next chapter">Glossary</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/internals.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="glossary.html" title="Glossary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="performance.html" title="Performance"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

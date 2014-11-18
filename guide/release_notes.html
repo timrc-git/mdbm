@@ -1,0 +1,1188 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Release Notes &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Concepts" href="concepts.html" />
+    <link rel="prev" title="Getting Help" href="getting-help.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="concepts.html" title="Concepts"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting-help.html" title="Getting Help"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="release-notes">
+<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
+<p>MDBM is a fast dbm clone originally based on Ozan Yigit&#8217;s sdbm.</p>
+<p>MDBM Version 4 is a significant improvement to version 3 by optionally using
+pthreads instead of ylock.  Additionally, all y* package dependencies
+(i.e. ysys, yax, ycore) are optional.</p>
+<dl class="docutils">
+<dt>Version 4.3.0 (04/11/2014, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6866014] Add mdbm_test_build.pl to mdbm_tools</li>
+<li>[BUG 6885383] Add frequency distribution analysis scripts</li>
+</ul>
+</dd>
+<dt>Version 4.2.5 (04/07/2014, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6878887] Ignore deleted entries in mdbm_preload. Add mpreload to mash commands.</li>
+</ul>
+</dd>
+<dt>Version 4.2.4 (04/01/2014, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6866485] Extend mdbm_export to emit records size information without data.</li>
+</ul>
+</dd>
+<dt>Version 4.2.3 (08/14/2013, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6524877] Added mdbm_reset_all_locks command to reset lockfiles after a power failure.</li>
+</ul>
+</dd>
+<dt>Version 4.2.2 (08/14/2013, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6463775] Make signal defer flag use atomic inc/dec.</li>
+<li>[BUG 6479189] Enforce max page size limitation of 16MB-64bytes(16777152) - kislikm.</li>
+<li>[BUG 5273139] Enforce limits on pre-split size.</li>
+<li>[BUG 5280242] Enforce limits on spill-size.</li>
+<li>[BUG 6526912] Remove mdbm_compress command-line util -kislikm</li>
+</ul>
+</dd>
+<dt>Version 4.2.1 (08/01/2013)</dt>
+<dd><ul class="first last">
+<li><p class="first">[BUG 6347269] mdbm_delete_lockfiles should remove stale ylock arena entries.</p>
+</li>
+<li><dl class="first docutils">
+<dt>[BUG 6425222] add mdbm_internal to function names that caused or might cause</dt>
+<dd><p class="first last">name collisions.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Version 4.2.0 (06/14/2013)</dt>
+<dd><ul class="first last simple">
+<li>Separate out functions needed by plugins so that the use of RTLD_LOCAL
+(e.g. Java JNI) won&#8217;t break the ylock-plugin.</li>
+</ul>
+</dd>
+<dt>Version 4.1.6 (03/20/2013)</dt>
+<dd><ul class="first last simple">
+<li>Delay ylock plugin loading to prevent registration failure in apache.</li>
+</ul>
+</dd>
+<dt>Version 4.1.5 (02/08/2013)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6089389] Take out exclusive lock instead of write lock in mdbm_dup_handle.</li>
+</ul>
+</dd>
+<dt>Version 4.1.4 (01/15/2013, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Fixed truncate_db() use of an (invalid) remapped header variable.</li>
+<li>Merged trunk changes (up to revision 22225) into V4.</li>
+<li>Excised vestigial V2 conversion code.</li>
+<li>[BUG 6061776] 64 bit mdbm_replace command line util core dumps with large MDBMs
+(2GB or more) because it is mapped HEADER_ONLY but the directory is copied. (kislikm)</li>
+</ul>
+</dd>
+<dt>Version 4.1.3 (01/15/2013, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Merged trunk changes (up to revision 22055) into V4.</li>
+</ul>
+</dd>
+<dt>Version 4.1.2 (11/26/2012, kislikm)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5969052] implement mdbm_count_pages() and mdbm_count_records().</li>
+</ul>
+</dd>
+<dt>Version 4.1.1 (11/26/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5956125] Fixed plugin leak on close.</li>
+</ul>
+</dd>
+<dt>Version 4.1.0 (11/12/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5943497] Fixed permissions issues with ylock plugin.</li>
+<li>Added MDBM_SINGLE_ARCH flag for users to indicate they don&#8217;t need mixed-arch
+access, and get the faster pthreads-based locking.</li>
+<li>Added &#8220;fat&#8221; 32/64-bit support.</li>
+<li>Added plugable locking (i.e. mdmb_ylock_plugin).
+pthreads is included by default, but doesn&#8217;t allow for mixed 32/64-bit access
+to the same file (due to pthreads limitations).</li>
+</ul>
+</dd>
+<dt>Version 4.0.6 (08/07/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>NOTE: Yroots/images older than 6.2-20120514 DO NOT properly support robust
+locks. However yinst/yicf don&#8217;t allow the granularity needed to specify this.</li>
+<li>Moved lockfiles to /tmp/.mlock-named/&lt;mdbm-path&gt;._int_ for compatibility where
+the location of the mdbm file is not writable.</li>
+</ul>
+</dd>
+<dt>Version 4.0.5 (06/27/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Set minimum OS version to 6.2. Earlier versions of pthreads have issues with
+robust mutexes not recovering from abnormal exits (abort, crash, etc.)</li>
+</ul>
+</dd>
+<dt>Version 4.0.4 (06/27/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>no longer &#8220;replaces&#8221; older mdbm packages.</li>
+</ul>
+</dd>
+<dt>Version 4.0.3 (01/19/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>added &#8220;NO_AUTO_REQUIRES=yes&#8221; to yicf to prevent system openssl dependency.</li>
+</ul>
+</dd>
+<dt>Version 4.0.2 (01/19/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Fixed an erroneous return value from mdbm_open().</li>
+</ul>
+</dd>
+<dt>Version 4.0.1 (01/19/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Removed dependence on openssl_tps package.</li>
+<li>Added stubs for legacy limit_size functions to ease migration.</li>
+<li>Added &#8220;yinst replaces mdbm-3.9999.9999&#8221; to ease migration.</li>
+<li>Added MDBM_API_VERSION define (=4) to help users know what
+they are compiling against.</li>
+<li>Removed MDBM_CREATE_V2.</li>
+<li>Disabled 32-bit builds for RHEL6.</li>
+</ul>
+</dd>
+<dt>Version 4.0.0 (01/19/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Initial version.</li>
+<li>Added MDBM_LOCK_ANY flag to open with whatever locking mode exists.
+Shared and partition mode flags can be given as a suggested default.</li>
+<li>Added mdbm_get_lockmode() to query the current locking mode.</li>
+</ul>
+</dd>
+</dl>
+<p>MDBM Version 3 is a complete rewrite borrowing on the concepts from
+the original MDBM.</p>
+<dl class="docutils">
+<dt>Version 3.37.0 (04/17/2013)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6099293] Print version of yinst in mdbm_environment.sh</li>
+<li>[BUG 6258025] Add RHEL package environment information to mdbm_environment.sh</li>
+</ul>
+</dd>
+<dt>Version 3.36.2 (04/15/2013)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6222973] Unable to upgrade existing mdbm from 3.26 to 3.36.
+Make mdbm_create call mdbm_fsync to ensure that the file is sync&#8217;d
+to disk.  This avoids waiting for a hugetlbfs delayed system sync.
+When creating an hugetlbfs mdbm, force an fsync of the header.
+Use mmap instead of pread to get the magic number for files in
+hugetlbfs.  hugetlbfs reads are known not to work in kernel version
+2.6.11.  hugetlbfs doesn&#8217;t fully support read-write access
+until kernel 2.6.25.  For interim kernel versions (ex., 2.6.18,
+assume that reads do not work, so mmap must be used).</li>
+</ul>
+</dd>
+<dt>Version 3.36.1 (02/08/2013)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 6089389] Take out exclusive lock instead of write lock in mdbm_dup_handle.</li>
+</ul>
+</dd>
+<dt>Version 3.36.0 (02/08/2013)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5916060] Disable the temporary LEGO_ROLLBACK feature
+introduced in 3.35.0. (carney)</li>
+<li>[BUG 6061776] 64 bit mdbm_replace command line util core dumps with large MDBMs
+(2GB or more) because it is mapped HEADER_ONLY but the directory is copied. (kislikm)</li>
+</ul>
+</dd>
+<dt>Version 3.35.1 (01/07/2013)</dt>
+<dd><ul class="first last">
+<li><p class="first">[BUG 5688486] Refactor mdbm headers to sync up public headers
+(mdbm_dev and documentation) with actual development headers. (carney)
+This change does not introduce any real differences, but it did
+affect many files after renaming fundamental files.  The v3 headers
+instead of the v2 headers match the public files names.
+The component build now runs unit tests.
+The new/include/mdbm/ directory was removed.
+Renamed mdbm/include files:</p>
+<blockquote>
+<div><ul class="simple">
+<li>mdbm.h -&gt; old_mdbm.h, mdbm.c -&gt; old_mdbm.c</li>
+<li>new_mdbm.h -&gt; mdbm.h, new_mdbm.c -&gt; mdbm.c</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">[BUG 5999799] Cannot store large objects into a dynamic-growth mdbm. (carney)
+Add dynamic-growth mdbm large object unit tests.
+Does not reproduce Lego&#8217;s failure case.
+Move large object documentation from Tips twiki to concepts.rst.</p>
+</li>
+<li><p class="first">[BUG 6014455] Add mdbm_delete_lockfiles command line util whose
+purpose is to delete all of an MDBM&#8217;s lock files.               (kislikm)</p>
+</li>
+</ul>
+</dd>
+<dt>Version 3.35.0 (11/05/2012)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5953069] Allow lockmode to be specified in mdbm_export.</li>
+<li>[BUG 5916060] As a Lego SE, I want to be able to rollback during
+MDBM v2 to v3 migration to provide uninterrupted service.
+Added temporary environment variables for Lego rollback. (carney)</li>
+<li>[BUG 5583214] Implement smart locking API that uses mdbm_open flags to determine
+locking type: mdbm_lock_smart,mdbm_unlock_smart,mdbm_trylock_smart. (kislikm)</li>
+</ul>
+</dd>
+<dt>Version 3.34.1 (11/05/2012)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5902509] Remove tps_openssl_dev-0.9.8k_11 from mdbm binary package
+dependedencies.  Remove tps_openssl-0.9.8k_11 from mdbm_dev package
+dependedencies. (carney)</li>
+</ul>
+</dd>
+<dt>Version 3.34.0 (11/01/2012)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5817902] Added new API mdbm_preload() for reading every 4K bytes
+to force all pages into memory (sbaby)</li>
+<li>[BUG 5833868] Added new API mdbm_lock_pages() and mdbm_unlock_pages
+to lock some or all of MDBM&#8217;s pages into RAM memory using mlock(). (kislikm)</li>
+<li>[BUG 5902509] Lower tps_openssl minimum version for Broadband
+partner Verizon compatibility.  The minimum version has been lowered
+from tps_openssl-0.9.8o_2 to tps_openssl-0.9.8k_11. (carney)</li>
+</ul>
+</dd>
+<dt>Version 3.33.2 (08/22/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5688486] Move API documentation into new_mdbm.h and create API groups (carney)</li>
+</ul>
+</dd>
+<dt>Version 3.33.1 (06/27/2012, mlakes)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5648770] Windowed mode is disabled on RHEL6 (and 4-on-6) due to changes in
+remap_file_pages() (kislikm)</li>
+<li>[BUG 5648334] Support v2-&gt;v3 file format upgrade in mdbm_replace (crowdert)</li>
+</ul>
+</dd>
+<dt>Version 3.33.0 (06/01/2012, mlakes)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5617110] Added mdbm_get_config and mdbm_convert_v2_to_v3.pl to convert v2 to v3 DB.</li>
+<li>Added mdbm_compare to output differences between 2 mdbms.</li>
+<li>Added new public API mdbm_get_hash_value and new internal API mdbm_get_partition_number</li>
+<li>[BUG 5555987] Add mdbm package conflicts clause to avoid ysys robust mmutex packages (carney)</li>
+<li>[BUG 5283034] Correctly handle mdbm_get_magic_number() calls for V2 MDBMs (kislikm)</li>
+<li>[BUG 5550568] new API: mdbm_get_hash_value</li>
+<li>[BUG 5545200] new internal API: mdbm_get_partition_number</li>
+</ul>
+</dd>
+<dt>Version 3.32.1 (04/23/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5539120] Backout r18803 on new_mdbm.c</li>
+</ul>
+</dd>
+<dt>Version 3.32.0 (04/17/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Added delete option to mdbm_import for zero-length values.</li>
+<li>[BUG 5530788] Lower ysys dependency from ysys-2.28 to ysys-2.26 (carney)</li>
+<li>[BUG 5530815] Change default creation file format from v2 to v3 (carney)</li>
+</ul>
+</dd>
+<dt>Version 3.31.2 (03/15/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5267466] Add check to enforce that mdbm_open() of a V3 MDBM with
+MDBM_O_CREAT also requires MDBM_O_RDWR.  Allow mdbm_open opened with
+MDBM_O_RDONLY|MDBM_O_CREAT to create an MDBM (if one is not present),
+and open it in read-only mode. (kislikm)</li>
+</ul>
+</dd>
+<dt>Version 3.31.1 (02/09/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5354707] ynet_dbutil -3 cannot be run twice without rm -rf /tmp/.ylock-*.
+Change open_locks for the mode of a named mutex file.  If an
+mdbm&#8217;s permission has read access, the corresponding `ugo&#8217; permission
+on the mutex file will also have write access.</li>
+</ul>
+</dd>
+<dt>Version 3.31.0 (02/03/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5332961] Forced stats header fields to be fixed size, independent
+of platform. They were introduced in 3.28.1.
+NOTE: Any V3 MDBMs created by 32-bit MDBM libraries 3.28 to 3.30
+will be incompatible with new libraries and pre-3.28 libraries.
+They should be recreated from scratch, or by using mdbm_export (V3.28)
+and a newer version of mdbm_import.</li>
+</ul>
+</dd>
+<dt>Version 3.30.0 (01/20/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5318830] Removed Windowed-Min mode. It was not being used by any users,
+and is fundamentally broken on RHEL6 due to it&#8217;s inability to coalesce and
+re-fragment mmaped chunks in remap_file_pages().</li>
+</ul>
+</dd>
+<dt>Version 3.33.1 (06/27/2012, mlakes)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5648770] Windowed mode is disabled on RHEL6 (and 4-on-6) due to changes in
+remap_file_pages() (kislikm)</li>
+<li>[BUG 5648334] Support v2-&gt;v3 file format upgrade in mdbm_replace (crowdert)</li>
+</ul>
+</dd>
+<dt>Version 3.33.0 (06/01/2012, mlakes)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5617110] Added mdbm_get_config and mdbm_convert_v2_to_v3.pl to convert v2 to v3 DB.</li>
+<li>Added mdbm_compare to output differences between 2 mdbms.</li>
+<li>Added new public API mdbm_get_hash_value and new internal API mdbm_get_partition_number</li>
+<li>[BUG 5555987] Add mdbm package conflicts clause to avoid ysys robust mmutex packages (carney)</li>
+<li>[BUG 5283034] Correctly handle mdbm_get_magic_number() calls for V2 MDBMs (kislikm)</li>
+<li>[BUG 5550568] new API: mdbm_get_hash_value</li>
+<li>[BUG 5545200] new internal API: mdbm_get_partition_number</li>
+</ul>
+</dd>
+<dt>Version 3.32.1 (04/23/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5539120] Backout r18803 on new_mdbm.c</li>
+</ul>
+</dd>
+<dt>Version 3.32.0 (04/17/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>Added delete option to mdbm_import for zero-length values.</li>
+<li>[BUG 5530788] Lower ysys dependency from ysys-2.28 to ysys-2.26 (carney)</li>
+<li>[BUG 5530815] Change default creation file format from v2 to v3 (carney)</li>
+</ul>
+</dd>
+<dt>Version 3.31.2 (03/15/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5267466] Add check to enforce that mdbm_open() of a V3 MDBM with
+MDBM_O_CREAT also requires MDBM_O_RDWR.  Allow mdbm_open opened with
+MDBM_O_RDONLY|MDBM_O_CREAT to create an MDBM (if one is not present),
+and open it in read-only mode. (kislikm)</li>
+</ul>
+</dd>
+<dt>Version 3.31.1 (02/09/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5354707] ynet_dbutil -3 cannot be run twice without rm -rf /tmp/.ylock-*.
+Change open_locks for the mode of a named mutex file.  If an
+mdbm&#8217;s permission has read access, the corresponding ugo permission
+on the mutex file will also have write access.</li>
+</ul>
+</dd>
+<dt>Version 3.31.0 (02/03/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5332961] Forced stats header fields to be fixed size, independent
+of platform. They were introduced in 3.28.1.
+NOTE: Any V3 MDBMs created by 32-bit MDBM libraries 3.28 to 3.30
+will be incompatible with new libraries and pre-3.28 libraries.
+They should be recreated from scratch, or by using mdbm_export (V3.28)
+and a newer version of mdbm_import.</li>
+</ul>
+</dd>
+<dt>Version 3.30.0 (01/20/2012, crowdert)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5318830] Removed Windowed-Min mode. It was not being used by any users,
+and is fundamentally broken on RHEL6 due to it&#8217;s inability to coalesce and
+re-fragment mmaped chunks in remap_file_pages().</li>
+</ul>
+</dd>
+<dt>Version 3.29.1 (01/12/2012, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5270055] Consecutive calls to mdbm_import does not update
+values to the existing key when the data is in cdb format.
+A `-S&#8217; option was added to mdbm_import to specify a numeric
+storage flag for mdbm_store (insert, replace, insert_dup, modify).</li>
+</ul>
+</dd>
+<dt>Version 3.29.0 (12/21/2011, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 5033658] mdbm_open performance improvement.
+Refactor out significant functionality of mdbm_open into
+check_hugetlbfs and get_magic_number for profiling purposes.
+mdbm_get_magic_number added to public API, which is intended for testing purposes.</li>
+<li>Fix new_mdbm.h typo, change extern mdbm_get_stat to mdbm_get_stats.</li>
+<li>[BUG 4784613] yphp_mdbm segmentation faults with mdbm-3.26.4.55.
+regtests/test-4784613.cc added to reproduce the crash in split_page.</li>
+<li>[BUG 5250025] mdbm_import does not accept k/m as suffix for page size.
+For mdbm_import, the units for the default db size is now in MB
+instead of bytes.</li>
+<li>[BUG 5264717] Requirements for the .protect symbolic link used by mdbm_open()
+to determine whether to enable protection or not have been relaxed: the
+symlink no longer needs to be owned by root.  The previous code did not enforce
+the requirement that the file must be a symlink, but now it does that. (kislikm)</li>
+<li>[BUG 5212828] Segfault in mdbm_store (carney)
+regtests/test-512828.cc added to reproduce the crash in split_page.</li>
+</ul>
+</dd>
+<dt>Version 3.28.1 (11/03/2011, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 4919056] Track mdbm last read, write, and delete time.
+Remove bogus assert(sizeof(time_t) = 8).</li>
+<li>[BUG 4784613] yphp_mdbm segmentation faults with mdbm-3.26.4.55
+Add regression test test-4784613.cc</li>
+</ul>
+</dd>
+<dt>Version 3.28.0 (10/25/2011, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 4739922] mdbm_stat should display an cache type (LRU, LFU, GDSF)</li>
+<li>[BUG 4585940] mdbm_stat prints Hash func = 5/FNV while mdbm is
+created with mdbm_create -h 0/CRC-32.</li>
+<li>[BUG 4844568] Help option (-h) mdbm_compress is not available</li>
+<li>[BUG 4919056] Track mdbm last read, write, and delete time.
+See new functions: mdbm_get_stat_counter, mdbm_get_stat_time, and
+mdbm_reset_stat_operations.</li>
+</ul>
+</dd>
+<dt>Version 3.27.1 (10/14/2011, carney)</dt>
+<dd><ul class="first last">
+<li><p class="first">Move mdbm_environment from top directory to the bin directory.</p>
+</li>
+<li><p class="first">[BUG 4883332] mdbm_import fails with the option to limit large object size.
+The program&#8217;s -y option was documented incorrectly.</p>
+</li>
+<li><p class="first">[BUG 4888620] mdbm should expose the get_version function</p>
+</li>
+<li><p class="first">[BUG 4887617] mdbm_check should allow the version of an mdbm to be specified</p>
+</li>
+<li><p class="first">[BUG 4846762] Maple object cache cannot allocate storage frequently
+on FEs, causing MDBM errors and perf degrdation due to Maple configure.
+This fix displays warnings when using mdbm_limit_size_new for v3 format
+mdbms.  mdbm v3 files should use mdbm_limit_size_v3, and not
+mdbm_limit_size_new.  However, to provide a better v2 to v3
+migration experience, mdbm_limit_size_new has been modified:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Display a warning messsage</li>
+<li>If the page size is not over 64KB, use the v2 shake data format</li>
+<li>If the page size is over 64KB, use the v3 shake data format</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+<dt>Version 3.27.0 (10/02/2011, carney)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 4704915] mdbm_open uses clashing O_FSYNC and MDBM_OPEN_WINDOWED flags.
+When packages are ported to RHEL6, users must scan for mdbm_open calls and
+change from open flags O_XXX to MDBM_O_XXX.  This will avoid a collision
+between O_FSYNC and MDBM_OPEN_WINDOWED. (2011-07-27, arnej)</li>
+<li>mdbm_environment.sh added for gathering information for bug reporting.</li>
+<li>For mdbm_dev, add dependencies on ysys_dev and ylock_dev to ensure that
+they stay in sync with their installed corresponding binary packages.</li>
+<li>Update doxygen configuration from 1.2.15 to 1.5.8.</li>
+<li>Release Notes are now MDBM_BUILD dependent.</li>
+<li>[BUG 4821002] Help documentation of mdbm_replace has incorrect sequnce of command line options</li>
+<li>[BUG 4821618] Fix array overrun and corruption from v3 stats function.</li>
+<li>[BUG 4838668] mdbm_sync gives an error &#8220;invalid option&#8221; for -L</li>
+<li>[BUG 4840488] Compilation was failed because of
+&#8220;/usr/bin/ld: warning: libcrypto.so.4, needed by /home/y/lib64/libmdbm.so,
+may conflict with libcrypto.so.108&#8221; on rhel.5.4.
+Starting with mdbm-3.27.0.65, libmdbm.so is linked with tps_openssl
+instead of the system&#8217;s openssl.</li>
+<li>[BUG 4846762] Maple object cache cannot allocate storage frequently
+on FEs, causing MDBM errors and perf degrdation due to Maple
+configure.
+The root cause is that mdbmv3 apps with page size over 64KB are using
+mdbm_limit_size_new instead of mdbm_limit_size_v3.  This results in
+the shake function being called with mdbm_shake_data (16-bit sizes)
+instead of mdbm_shake_data_v3.  The shake fails to find space, and
+that object cannot be inserted.</li>
+<li>[BUG 4867680] 400M fixed size mdbm using 2G of address space
+Add options -D and -S to mdbm_trunc to establish a size limits on the mdbm.
+There is no option to preserve large objects attribute.
+Log an error if the new limit size is smaller than the existing size.</li>
+<li>[BUG 4637883] Named mutexes must be opened using same &#8220;mode&#8221; as underlying mdbm</li>
+<li>[BUG 4723272] Support environment variable to turn on mdbm protection globally.
+Environment variable MDBM_PROTECT_PATH_REGEX may be used to define a
+POSIX Extended Regular Expression that is matched against the mdbm&#8217;s realpath.
+If there is a match, the mdbm protect feature is enabled.  Setting
+MDBM_PROTECT_PATH_REGEX=. enables the protect feature for any mdbm.</li>
+</ul>
+</dd>
+<dt>Version 3.26.4 (07/22/2011, carney)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4511494] Corrections and fixes to File_MDBM.pm&#8217;s pod</li>
+<li>[FIX BUG 4597969] MDBM V3 causes mdbm_popen to return old value after mdbm_replace</li>
+</ul>
+</dd>
+<dt>Version 3.26.3 (05/20/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4558462] Add missing mdbm3_config.h header to dev package.</li>
+</ul>
+</dd>
+<dt>Version 3.26.2 (05/19/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 4550018] Fix default mdbm_check level (-d 3) for v3 dbs; fix mdbm_check exit code</li>
+</ul>
+</dd>
+<dt>Version 3.26.1 (05/03/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4511240] Add lock upgrade during page-split (w/ deadlock avoidance) for correctness.</li>
+<li>Retry failed store to backing-store in case of possible page-split partition conflict.</li>
+</ul>
+</dd>
+<dt>Version 3.26.0 (04/28/2011, rr)</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>[BUG 4504900] Use full db locking function when protecting handle/db.</dt>
+<dd><p class="first last">Track locked partition (instead of page) and improve conflict logging.
+Return success when backing-store fetch succeeds even if cache refill fails.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">Add mdbm_digest utility.</p>
+</li>
+<li><p class="first">Add windowing support to utilities.</p>
+</li>
+<li><p class="first">[FIX BUG 4503448] Fix v3 mdbm_fetch return val when fetch fails.</p>
+</li>
+<li><p class="first">Add mdbm_lock_reset() to reset db lock and allow return from part/rw locks to db locks.</p>
+</li>
+</ul>
+</dd>
+<dt>Version 3.25.3 (04/26/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix for overzealous mprotect when mapped in header-only mode.</li>
+</ul>
+</dd>
+<dt>Version 3.25.2 (04/18/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix SEGV in del_entry when deleting large-object in windowed-mode.</li>
+<li>Fix incomplete value mapping of large-object in windowed-mode.</li>
+</ul>
+</dd>
+<dt>Version 3.25.1 (04/18/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4480191] Disallow sethash/set_alignment/set_cachemode when db not empty.</li>
+<li>[FIX BUG 4480023] Handle deleted entries properly in mdbm_iterate.</li>
+<li>Fix windowed and windowed-min mode page iteration in a bunch of places.</li>
+<li>Fix db check code which was iterating the entries on each page incorrectly.</li>
+<li>Include page number in mdbm_dump output for lob chunks.</li>
+<li>Make v2 compact calls conditional.</li>
+</ul>
+</dd>
+<dt>Version 3.25.0 (03/16/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>Log the lock state when a locking error is detected.</li>
+<li>Bump the ysys dependency to support threaded locking correctly.</li>
+</ul>
+</dd>
+<dt>Version 3.24.1 (03/14/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4397460] Fix corruption caused by update of large object.</li>
+<li>[FIX BUG 4397471] Fix mmap error due to bad dir size calculation in windowed mode.</li>
+<li>More locking cleanup (partition conflicts when using plocks for backing store).</li>
+<li>Add missing mdbm_bench backing-store config options.</li>
+<li>mdbm_bench main proc/thread waits for all child procs/threads to finish before exiting.</li>
+</ul>
+</dd>
+<dt>Version 3.24.0 (03/10/2011, rr)</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>[FIX BUG 4391578] [BUG 4388269]</dt>
+<dd><p class="first last">Overhaul backing-store lock management to streamline and avoid lock-ordering
+issues.  Backing-store locks are now always taken alongside the tier-1 locks.
+This improves the consistency guarantees as well as avoiding unintentional
+deadlocks.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">[FIX BUG 4380791] Add mdbm_create -s option to specify main db size.</p>
+</li>
+</ul>
+</dd>
+<dt>Version 3.23.6 (02/23/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4353743] Fix locking error during mdbm_dup_handle().</li>
+<li>Fix partitioned/rw locking modes to make exclusive locks work with threads.</li>
+</ul>
+</dd>
+<dt>Version 3.23.5 (02/15/2011, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4331169] Fix some mdbm_stat -u metrics; add many new ones.</li>
+<li>Fix internal directory handling during db growth.</li>
+<li>Fix extraneous unlock error when calling mdbm_fetch_dup_r with no lock held.</li>
+<li>Add missing locking to mdbm_fetch utility.</li>
+</ul>
+</dd>
+<dt>Version 3.23.4 (01/19/11, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix hang in window allocator (when window is too small).</li>
+</ul>
+</dd>
+<dt>Version 3.23.3 (01/10/11, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4248986] Ignore cache refill errors due to large objects fetched from backing.</li>
+</ul>
+</dd>
+<dt>Version 3.23.2 (01/10/11, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4248297] Fix mdbm_first/next with windowed mode and large objects.</li>
+<li>Add -v (verbose) and -w (windowed) options to mdbm_fetch.</li>
+</ul>
+</dd>
+<dt>Version 3.23.1 (12/15/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4213782] Use db-level lock to protect attribute-setting functions</li>
+<li>Rewrite internal lock to used second named lock (instead of ylock arena mutex hack).</li>
+</ul>
+</dd>
+<dt>Version 3.23.0 (12/13/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4195889] Support mdbm_replace when used with dup&#8217;ed handles.</li>
+<li>Switch to named mutex to improve robustness of mdbm_replace operation.</li>
+</ul>
+</dd>
+<dt>Version 3.22.0 (12/02/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4134447] Add mdbm_dup_handle() for sharing of mappings across threads.</li>
+<li>Add mdbm_get_cachemode().</li>
+<li>[FIX BUG 4143244] Add cache-store rstats to track actual stores to cache db.</li>
+</ul>
+</dd>
+<dt>Version 3.21.6 (11/11/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 681782] Make mdbm_set_alignment more explicit.</li>
+<li>[FIX BUG 1100780] Clarify doc on mdbm_store_r datum pointers.</li>
+<li>[FIX BUG 2476296] Point to twiki doc from package.</li>
+<li>[FIX BUG 3981675] Make mdbm_close no-op if passed NULL (matches v2 behavior)</li>
+<li>[FIX BUG 4017582] abort() on window allocation failures (fail fast)</li>
+<li>[FIX BUG 4116544] Fix mdbm_import to accept dbsize &gt;= 2G</li>
+<li>Fix bug in windowed mode which could fail to fetch a record which existed in the db</li>
+</ul>
+</dd>
+<dt>Version 3.21.5 (11/01/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 4106371] Revert v2 locking to 2.32.0 to support multi-threaded access via mdbm_lock.</li>
+<li>Fix v3 check errno when db problem is detected (was EBADF, not EFAULT).</li>
+<li>Fix v3 mdbm_check return code.</li>
+</ul>
+</dd>
+<dt>Version 3.21.4 (09/30/10)</dt>
+<dd><ul class="first last simple">
+<li>Add window size and max window used stats to get_window_stats.</li>
+<li>[BUG 4013936] Fix window metadata initialization.</li>
+</ul>
+</dd>
+<dt>Version 3.21.3 (09/29/10)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 4013936] Simplify window allocator to avoid fragmentation issues.</li>
+</ul>
+</dd>
+<dt>Version 3.21.2 (09/21/10)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 4003422] Grab db lock for top-level db functions to ensure proper protect behavior.</li>
+<li>[FIX BUG 3885569] Ensure that db passed to mdbm_init_rstats is a v3 db.</li>
+</ul>
+</dd>
+<dt>Version 3.21.0 (08/11/10)</dt>
+<dd><ul class="first last simple">
+<li>Attempt lock upgrade if necessary for defrag chunk allocation (large obj, oversized page, etc.)</li>
+<li>Revise Makefiles (coverage/docs)</li>
+</ul>
+</dd>
+<dt>Version 3.20.6 (08/07/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Stats bugs:  Add missing overhead bytes to page stats.</li>
+</ul>
+</dd>
+<dt>Version 3.20.5 (08/02/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Windowing bug:  Fix missing page map call in find_defrag_free_chunk().</li>
+<li>Windowing bug:  Fix window page leak when dealing with oversized pages.</li>
+</ul>
+</dd>
+<dt>Version 3.20.4 (07/26/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 3729155] Fix misplaced get_window_page assertion().</li>
+</ul>
+</dd>
+<dt>Version 3.20.3 (07/22/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 3729155] Rework window page allocation to track in-use pages</li>
+</ul>
+</dd>
+<dt>Version 3.20.2 (06/10/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3729346] Add window size checks that take into account large object requirements.</li>
+</ul>
+</dd>
+<dt>Version 3.20.1 (06/10/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 3724876] Bypass some per-entry checking for deleted entries.</li>
+<li>[BUG 3724876] Fix mdbm_stat crash when db size is &gt;= 1TB.</li>
+<li>[FIX BUG 3727737] Fix crash in store when using MDBM_CACHE_MODIFY.</li>
+<li>[FIX BUG 3716553] Force a minimum of 2 pages in window to prevent split_page crash.</li>
+<li>Fix mdbm_bench threaded (-t) mode.</li>
+</ul>
+</dd>
+<dt>Version 3.20.0 (05/24/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add -u (utilization) option to mdbm_stat for v3 databases.</li>
+<li>Revise random key generation in mdbm_bench.</li>
+<li>Add 4th level to check_db which verifies key hash in page directory.</li>
+<li>Add missing mdbm_copy utility to package.</li>
+</ul>
+</dd>
+<dt>Version 3.19.0 (04/21/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add MDBM_CACHE_MODIFY flag to mdbm_store() to enable cache-pollution avoidance.</li>
+</ul>
+</dd>
+<dt>Version 3.18.3 (04/19/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Minor code tweaks to silence compiler warnings.</li>
+<li>Use MDBM_REPLACE to insert keys in mdbm_bench in sequential-key mode.</li>
+</ul>
+</dd>
+<dt>Version 3.18.2 (04/14/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3552158] Fix directory protection broken in 3.18.0.</li>
+<li>Tweak get_window_page length processing to avoid incorrect page mappings.</li>
+</ul>
+</dd>
+<dt>Version 3.18.1 (03/26/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Bypass auto-check-on-lock-owner-death if running windowed.</li>
+<li>Bypass internal lock if opened without locking.</li>
+<li>Disable unnecessary first-page memory protection.</li>
+</ul>
+</dd>
+<dt>Version 3.18.0 (03/24/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add windowed-min mode (MDBM_OPEN_WINDOWED_MIN) for minimum footprint windowing.</li>
+<li>Fix memory leak in window management code.</li>
+<li>Add missing mdbm_stats.h to mdbm_dev.</li>
+</ul>
+</dd>
+<dt>Version 3.17.5 (03/10/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3437353] Fix corner case in freeing large objects during purge.</li>
+</ul>
+</dd>
+<dt>Version 3.17.4 (03/10/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3465383] Fix locking around db integrity check triggered by lock-owner death.</li>
+<li>[FIX BUG 3465414] Fix protect mode when windowing enabled.</li>
+<li>[FIX BUG 3465421] Fix auto-switch from db locking mode to partitioned locks.</li>
+<li>[FIX BUG 3465425] Fix detection of lock-owner death when using shared lock.</li>
+<li>Add support for size suffixes in mdbm_bench (e.g., -p 128k).</li>
+</ul>
+</dd>
+<dt>Version 3.17.3 (03/08/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3437353] Fix mdbm_purge to free all large-objects during purge.</li>
+<li>[FIX BUG 3457932] Fix page stats when page includes large-objects.</li>
+<li>[FIX BUG 3458802] Fix error/crash issues with large-objects and windowed-mode.</li>
+</ul>
+</dd>
+<dt>Version 3.17.2 (02/24/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3415090] Fix mprotect error/SEGV when opening header-only (i.e., mdbm_replace).</li>
+</ul>
+</dd>
+<dt>Version 3.17.1 (02/11/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add column headers to mdbm_bench output.</li>
+<li>Fix -M/-W checking in mdbm_bench.</li>
+<li>Rework non-rstats benchmark output.</li>
+<li>Update mdbm_rstats usage message.</li>
+<li>Set a long default for mdbm_rstats -s option.</li>
+<li>[FIX BUG 3380591] Separate internal lock from db lock to avoid lock ordering issues.</li>
+</ul>
+</dd>
+<dt>Version 3.16.2 (02/10/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix RHEL build.</li>
+</ul>
+</dd>
+<dt>Version 3.16.1 (02/09/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3353497] mdbm_bench checks that -W option is given if -M option is given.</li>
+<li>[FIX BUG 3358194] Move file stat in mdbm_replace_db to fix replacement of v2 dbs.</li>
+<li>[FIX BUG 3338296] Emit warning from mdbm_limit_size* if &lt;5% space allocated for large-obj.</li>
+<li>[FIX BUG 3334756] Use realpath for opening mmutex file.</li>
+<li>Add MDBM_NO_DIRTY open flag to disable dirty-bit management.</li>
+<li>Rework write testing in mdbm_bench.</li>
+</ul>
+</dd>
+<dt>Version 3.16.0 (02/03/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add time histogram support to realtime stats.</li>
+<li>Add diskstats (-D) to mdbm_bench for RHEL.</li>
+<li>Add mlockall (-0) option to mdbm_bench.</li>
+<li>Add support for hugetlbfs-backed mdbm&#8217;s on RHEL.</li>
+<li>Add support for cache-eviction of large objects.</li>
+</ul>
+</dd>
+<dt>Version 3.15.0 (01/20/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Drop i386-freebsd6-gcc3 x86_64-freebsd6-gcc3 support</li>
+</ul>
+</dd>
+<dt>Version 3.14.0 (01/13/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3199041] Add no-lock options (usu. -L) to all utilities.</li>
+<li>Redo locking recursion change to support threaded locking via db-lock (not partitioned/rw).</li>
+<li>[FIX BUG 3312015] Fix v2 stat crash when no-lock option used.</li>
+<li>Rework cache eviction to properly handle clean-func refusals/failures.</li>
+<li>Use atomic ops to update realtime stats.</li>
+<li>Fix RHEL5 compile issues.</li>
+<li>Fix window sizes &gt;=4GB.</li>
+<li>Use non-blocking (no prefault) remap when windowing an entire db page (store optimization).</li>
+<li>Add cache eviction to realtime stats.</li>
+</ul>
+</dd>
+<dt>Version 3.13.0 (01/05/10, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add windowing support for accessing larger-than-address-space/larger-than-RAM db&#8217;s.</li>
+<li>Add mdbm-based backing store support.</li>
+<li>Add locking stats to runtime stats.</li>
+<li>[FIX BUG 3199041] Add MDBM_OPEN_NOLOCK support to v3 to bypass all locking.</li>
+<li>Add support to mdbm_bench for configuring backing store</li>
+<li>Generate mdbm_bench keys dynamically in sequential-key-mode to reduce bloat.</li>
+<li>Add -b (windowed), -P (read-only), -V (check values) options to mdbm_bench.</li>
+</ul>
+</dd>
+<dt>Version 3.12.0 (12/11/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[BUG 3199041] Add MDBM_OPEN_NOLOCK support to v2 to bypass all locking.</li>
+<li>[FIX BUG 3236690] Fix missing unlock in v2 mdbm_sethash function.</li>
+<li>Revise rstats interface so monitors don&#8217;t need to open db.</li>
+<li>Rework mdbm_bench rate and timing calculations.</li>
+<li>Fix mdbm_stat overflow in number of pages.</li>
+<li>Add missing locking in some mdbm_set* functions.</li>
+<li>Fix -L (nolock) option for mdbm_stat.</li>
+<li>Fix O_DIRECT alignment handling for write.</li>
+</ul>
+</dd>
+<dt>Version 3.11.2 (12/03/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix corruption when 0-sized large object is moved during defrag.</li>
+<li>Avoid storing small sized values as large objects.</li>
+<li>Fix no-lock option of mdbm_check</li>
+<li>Add more tests to mdbm_regtest and additional rework.</li>
+</ul>
+</dd>
+<dt>Version 3.11.1 (12/01/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix locking recursion problem (introduced in 3.11.0).</li>
+<li>Shrink oversized pages when they become empty.</li>
+<li>Lots of regtest fixes.</li>
+<li>Fix error in val.dsize returned by mdbm_store_r when alignment &gt; 0.</li>
+</ul>
+</dd>
+<dt>Version 3.11.0 (11/25/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 3208259] Add MDBM_DEMAND_PAGING flag to v3 header to support v2 feature.</li>
+<li>[FIX BUG 2383183] Update doc link.</li>
+<li>Add mdbm_protect() to add/remove memory protection.</li>
+<li>Add automatic protection-follows-locking (checks existence of /path/to/dbfilename.protect)</li>
+<li>Add mdbm_set_backingstore() and file-based implementation for cachemode backing store.</li>
+<li>Add mdbm_init_rstats() and mdbm_rstats util for runtime stats collection/monitoring.</li>
+<li>Change db-level locking recursion to better detect misbehaving locks.</li>
+</ul>
+</dd>
+<dt>Version 3.10.3 (10/19/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Cleanup v3 internal locking.</li>
+<li>Enhance mdbm_bench for better timing.</li>
+<li>Fix a few 64-bit compile warnings.</li>
+<li>Fix header handling for v3 replace.</li>
+<li>Increase verbosity for post-crash integrity check.</li>
+<li>Fix mdbm_create initial db size handling.</li>
+<li>Improve mdbm_check usage.</li>
+<li>[FIX BUG 3100302] Fix v3 mdbm_sync.</li>
+<li>[FIX BUG 3033284] Fix doc for shake data.</li>
+<li>[BUG 3056394] Add another page-level sanity check.</li>
+</ul>
+</dd>
+<dt>Version 3.10.2 (10/19/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix v2 shake(v2) large object processing.</li>
+</ul>
+</dd>
+<dt>Version 3.10.1 (09/28/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix v2 shake processing: was failing to free large objects.</li>
+</ul>
+</dd>
+<dt>Version 3.10.0 (08/04/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add mdbm_fcopy function for copying live v3 db&#8217;s.</li>
+<li>Add mdbm_copy utility.</li>
+<li>Add mdbm_digest utility for generating db digests.</li>
+<li>Fix mdbm_dev replaces rule to properly replace mdbm_dev v2.</li>
+<li>Add -S (step) option to mdbm_bench.</li>
+<li>Support up to 512 procs in mdbm_bench.</li>
+<li>Fix source compatibility issue between v2 datum &amp; kvpair and v3.</li>
+</ul>
+</dd>
+<dt>Version 3.9.1 (06/18/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Rewrite v2/v3 header-only mapping to address various crashes.</li>
+<li>Fix mdbm_bench large db support.</li>
+<li>Add logfile support to mdbm_bench.</li>
+<li>Fix compilation against recent yahoo_cfg_dev.</li>
+</ul>
+</dd>
+<dt>Version 3.9.0 (05/29/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Remove spurious log message during open</li>
+<li>Add -o option to mdbm_bench for logging results.</li>
+</ul>
+</dd>
+<dt>Version 3.8.3 (05/15/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2758516] Fix SEGV when evicting dirty cache entry.</li>
+<li>[FIX BUG 2758557] Fix errors in handling cache mode.</li>
+</ul>
+</dd>
+<dt>Version 3.8.2 (05/14/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Tweak page 0 guard size.</li>
+</ul>
+</dd>
+<dt>Version 3.8.1 (05/13/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix size calculation on page 0 guard.</li>
+</ul>
+</dd>
+<dt>Version 3.8.0 (05/05/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>mprotect the slack space in page 0 to electric-fence the directories.</li>
+<li>Fix two errors in free_chunk() code.</li>
+<li>Run full db check on v3 db&#8217;s when previous lock-owner died.</li>
+</ul>
+</dd>
+<dt>Version 3.7.0 (04/28/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2715933] Support MDBM_CLEAN flag to mdbm_store which marks cache entry clean.</li>
+<li>[FIX BUG 2715880] Correct value ptr/size in mdbm_clean callback.</li>
+</ul>
+</dd>
+<dt>Version 3.6.1 (04/27/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2709019] Skip over deleted page entries in mdbm_clean.</li>
+<li>[FIX BUG 2660531] Fix set_cachemode arg checking to allow MDBM_CACHEMODE_EVICT_CLEAN_FIRST</li>
+</ul>
+</dd>
+<dt>Version 3.6.0 (03/30/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add mdbm_fetch_info function to return cache metadata along with value.</li>
+</ul>
+</dd>
+<dt>Version 3.5.3 (03/19/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix mdbm_lock() when db is opened read-only (introduced in 3.5.0).</li>
+</ul>
+</dd>
+<dt>Version 3.5.2 (03/12/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2593601] Fix header check on newly-created dbs.</li>
+<li>Fix size value formatting in v3 mdbm_stat.</li>
+</ul>
+</dd>
+<dt>Version 3.5.1 (02/26/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2562157] Add replaces rule to mdbm_dev to make v3 compatible with v2 prereqs.</li>
+</ul>
+</dd>
+<dt>Version 3.5.0 (02/26/09, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add support for write-back caching.</li>
+<li>Fix mdbm_bench multi-proc accounting.</li>
+<li>Fix mdbm_dump (v3) error reporting.</li>
+</ul>
+</dd>
+<dt>Version 3.4.4 (12/04/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix iterate over deleted large objects.</li>
+</ul>
+</dd>
+<dt>Version 3.4.3 (12/04/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix db header check in remap (correct broken fix in 3.4.2).</li>
+</ul>
+</dd>
+<dt>Version 3.4.2 (12/03/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix db header check during mdbm_open.</li>
+</ul>
+</dd>
+<dt>Version 3.4.1 (12/02/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2395961] Fix double-free of large-object chunk during store(REPLACE).</li>
+<li>Add missing support for HEADER_ONLY</li>
+<li>The following are from 2.32.1:</li>
+<li>[FIX BUG 2280031] Reset bogus replace indicator if db file hasn&#8217;t changed.</li>
+<li>[FIX BUG 2289521] Suppress db checks in mdbm_open if opening with HEADER_ONLY.</li>
+<li>[FIX BUG 725835] Act correctly on db check failure.</li>
+<li>[FIX BUG 1432655] Doc clarifications.</li>
+<li>[FIX BUG 1118707] mdbm_set_alignment value clarification.</li>
+</ul>
+</dd>
+<dt>Version 3.4.0 (10/07/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2255972] (from 2.32.0) Add MDBM_DEMAND_PAGING open flag to suppress madvise(WILLNEED).</li>
+<li>Improved db consistency checking support.</li>
+</ul>
+</dd>
+<dt>Version 3.3.3 (09/04/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Enable v3 sanity-checking via MDBM_SANITY_CHECK env var.</li>
+</ul>
+</dd>
+<dt>Version 3.3.2 (08/04/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 2105548] Fix v2 large-obj arena corruption with LARGE object.</li>
+</ul>
+</dd>
+<dt>Version 3.3.1 (05/19/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix &gt;2G support in v3.</li>
+<li>Update usage in mdbm_bench.</li>
+</ul>
+</dd>
+<dt>Version 3.3.0 (05/15/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>[FIX BUG 1802587] Add mdbm_purge utility</li>
+<li>Add mdbm_create utility.</li>
+<li>[FIX BUG 1795900] Update mdbm_trunc messaging when open fails.</li>
+</ul>
+</dd>
+<dt>Version 3.2.1 (05/13/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Rework v3 locking to avoid upgrade/downgrade accounting problems.</li>
+</ul>
+</dd>
+<dt>Version 3.2.0 (03/27/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add mdbm_create utility.</li>
+<li>Revise mdbm_stat v3 output.</li>
+<li>Add mdbm_get_errno function.</li>
+<li>Define MDBM_VERSION macro.</li>
+<li>Restore missing headers and MDBM_HASH_* defines from v2.</li>
+<li>Remove 32-bit dbsize restriction from 64-bit lib.</li>
+</ul>
+</dd>
+<dt>Version 3.1.1 (02/21/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Fix dynamic db expansion.</li>
+</ul>
+</dd>
+<dt>Version 3.1.0 (02/13/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add v3 support to mdbm_import (-2, -3, and -Z options).</li>
+</ul>
+</dd>
+<dt>Version 3.0.1 (02/05/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Add replaces for mdbm version 2 (fully-compatible).</li>
+</ul>
+</dd>
+<dt>Version 3.0.0 (02/05/08, rr)</dt>
+<dd><ul class="first last simple">
+<li>Version 3 is a complete mdbm rewrite.  It uses a different db format than V1/V2;
+however, it fully supports the older db format and by default will create only
+old-format db&#8217;s.  You must include the MDBM_CREATE_V3 flag on the mdbm_open call
+to create a new-format db and run the new code.</li>
+</ul>
+</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="getting-help.html"
+                        title="previous chapter">Getting Help</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="concepts.html"
+                        title="next chapter">Concepts</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/release_notes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="concepts.html" title="Concepts"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="getting-help.html" title="Getting Help"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

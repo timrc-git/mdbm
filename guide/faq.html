@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Frequently Asked Questions &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Restrictions" href="restrictions.html" />
+    <link rel="prev" title="mdbm_config" href="mdbm_config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="restrictions.html" title="Restrictions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_config.html" title="mdbm_config"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="frequently-asked-questions">
+<span id="faq"></span><h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this headline">¶</a></h1>
+<p>This is a list of FAQs about MDBM.
+To suggest new entries, send mail to the mdbm-users group.</p>
+<div class="section" id="general">
+<span id="faq-general"></span><h2>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h2>
+<p><strong>What is an MDBM?</strong></p>
+<blockquote>
+<div>MDBM is a fast in-memory hash-based key-value store.</div></blockquote>
+<p><strong>What are the most common use cases for MDBM?</strong></p>
+<blockquote>
+<div>MDBM is commonly used for caching and storing static data for quick access.</div></blockquote>
+<p><strong>How do I get started?</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Build the package &#8216;make&#8217; and install it &#8216;make install&#8217;</li>
+</ul>
+</div></blockquote>
+<p><strong>What are the different language bindings available for MDBM?</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>Bindings are included for C/C++, and perl.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="general-problems">
+<span id="faq-general-problems"></span><h2>General Problems<a class="headerlink" href="#general-problems" title="Permalink to this headline">¶</a></h2>
+<p><strong>How do I report a problem with MDBM?</strong></p>
+<blockquote>
+<div>See <a class="reference internal" href="getting-help.html#getting-help"><em>Getting Help</em></a></div></blockquote>
+<p><strong>Why can&#8217;t I create a 2G MDBM on a 32-bit system?</strong></p>
+<blockquote>
+<div>In order to use a 2G MDBM, you&#8217;ll have to lower the data-size limit in your
+process (man limits) from the default (512MB) to something lower.</div></blockquote>
+<p><strong>I have a corrupted mdbm, what can I do?</strong></p>
+<blockquote>
+<div><p>Often, MDBMs get corrupted due to an application not handling locking correctly.
+If you are doing reads and writes, you must open that MDBM with locking (default
+is exclusive locking).  You must hold the lock for the duration that you
+are referencing a record (for all operations, including reads, writes, and
+deletes).  For example, when doing a read, you would typically:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">mdbm_lock</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt></li>
+<li>copy out the data pointed to by the returned fetched datum</li>
+<li><tt class="docutils literal"><span class="pre">mdbm_unlock</span></tt></li>
+<li>access your copied-out data</li>
+</ol>
+</div></blockquote>
+<p>Another common way for MDBMs to become corrupt is for an application to
+mistakenly write (via a bad pointer) into the MDBM&#8217;s mapped space.  There is an
+MDBM <em>protect</em> feature for debugging purposes to catch these problems.
+See <a class="reference internal" href="concepts.html#mdbm-data-store-protection"><em>MDBM data store protection to catch wild-pointer reads/writes</em></a> for more information.</p>
+<p>Try using <tt class="docutils literal"><span class="pre">mdbm_check</span></tt> to identify the extent of the damage.  If there is
+major corruption, <tt class="docutils literal"><span class="pre">mdbm_check</span></tt>  will abort.</p>
+<p>Once an MDBM is corrupt, most of the time it&#8217;s not possible to tell how it
+got corrupted.  You need to catch it in the act of being corrupted.</p>
+</div></blockquote>
+</div>
+<div class="section" id="file-system">
+<span id="faq-file-system"></span><h2>File System<a class="headerlink" href="#file-system" title="Permalink to this headline">¶</a></h2>
+<p><strong>Will MDBM perform well over NFS?</strong></p>
+<blockquote>
+<div><p>No.  MDBM over NFS <strong>MUST BE AVOIDED</strong> at all costs.</p>
+<p>It does not perform well at all.  MDBM uses mmap(), and although the NFS
+driver does support the mmap() operation, it gets converted to regular block
+fetches and updates, so the performance sucks.</p>
+</div></blockquote>
+<p><strong>What&#8217;s the worst-case-scenario if I never call mdbm_close nor mdbm_sync (I just exit)? Can the database become corrupted? Can individual records become corrupted?</strong></p>
+<blockquote>
+<div>If you never call <tt class="docutils literal"><span class="pre">mdbm_sync</span></tt> and don&#8217;t pass either <tt class="docutils literal"><span class="pre">MDBM_O_ASYNC</span></tt> or
+<tt class="docutils literal"><span class="pre">MDBM_O_FSYNC</span></tt> to <tt class="docutils literal"><span class="pre">mdbm_open</span></tt>, the data will never be sync&#8217;d to disk (unless
+the system runs low on physical memory and starts swapping).  If you reboot
+the system and open the database, it will be empty.</div></blockquote>
+<p><strong>Is the whole file mapped to memory at any given time, or is there some sort of page fault/swapping that goes on?</strong></p>
+<blockquote>
+<div>The whole thing is mapped when you open the database, but individual pages
+are faulted in when they&#8217;re touched.</div></blockquote>
+<p><strong>How often (if ever) is the backing file sync&#8217;d to disk?</strong></p>
+<blockquote>
+<div>Never, by default.  If you want sync&#8217;ing, you either have to use <tt class="docutils literal"><span class="pre">mdbm_sync</span></tt>
+to manually sync or specify <tt class="docutils literal"><span class="pre">MDBM_O_ASYNC</span></tt> when opening to enable background
+sync&#8217;ing by the kernel syncing process.</div></blockquote>
+<p><strong>There&#8217;s a flag for a memory-only database without a backing file.  Is that correct?</strong></p>
+<blockquote>
+<div><p>There is a private internal flag which is not part of the public API to
+signify a memory-only MDBM.  To create a memory-only MDBM, specify <tt class="docutils literal"><span class="pre">NULL</span></tt>
+for the <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> <em>file</em> argument.</p>
+<p>Memory only MDBMs must be initialized as a fixed-sized MDBM because there is
+no way to handle dynamic-growth size changes across processes.  This means
+that you must specify a <em>presize</em> to <tt class="docutils literal"><span class="pre">mdbm_open</span></tt>.  You must also
+use <tt class="docutils literal"><span class="pre">mdbm_limit_size_v3</span></tt> with <em>max_page</em> equivalent to the <em>presize</em>.</p>
+</div></blockquote>
+<p><strong>Why is my MDBM file modified time not being updated after I store something?</strong></p>
+<blockquote>
+<div><p>Simply, mod time does not get updated on mmap&#8217;d writes.  MDBM writes are
+simply writing to memory; they are not directly doing file-based operations
+which would affect a file&#8217;s modified time.</p>
+<p>For a high-performance store (ex., when you want to do 50K-100K writes/sec),
+it wouldn&#8217;t be reasonable to update the modified time for each write.</p>
+</div></blockquote>
+<p><strong>Under what circumstances can a process or system crash cause loss of data in an MDBM?</strong></p>
+<blockquote>
+<div>A system crash will lose data unless something has synced the MDBM.  By
+default, nothing does that.</div></blockquote>
+<p><strong>If mdbm_sync is called, am I guaranteed that the MDBM will be corruption-free if there is a subsequent crash, even if it&#8217;s missing some updates subsequent to the sync?</strong></p>
+<blockquote>
+<div><p>That&#8217;s tricky.  If the MDBM page size doesn&#8217;t match the OS page size, then
+it&#8217;s possible that VM pressure might cause only part of of a database page
+to get synced to disk.  That would corrupt that page.</p>
+<p><tt class="docutils literal"><span class="pre">mdbm_sync</span></tt> itself isn&#8217;t foolproof either because it doesn&#8217;t lock the MDBM
+and does a background sync.  <tt class="docutils literal"><span class="pre">mdbm_fsync</span></tt> is better for integrity in that it
+locks the database and uses a synchronous fsync.  The downside, of course,
+is that the database is locked until all the dirty pages are flushed.</p>
+</div></blockquote>
+<p><strong>What kind of overhead would I expect from using MDBM_O_ASYNC?</strong></p>
+<blockquote>
+<div>I infer that the system sync process, which flushes data to disk every 30
+seconds, would also write the mmap-ed changed pages to disk every 30
+seconds, so the worst case performance would be the time it takes to write
+the data, amortized over the time.</div></blockquote>
+<p><strong>But, does the sync process lock the pages (this could be important if we&#8217;re doing very high data rates on the MDBM - for example 100Ks/sec)?</strong></p>
+<blockquote>
+<div>Yes, the sync locks the pages, so if you touch a page while it&#8217;s being
+flushed, you&#8217;ll block.  I haven&#8217;t looked at this closely in a while, but I
+also recall that a sync results in a page fault when you touch a page for
+the first time after it&#8217;s been synced.  It&#8217;s a quick fault (no disk access),
+but it still hurts a bit.</div></blockquote>
+<p><strong>Does mdbm_close do an implicit flush to disk?</strong></p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">mdbm_close</span></tt> only syncs if the MDBM was opened with <tt class="docutils literal"><span class="pre">MDBM_O_FSYNC</span></tt>.
+<tt class="docutils literal"><span class="pre">mdbm_close</span></tt> itself won&#8217;t cause any flushing.</div></blockquote>
+<p><strong>Does the MDBM file on the disk have the latest updates to the key-value pairs?</strong></p>
+<blockquote>
+<div><p>In general, unless you use <tt class="docutils literal"><span class="pre">mdbm_sync</span></tt>, or use <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> with
+<tt class="docutils literal"><span class="pre">MDBM_O_FSYNC</span></tt> (or <tt class="docutils literal"><span class="pre">O_FSYNC</span></tt> in earlier MDBM versions), your data will
+probably not be written to disk by <tt class="docutils literal"><span class="pre">mdbm_close</span></tt>.</p>
+<p>On FreeBSD, the mmap&#8217;d file that holds the MDBM is not sync&#8217;d to the
+physical disk unless <tt class="docutils literal"><span class="pre">mdbm_sync</span></tt> is used or during a normal system shutdown
+when all dirty file data gets sync&#8217;d to disk.</p>
+<p>On RHEL, modifications to the mmap&#8217;d file are background-sync&#8217;d to disk
+after 30 seconds for files that are on a normal file-system mount.  However,
+MDBMs that are hosted on a tmpfs file-system are not sync&#8217;d (and are also
+not preserved across a system reboot).</p>
+</div></blockquote>
+<p><strong>Can I copy an MDBM file from one machine to another?</strong></p>
+<blockquote>
+<div>Normally this is a bad idea, it is recommended to use <tt class="docutils literal"><span class="pre">mdbm_export</span></tt> at the
+source machine to obtain a portable file and then perform an <tt class="docutils literal"><span class="pre">mdbm_import</span></tt> on
+this file to get the MDBM on the destination machine.  The <tt class="docutils literal"><span class="pre">mdbm_copy</span></tt> command
+is also available.  Neither <tt class="docutils literal"><span class="pre">mdbm_export</span></tt> nor <tt class="docutils literal"><span class="pre">mdbm_copy</span></tt> guarantee data
+consistency, since calls to mdbm_store that store related data can occur mid-copy.</div></blockquote>
+</div>
+<div class="section" id="sizes-and-limitations">
+<span id="faq-sizes-and-limitations"></span><h2>Sizes and limitations<a class="headerlink" href="#sizes-and-limitations" title="Permalink to this headline">¶</a></h2>
+<p><strong>My MDBM says it is 4G in size, will I need more RAM?</strong></p>
+<blockquote>
+<div>MDBM is a sparse file when large object mode is enabled.  Use <tt class="docutils literal"><span class="pre">mdbm_stat</span></tt> to
+view the actual allocated size of the database (and Large Object Store).</div></blockquote>
+<p><strong>Why has my MDBM dynamically grown to be huge?  I don&#8217;t have nearly that much data.</strong></p>
+<blockquote>
+<div><p>You have a data-sensitive problem.  If you are using duplicate keys, or
+you have a pathological dataset, some of your pages are filling up too
+soon.  When there is no more room on a page, an MDBM will grow to a
+maximum limit.  When your MDBM can no longer grow, an attempted store to
+an full page will return an error.</p>
+<p>There are only few knobs to turn, in priority order:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Enable large objects (only settable at create time) if you have a
+small percentage (&lt;5%) of objects that are significantly bigger than the others.<ul>
+<li>The v2 implementation will create a 4GB file size because large
+objects are stored at a 4GB file offset and below.  It&#8217;s a sparse
+file so only the necessary pages on disk are used for storing data.</li>
+</ul>
+</li>
+<li>Increase your page size (only settable at create time)<ul>
+<li>This might decrease performance because many more keys
+might need to be compared on a page to determine whether your lookup key
+exists.  If there are few keys/page this won&#8217;t be significant.  If there
+are many (100+) keys/page it might be noticeable.  If you have a lot of
+lookups where the key doesn&#8217;t exist, this hurts performance because it
+has to compare every key on the page.</li>
+</ul>
+</li>
+<li>Try another hash function (only settable at create time)<ul>
+<li>If your key is a string, try the Jenkins hash function</li>
+<li>If you key is binary, try CRC32, SHA1, MD5 (probably in that order, YMMV)</li>
+</ul>
+</li>
+<li>Use <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> and <tt class="docutils literal"><span class="pre">mdbm_limit_size</span></tt> to set the initial and maximum MDBM
+size when the file is created.<ul>
+<li>This will create a flatter internal btree which might help
+distribute your data more uniformly. This might help you reduce that
+number of nearly full pages where a store operation would fail due to
+lack of space (this is your real problem as opposed to a large
+sparse MDBM).  A consequence is that the actual number of pages
+used on disk might be higher, but that&#8217;s probably a good trade-off.</li>
+</ul>
+</li>
+<li>If you really don&#8217;t have a good idea of the final size of your MDBM
+(as needed in the previous option), use <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> with an
+initialize size with your best guess.</li>
+</ol>
+</div></blockquote>
+<p>If option 1 does not work, then you might need a combination of the other.</p>
+<p>MDBM is a hashed key-value store, so changing your hash function or page size changes
+how your data is distributed between MDBM pages.  If the hash function you chose
+happens to parcel out too many keys into a single page, that page will split and
+MDBM&#8217;s file size will double.  If you keep adding data that happens to hit the
+same page, the MDBM will keep splitting and file size will keep growing and growing.</p>
+<p>Use <tt class="docutils literal"><span class="pre">mdbm_stat</span></tt> to look at your histogram data.  You want to avoid having
+many pages that are nearly full when your MDBM close to its maximum size.</p>
+</div></blockquote>
+<p><strong>How do I control the amount of memory available to mmap?</strong></p>
+<blockquote>
+<div>In FreeBSD this can be controlled by using the kernel variable
+vm.max_proc_mmap, though it&#8217;s usually not necessary to tune this.  32-bit
+applications on FreeBSD trade-off space for malloc against space for mmap
+according to the data segment size limit.  This is controlled at the kernel
+level using the kern.maxdsiz loader variable (FreeBSD 4) or
+compat.ia32.maxdsiz sysctl (FreeBSD 6/7).  In addition, the process rlimit
+for data segment size can be used to lower the data segment size limit (and
+therefore make more room for mmaps).</div></blockquote>
+<p><strong>How do I determine how my MDBM is mapped into memory?</strong></p>
+<blockquote>
+<div><p>MDBM v3 mmaps an entire MDBM file into memory.  Simply mapping an MDBM does
+not make it memory resident.  Although a file&#8217;s size on disk might be quite
+large, the sparse file structure will only bring pages containing data into
+memory when they are referenced (ex., fetch, store, or delete operation).
+The <tt class="docutils literal"><span class="pre">mdbm_preload</span></tt> routine may be used to make an MDBM memory resident.</p>
+<p>On RHEL, you can review a process&#8217; mapped regions and associated files via
+<tt class="docutils literal"><span class="pre">cat</span> <span class="pre">/proc/</span></tt><em>pid</em><tt class="docutils literal"><span class="pre">/smaps</span></tt>.</p>
+</div></blockquote>
+<p><strong>I&#8217;m using the MDBM within PHP that runs within yapache, given that each yapache child runs as a process, will each process mmap the MDBM separately?</strong></p>
+<blockquote>
+<div>Usually, the individual processes will map the MDBM separately (because the
+MDBM is opened after the child has been forked from the parent), but they
+will all be sharing the same physical RAM mapping for that file.</div></blockquote>
+<p><strong>Can I use MDBMs in two or more machines in a cluster mode by connecting them?</strong></p>
+<blockquote>
+<div>MDBM can&#8217;t do this out of the box.  Explore YDBM or DISC-GDS.</div></blockquote>
+</div>
+<div class="section" id="iteration">
+<span id="faq-iteration"></span><h2>Iteration<a class="headerlink" href="#iteration" title="Permalink to this headline">¶</a></h2>
+<p><strong>How do I initialize an MDBM iterator?</strong></p>
+<blockquote>
+<div>The <tt class="docutils literal"><span class="pre">MDBM_ITER_INIT()</span></tt> initializes an iterator.</div></blockquote>
+<p><strong>While iterating across an entire database, am I guaranteed to see all key-values present in the database when the iteration starts, if deletes occur during the iteration?  What if inserts or overwrites occur during iteration?</strong></p>
+<blockquote>
+<div><p>Deleting items will not affect iteration, assuming you only delete items
+you&#8217;ve already iterated over.</p>
+<p>If you lock the database; and begin an iteration, you will see all
+key-values.  Deletion of some key-values will not interfere with this, as
+long as you remove a key-value you&#8217;ve already iterated over.</p>
+<p>If you started an iteration; and removed a key you knew was in the database
+but hadn&#8217;t iterated over yet; the iteration would <em>not</em> return the (now
+deleted) key-value pair, even though it was in the database when the
+iteration began.</p>
+<p>Overwriting depends on what you&#8217;re doing.  If you&#8217;re just fetching the value
+pointer and rewriting in-place, that&#8217;s safe.  If you&#8217;re replacing the value
+with a different size, that may cause garbage collection, which may cause
+your iterator to miss records.</p>
+<p>Inserting records may also trigger garbage collection, which may cause your
+iterator to miss records.</p>
+</div></blockquote>
+</div>
+<div class="section" id="locking">
+<span id="faq-locking"></span><h2>Locking<a class="headerlink" href="#locking" title="Permalink to this headline">¶</a></h2>
+<p><strong>Do I need to use locking if I&#8217;m only doing read access and using mdbm_replace?</strong></p>
+<blockquote>
+<div><p>If you have a read-only MDBM (there are no store/delete operations) in a
+single-threaded application, you do not need to lock.  This is because the
+access operations are smart enough to check for replacement and to acquire
+an internal lock.</p>
+<p>However, if you use <tt class="docutils literal"><span class="pre">mdbm_replace</span></tt> in a multi-threaded application, you do
+need to lock around fetches.  A future enhancement will remove this locking
+requirement for multi-threaded applications.</p>
+</div></blockquote>
+<p><strong>When should I use mdbm_lock?</strong></p>
+<blockquote>
+<div>When two or more processes are reading and writing to the same MDBM.
+<tt class="docutils literal"><span class="pre">mdbm_lock</span></tt> is used by a process reading or writing to obtain exclusive
+access.</div></blockquote>
+<p><strong>There doesn&#8217;t appear to be a distinction between read locks and write locks. Is that correct?</strong></p>
+<blockquote>
+<div>For exclusive locks, that&#8217;s correct.</div></blockquote>
+<p><strong>Is there any mechanism for allowing multiple readers and one writer (MROW) that doesn&#8217;t have the readers block each other?</strong></p>
+<blockquote>
+<div>MDBM V3 has shared locks (sometimes called read-write locks).</div></blockquote>
+<p><strong>Are the lock requests FIFO?</strong></p>
+<blockquote>
+<div>No, locks are scheduled according to process priority.</div></blockquote>
+<p><strong>Why doesn&#8217;t mdbm_fetch automatically lock?</strong></p>
+<p><tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> doesn&#8217;t lock so that an application can take greater control over
+locking, and  the corresponding performance in a few ways:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> doesn&#8217;t copy-out the data.  An application could lock, fetch,
+look at that pointer&#8217;s data contents, and unlock.  In some situations,
+this can be much faster than lock, fetch, copy-out, unlock, and look at returned
+contents.</li>
+<li>If you are willing trade off latency for higher throughput: locking, doing
+multiple fetches (copy-out or not), and unlock, you could achieve higher
+throughput.  This approach is application and data dependent.</li>
+<li>If you have a master record and dependent records (specified in that master
+record), your app might require that accesses to the master record and the
+dependent records be done in a single locked context.  Otherwise, dependent
+records could be deleted or be modified, which could be incompatible with
+the master record.</li>
+</ul>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">mdbm_fetch_str</span></tt> locks, does a copy-out of the value, and unlocks. This,
+however, is only for string data.  <tt class="docutils literal"><span class="pre">mdbm_fetch_buf</span></tt> also locks while copying
+into the provided buffer.</p>
+<p><strong>With MDBM V4, I&#8217;m getting the following error message: multiple different lockfiles exist</strong></p>
+<p>If you&#8217;re seeing the following error message when opening an MDBM:</p>
+<blockquote>
+<div>mdbm_lock.cc:68 YourFile.mdbm: multiple different lockfiles exist! : No such file or directory
+ERROR (2 No such file or directory) in mdbm_open_inner() mdbm.c:3817</div></blockquote>
+<p>Then this is what is likely happening: someone has opened YourFile.mdbm using a 32 bit process
+and you are using 64-bit, or vice versa.
+Make sure any tools you are using match your executables (bin vs bin64).</p>
+</div>
+<div class="section" id="performance">
+<span id="faq-performance"></span><h2>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h2>
+<p><strong>If we have many little structures to store (possibly smaller than 64 bytes, keyed by registered user), how should we tune for that? (page-size?)</strong></p>
+<blockquote>
+<div>Many little structures work best.  It&#8217;s bigger structures that create
+problems.  You should try different page sizes to see what performs better.
+8K or 16K are probably good starting points.</div></blockquote>
+<p><strong>Are there are guidelines for tuning MDBM, or is it more of trial and error?</strong></p>
+<blockquote>
+<div><p>It&#8217;s mostly trial-and-error, but try to use the smallest page size that will
+fit the dataset without causing page overflows (a page overflow happens when
+a key to be inserted hashes to a page that&#8217;s already full and the database
+can&#8217;t be split because it&#8217;s already too big).</p>
+<p>Use larger page sizes when key+value size is larger, smaller page sizes when
+key+value size is smaller.  Larger page sizes are slower because effectively
+the hash buckets take longer to locate a specific key.  In V3, however, this
+was significantly speeded up.</p>
+<p>Also, if you know you don&#8217;t have duplicate keys (or don&#8217;t care if they get
+inserted), you can avoid the lookup that occurs on insert by use the
+<tt class="docutils literal"><span class="pre">MDBM_INSERT_DUP</span></tt> flags.  That&#8217;ll speed things up even more.</p>
+<p>There is a new <tt class="docutils literal"><span class="pre">mdbm_config</span></tt> tool that will help
+you select MDBM configuration parameters for your dataset.</p>
+</div></blockquote>
+<p><strong>What should be the ratio between main memory size and MDBM size (in order to maintain its performance)?</strong></p>
+<blockquote>
+<div>MDBM expects all of its data pages to be in physical memory.  MDBM databases
+grow in power&#8217;s of 2, and not all the pages mapped necessarily have data on
+them.  The <tt class="docutils literal"><span class="pre">mdbm_stat</span></tt> utility can analyze a database and show the various
+efficiencies (how full the pages are, how many non-empty pages there are).</div></blockquote>
+<p><strong>Why is building an offline MDBM slow, and my resulting file is highly fragmented?</strong></p>
+<blockquote>
+<div><dl class="docutils">
+<dt>If you are building offline and you have a known maximum size of the MDBM:</dt>
+<dd><ul class="first last simple">
+<li>Create the MDBM with the initial size set to the final size</li>
+<li>Use <tt class="docutils literal"><span class="pre">mdbm_limit_size_v3</span></tt> to ensure that MDBM doesn&#8217;t split in the future</li>
+<li>Make sure that your physical memory is larger than the resulting MDBM</li>
+</ul>
+</dd>
+</dl>
+<p>Setting the initial size to the final size will avoid MDBM splits, which
+also avoids the latency incurred during the split.  The resulting MDBM
+directory will also have fewer levels (enabling faster lookups).</p>
+<p>If the resulting MDBM is highly fragmented, you probably have highly a
+fragmented disk.  Either use a non-fragmented disk, or use a ramdisk to
+build the MDBM, then copy the MDBM out of the ramdisk.</p>
+</div></blockquote>
+<p><strong>How can I speed up fetches in my read-only web application?</strong></p>
+<blockquote>
+<div><p>Frequently, web applications open an MDBM on a per-user-request basis.  This
+is a very bad idea because each open can take several hundred (or more)
+microseconds.  The best thing that you can do to improve your performance is
+to open the MDBM once at an application level, not at a per-request level.
+For a single (unlocked) memory-resident lookup, it should take ~4
+microseconds on standard hardware.</p>
+<p>Not only is an open call comparatively slow to a fetch, but concurrent calls
+to <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> are single-threaded when it creates the locks for the first
+time (very slow) and then it maps the shared MDBM into process address
+space.  After initial lock creation, subsequent <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> calls will also be
+single-threaded as it creates state in each new handle and maps the shared
+MDBM into process address space.</p>
+<p>If there are <em>no</em> writes taking place on the MDBM, and you are <em>not</em> using
+<tt class="docutils literal"><span class="pre">mdbm_replace</span></tt>, you can disable all locking overhead by specifying
+<tt class="docutils literal"><span class="pre">MDBM_OPEN_NOLOCK</span></tt> in your <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> flags.  This avoids creating the mutexes
+used for locking during <tt class="docutils literal"><span class="pre">mdbm_open</span></tt>.</p>
+<p>Fetching a non-existent key is slower than fetching a key that exists.
+Non-existent keys require checking all keys on a page before determining
+that a key does not exist.  In this regard, MDBM V3 format files are faster
+than MDBM V2 due to some saved key hash data.</p>
+<p>The number of key comparisons will influence your fetch time.  Large pages
+typically have more keys/data, thus have a slower lookup time.  Using a
+smaller page size can get better performance.</p>
+<p>Don&#8217;t use large objects, they are a little slower to reference.</p>
+</div></blockquote>
+</div>
+<div class="section" id="data-access-and-management">
+<span id="faq-data-access-and-management"></span><h2>Data Access and Management<a class="headerlink" href="#data-access-and-management" title="Permalink to this headline">¶</a></h2>
+<p><strong>Does MDBM automatically do garbage collection?</strong></p>
+<blockquote>
+<div>No.  MDBM doesn&#8217;t do this for you.  Data-specific garbage collection can be
+implemented using the &#8220;shake&#8221; function that is registered by using
+<tt class="docutils literal"><span class="pre">mdbm_limit_size_v3</span></tt>.</div></blockquote>
+<p><strong>What is the upper limit size for MDBM, before its performance degrades?</strong></p>
+<blockquote>
+<div>Even at maximum size, the design of MDBM requires only two database pages to
+be accessed for any single fetch.  If your system&#8217;s RAM available to MDBMs
+cannot contain your &#8220;working set&#8221; of MDBM data, your performance will degrade.</div></blockquote>
+<p><strong>How much extra empty storage does an MDBM require?</strong></p>
+<blockquote>
+<div>It depends on the hash collision rate of the keys.  The better the hashed
+key distribution is, the less likely a leaf page is to be filled and require
+a premature database split.</div></blockquote>
+<p><strong>Is it possible to shrink an MDBM without rebuilding the entire database?</strong></p>
+<blockquote>
+<div>It&#8217;s sometimes possible that <tt class="docutils literal"><span class="pre">mdbm_compress</span></tt> will be able to shrink the
+database because it rebalances the tree.</div></blockquote>
+<p><strong>How does mdbm_store with flag MDBM_MODIFY work?</strong></p>
+<blockquote>
+<div><p>When using <tt class="docutils literal"><span class="pre">mdbm_store</span></tt> with flag <tt class="docutils literal"><span class="pre">MDBM_MODIFY</span></tt> to change an existing record,
+what happens if the new record is of the same size as the original record?
+What happens if the new record is of a different size than the original?</p>
+<p>If the new record is of the same size as the original, the data is replaced
+but the location in memory stays the same.  If the new record is of a
+different size (larger or smaller) than the original, the original record is
+deleted and a new one is inserted, so the location in memory may change.</p>
+</div></blockquote>
+<p><strong>When do I use mdbm_popen vs. mdbm_open in PHP?</strong></p>
+<blockquote>
+<div>Usage might depend on the frequency of access.  For example a PHP script
+running in yapache context that accesses the MDBM during all/most of the
+requests, then it should do a <tt class="docutils literal"><span class="pre">mdbm_popen</span></tt>.</div></blockquote>
+<p><strong>Can I use mdbm_fetch without taking out a lock, to just check for key existence?</strong></p>
+<blockquote>
+<div><p>The short answer is that you must always take out a lock for a fetch
+operation if there are concurrent writes (store or delete operations).</p>
+<p>Here is the reasoning on why you must lock around <tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> if there are
+concurrent writes.</p>
+<blockquote>
+<div><ul class="simple">
+<li>An unlocked <tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> cannot guarantee a coherent use of a key&#8217;s
+fields for offset and size.  An intervening write might produce a
+mismatched offset and/or size for a key.</li>
+<li>Depending on your hardware architecture for memory byte-ordering of
+read/write access and atomicity of access, reading a field (ex., offset)
+as it&#8217;s being written could generate an undefined result.  The
+operations that write key meta-data information are not atomic
+operations.  For x86 architectures, this might not be an issue under
+some situations (ex., 2 or 4-byte writes with aligned access).  This
+issue requires additional investigation.  A further consideration is
+that the underlying access for <tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> is doing a 3-byte read.</li>
+</ul>
+</div></blockquote>
+<p>If you have concurrent writes, and you do not lock an <tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt>, the
+following consequences are possible, but (highly) unlikely:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">False-positives &#8211; <tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> could indicate that a key is present
+when it is not</p>
+</li>
+<li><p class="first">False-negatives &#8211; <tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> could indicate that a key is not present
+when it is</p>
+</li>
+<li><p class="first">SEGV &#8211; if a key resolves to an off-page address, and that page has not
+been mapped, it is an access violation.  Some related issues:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If you do get a crash, it will be very difficult to determine the
+overall reason for the crash.  An invalid address access will be
+obvious, but there will be insufficient information to develop a
+scenario to explain the crash.  The bad access generated by
+<tt class="docutils literal"><span class="pre">mdbm_fetch</span></tt> is transient, and not deterministically reproducible.</li>
+<li>If a crash happens while an <tt class="docutils literal"><span class="pre">mdbm_store</span></tt> operation is taking place,
+the meta-data on the page could become corrupted.  An <tt class="docutils literal"><span class="pre">mdbm_store</span></tt>
+can result in shuffling the meta-data on the page (to make room
+for the store) which could result in a partial update.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="miscellaneous">
+<span id="faq-miscellaneous"></span><h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<p><strong>Is MDBM thread-safe?</strong></p>
+<blockquote>
+<div><p>MDBM V2 is not thread-safe in any context.  There are known problems with
+<tt class="docutils literal"><span class="pre">mdbm_replace</span></tt>, as well as other unqualified issues.</p>
+<dl class="docutils">
+<dt>MDBM V3 is thread-safe if used in a specific way:</dt>
+<dd><ul class="first last simple">
+<li>Only 1 thread may use an MDBM handle at a time.</li>
+<li>If an application needs concurrent MDBM access, then additional MDBM handles
+are required</li>
+</ul>
+</dd>
+</dl>
+<p>It is up to the app to decide how to ensure that a handle may be used by
+only 1 thread at a time.  Handles contains state, and you cannot use a
+handle concurrently across threads even if you are only doing fetches
+(reads).  An mdbm handle is a context object, and as is frequently done in
+reentrant programming, you pass a context object to a reentrant routine for
+that routine to read/write thread-specific state information so that it does
+not to use external (global) state.</p>
+<p>If you have a multi-threaded app, you will probably want to use dup handles
+to avoid remapping the same MDBM multiple times (use mdbm_dup_handle to
+create a new handle instead of mdbm_open).</p>
+<p>There are various approaches for using MDBM handles in a threaded context.
+For high-performance applications, it&#8217;s recommended to use thread-local
+storage (TLS) containing an MDBM handle.  Alternatively, it would be
+possible to create a pool of MDBM handles, but that would require a lock to
+acquire a handle, which might have an unwanted impact on latency.</p>
+</div></blockquote>
+<p><strong>Can I open an MDBM, then use it in forked child processes?</strong></p>
+<blockquote>
+<div>No, you cannot expect MDBM handles (MDBM *) to be valid across fork() calls.
+You will have to call mdbm_open() in the child process after forking that child process.
+The MDBM handle contains data items such as lock counts that cannot be expected to
+remain consistent when copied to another process&#8217;s memory space.</div></blockquote>
+<p><strong>How do I know which processes are using a particular MDBM?</strong></p>
+<blockquote>
+<div>lsof | grep <em>yourMdbmFile</em></div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Frequently Asked Questions</a><ul>
+<li><a class="reference internal" href="#general">General</a></li>
+<li><a class="reference internal" href="#general-problems">General Problems</a></li>
+<li><a class="reference internal" href="#file-system">File System</a></li>
+<li><a class="reference internal" href="#sizes-and-limitations">Sizes and limitations</a></li>
+<li><a class="reference internal" href="#iteration">Iteration</a></li>
+<li><a class="reference internal" href="#locking">Locking</a></li>
+<li><a class="reference internal" href="#performance">Performance</a></li>
+<li><a class="reference internal" href="#data-access-and-management">Data Access and Management</a></li>
+<li><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mdbm_config.html"
+                        title="previous chapter">mdbm_config</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="restrictions.html"
+                        title="next chapter">Restrictions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/faq.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="restrictions.html" title="Restrictions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_config.html" title="mdbm_config"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

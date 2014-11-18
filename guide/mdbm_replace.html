@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mdbm_replace &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="up" title="Program Utilities" href="utilities.html" />
+    <link rel="next" title="mdbm_restore" href="mdbm_restore.html" />
+    <link rel="prev" title="mdbm_purge" href="mdbm_purge.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mdbm_restore.html" title="mdbm_restore"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_purge.html" title="mdbm_purge"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="utilities.html" accesskey="U">Program Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mdbm-replace">
+<span id="id1"></span><h1>mdbm_replace<a class="headerlink" href="#mdbm-replace" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_replace [&#8211;cache <em>existing-cache-db</em>] [&#8211;clearcache|&#8211;refetch|&#8211;preload] <em>existing-mdbm</em> <em>new-mdbm</em></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">mdbm_replace</span></tt> replaces an existing MDBM with a new MDBM.  Upon
+replacement, the original MDBM is updated to notify all users that a
+new MDBM exists; causing all existing MDBM users to re-open the (now
+new) MDBM.  Essentially, the new mdbm is renamed to the old mdbm, and
+the old mdbm is reopened.</p>
+<p>If an associated MDBM cache db is specified, that cache&#8217;s contents will be
+updated so that they do not conflict with the contents of the backing store.</p>
+<p>Please note also that the existing and new MDBM&#8217;s must reside on the same
+file-system.</p>
+<p>If the preload option is specified, mdbm_replace will attempt to preload the
+new MDBM into memory by using mdbm_preload() prior to performing the replace.
+This will use up to 2 times the amount of RAM for a brief period because
+preloading means that both MDBMs are briefly occupying RAM at the same time.
+The old MDBM will continue to be mapped until all running processes have
+performed an MDBM operation, causing them to map in the new MDBM.</p>
+</div>
+<div class="section" id="return-value">
+<h2>RETURN VALUE<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p>Returns 0 upon success, non-zero upon failure.</p>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>mdbm_replace /home/y/var/dbs/db.mdbm /tmp/new_db.mdbm
+
+mdbm_replace --cache /home/y/var/dbs/cachedb.mdbm /home/y/var/dbs/db.mdbm new_db.mdbm</pre>
+</div>
+</div>
+<div class="section" id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_check(1), mdbm_compare(1), mdbm_copy(1), mdbm_create(1),
+mdbm_digest(1), mdbm_dump(1), mdbm_export(1), mdbm_fetch(1), mdbm_import(1),
+mdbm_purge(1), mdbm_replace(1), mdbm_restore(1), mdbm_save(1), mdbm_stat(1),
+mdbm_sync(1), mdbm_trunc(1)</p>
+</div>
+<div class="section" id="contact">
+<h2>CONTACT<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>mdbm-users &lt;<a class="reference external" href="mailto:mdbm-users&#37;&#52;&#48;yahoo-inc&#46;com">mdbm-users<span>&#64;</span>yahoo-inc<span>&#46;</span>com</a>&gt;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mdbm_replace</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#return-value">RETURN VALUE</a></li>
+<li><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+<li><a class="reference internal" href="#contact">CONTACT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mdbm_purge.html"
+                        title="previous chapter">mdbm_purge</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mdbm_restore.html"
+                        title="next chapter">mdbm_restore</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mdbm_replace.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mdbm_restore.html" title="mdbm_restore"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_purge.html" title="mdbm_purge"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="utilities.html" >Program Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

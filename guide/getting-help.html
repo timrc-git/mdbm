@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Help &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="next" title="Release Notes" href="release_notes.html" />
+    <link rel="prev" title="MDBM Developer Guide" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="release_notes.html" title="Release Notes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="MDBM Developer Guide"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-help">
+<span id="id1"></span><h1>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h1>
+<p>For non-production issues, you can get help from these resources:</p>
+<ul>
+<li><p class="first">report the issue to the mdbm-users mailing list</p>
+</li>
+<li><p class="first">Create a Bug ticket</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">Provide configuration information:</p>
+<ul>
+<li><p class="first"><em>Highly recommended</em>: Attach output from <tt class="docutils literal"><span class="pre">mdbm_environment.sh</span></tt>.
+This script gathers environment and MDBM information.
+This script has been tested only on RHEL.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Alternatively, manually provide:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>Platform information, including version: RHEL4/5/6, FreeBSD4/6</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">uname</span> <span class="pre">-a</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">cat</span> <span class="pre">/etc/redhat-release</span></tt> for RHEL</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Output from:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">mdbm_stat</span> <span class="pre">-H</span></tt> <em>mdbm-file</em></li>
+<li><tt class="docutils literal"><span class="pre">mdbm_check</span></tt> <em>mdbm-file</em></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Provide <tt class="docutils literal"><span class="pre">mdbm_stat</span></tt> output for your mdbm
+(use an attachment, and do not remove any information)</p>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+<li><p class="first">In your ticket&#8217;s description provide application information:</p>
+<ul>
+<li><p class="first">If you have a crash, provide a gdb backtrace from <tt class="docutils literal"><span class="pre">backtrace</span> <span class="pre">full</span></tt></p>
+</li>
+<li><dl class="first docutils">
+<dt>What kind of MDBM locking are you using?</dt>
+<dd><ul class="first last simple">
+<li><em>none</em></li>
+<li><em>exclusive</em> (database-level locking)</li>
+<li><em>partition</em>, sometimes mistakenly called &#8220;page&#8221; locking</li>
+<li><em>shared</em>, sometimes called &#8220;read-write&#8221; locking, and new in MDBM v3</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Do multiple processes have your MDBM open?  If so, have you tried
+stopping all processes and starting them to see if the problem goes
+away?</p>
+</li>
+<li><dl class="first docutils">
+<dt>Is your application the only process/thread that has your MDBM open?</dt>
+<dd><ul class="first last simple">
+<li>If you have a multi-threaded application, only 1 thread may use an MDBM
+handle at time (i.e., a single operation context such as lock, fetch, unlock)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Is the <tt class="docutils literal"><span class="pre">mdbm_replace</span></tt> utility being used by your application?  If it&#8217;s
+being used, and you are experiencing MDBM corruption, does the
+corruption result soon after an MDBM is replaced?</p>
+</li>
+<li><p class="first">What MDBM operation(s) were you doing when the fault occurred?
+The most common ones are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="19%" />
+<col width="20%" />
+<col width="20%" />
+<col width="19%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Fetch</th>
+<th class="head">Store</th>
+<th class="head">Delete</th>
+<th class="head">First</th>
+<th class="head">Next</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>mdbm_fetch</td>
+<td>mdbm_store</td>
+<td>mdbm_delete</td>
+<td>mdbm_first</td>
+<td>mdbm_next</td>
+</tr>
+<tr class="row-odd"><td>mdbm_fetch_buf</td>
+<td>mdbm_store_r</td>
+<td>mdbm_delete_r</td>
+<td>mdbm_first_r</td>
+<td>mdbm_next_r</td>
+</tr>
+<tr class="row-even"><td>mdbm_fetch_r</td>
+<td>mdbm_store_str</td>
+<td>mdbm_delete_str</td>
+<td>mdbm_firstkey</td>
+<td>mdbm_nextkey</td>
+</tr>
+<tr class="row-odd"><td>mdbm_fetch_dup_r</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>mdbm_firstkey_r</td>
+<td>mdbm_nextkey_r</td>
+</tr>
+<tr class="row-even"><td>mdbm_fetch_str</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><ul class="simple">
+<li>Provide your source for the failing MDBM operation, and its parameters</li>
+<li>Provide your <tt class="docutils literal"><span class="pre">mdbm_open</span></tt> source and corresponding parameter values</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Do you have a copy of your MDBM available for inspection?</p>
+</li>
+<li><p class="first">Is your problem reproducible?  If so, how easy/hard is it to reproduce?</p>
+</li>
+<li><p class="first">If problem resulted in a core dump, can you provide the stack trace?</p>
+</li>
+</ul>
+</li>
+</ol>
+</div></blockquote>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">MDBM Developer Guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="release_notes.html"
+                        title="next chapter">Release Notes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/getting-help.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="release_notes.html" title="Release Notes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="MDBM Developer Guide"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

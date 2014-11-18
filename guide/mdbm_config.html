@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mdbm_config &mdash; MDBM Developer Guide 4.3.0
+ documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MDBM Developer Guide 4.3.0
+ documentation" href="index.html" />
+    <link rel="up" title="Tools" href="tools.html" />
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="mdbm_export_splitter" href="mdbm_export_splitter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="faq.html" title="Frequently Asked Questions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_export_splitter.html" title="mdbm_export_splitter"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="tools.html" accesskey="U">Tools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mdbm-config">
+<span id="id1"></span><h1>mdbm_config<a class="headerlink" href="#mdbm-config" title="Permalink to this headline">¶</a></h1>
+<p>This utility is part of the mdbm_tools package.</p>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_config [-cDhlv] [-a <em>analysislevel</em>] [-d dbsize] [-f <em>coefficientvalue</em>] [-i <em>infile</em>] [-L <em>lockmode</em>] [-n <em>objcount:objcount</em>] [-o <em>opcount</em>] [-p <em>pagesize</em>] [-r <em>value</em>] [-s <em>hash-function</em>] [-t <em>targetcapacity</em>] [-w <em>percentwrites</em>] <em>outfile.mdbm</em></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">mdbm_config</span></tt> analyzes and benchmarks the data, then sets up an MDBM using
+data files in db_dump or cdb_dump format.  This tool must be used with MDBM V3
+or later.</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-a <var>analysislevel</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><table border="1" class="first last docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Level</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Quick</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>Medium</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>Complete [Default level]</td>
+</tr>
+</tbody>
+</table>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-c</span></kbd></td>
+<td>Import using cdb_dump format (default is db_dump format or MDBM format for
+files with the .mdbm extension).</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-d <var>dbsize</var></span></kbd></td>
+<td>Create DB with initial MDBM size <em>dbsize</em>.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-D</span></kbd></td>
+<td>Delete keys with zero-length values retrieved from import files.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-f <var>coefficientvalue</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Set the spill-page coefficient value to <em>coefficientvalue</em>.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-h</span></kbd></td>
+<td>Show help message.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-i <var>infile</var></span></kbd></td>
+<td>Read from <em>infile</em> instead of stdin.  Files with a .mdbm extension are assumed to be MDBMs.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-l</span></kbd></td>
+<td>Assume large object support is required for this MDBM setup.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-L <var>lockmode</var></span></kbd></td>
+<td>Set locking mode to be one of exclusive, partition, or shared.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-n <var>objcount</var></span></kbd></td>
+<td><dl class="first last docutils">
+<dt>(or -n objcount:objcount).</dt>
+<dd>If only 1 object count is provided, set the upper target for the number of
+objects per page (default is 100).  If 2 colon-separated object counts are
+provided, set the upper and lower target to the number of objects per page.
+The lower target&#8217;s default is 75% of the upper target of objects per page.</dd>
+</dl>
+</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-o <var>opcount</var></span></kbd></td>
+<td>The total number of read and write operations to perform when benchmarking.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-p <var>pagesize</var></span></kbd></td>
+<td>Create DB with pagesize <em>pagesize</em>.
+Page size will be rounded to system page size.
+Suffix k/m/g may be used to override the default of bytes.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-r <var>coefficientvalue</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Set the ratio of object over-the-bound (-n option) penalty to capacity utilization penalty.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-s <var>hash-function</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">Create DB using hash function <em>hash-function</em>.</p>
+<table border="1" class="last docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">hash-function</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>CRC-32</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>EJB</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>PHONG</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>OZ</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>TOREK</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>FNV32</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>STL</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>MD5</td>
+</tr>
+<tr class="row-even"><td>8</td>
+<td>SHA-1</td>
+</tr>
+<tr class="row-odd"><td>9</td>
+<td>Jenkins</td>
+</tr>
+<tr class="row-even"><td>10</td>
+<td>Hsieh SuperFast</td>
+</tr>
+</tbody>
+</table>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-t <var>targetcapacity</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Set the target MDBM capacity utilization rate (1-75%).
+Default capacity utilization rate is 50%.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-v</span></kbd></td>
+<td>Generate verbose output.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-w <var>percentwrites</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>When performing benchmarks, specify what floating point percentage of
+accesses are writes.  The default if zero.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="return-value">
+<h2>RETURN VALUE<a class="headerlink" href="#return-value" title="Permalink to this headline">¶</a></h2>
+<p>Returns 0 upon success, non-zero upon failure.</p>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">mdbm_config</span> <span class="o">-</span><span class="n">c</span> <span class="o">-</span><span class="n">i</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">foo</span><span class="o">.</span><span class="n">data</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">newdb</span><span class="o">.</span><span class="n">mdbm</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p>mdbm_check(1), mdbm_compare(1), mdbm_copy(1), mdbm_create(1),
+mdbm_digest(1), mdbm_dump(1), mdbm_export(1), mdbm_fetch(1), mdbm_import(1),
+mdbm_purge(1), mdbm_replace(1), mdbm_restore(1), mdbm_save(1), mdbm_stat(1),
+mdbm_sync(1), mdbm_trunc(1)</p>
+</div>
+<div class="section" id="contact">
+<h2>CONTACT<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>mdbm-users &lt;<a class="reference external" href="mailto:mdbm-users&#37;&#52;&#48;yahoo-inc&#46;com">mdbm-users<span>&#64;</span>yahoo-inc<span>&#46;</span>com</a>&gt;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mdbm_config</a><ul>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#options">OPTIONS</a></li>
+<li><a class="reference internal" href="#return-value">RETURN VALUE</a></li>
+<li><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
+<li><a class="reference internal" href="#contact">CONTACT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mdbm_export_splitter.html"
+                        title="previous chapter">mdbm_export_splitter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="next chapter">Frequently Asked Questions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mdbm_config.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="faq.html" title="Frequently Asked Questions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mdbm_export_splitter.html" title="mdbm_export_splitter"
+             >previous</a> |</li>
+        <li><a href="index.html">MDBM Developer Guide 4.3.0
+ documentation</a> &raquo;</li>
+          <li><a href="tools.html" >Tools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Yahoo! Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
