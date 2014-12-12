@@ -115,7 +115,7 @@ class BackStoreTsV3 : public BackStoreTestSuite
     CPPUNIT_TEST(BsUserDefinedBsFunctionsA6);
     CPPUNIT_TEST(BsStoreFetchLargeObjectA7);
     CPPUNIT_TEST(BsUseFileForBsA8);
-    CPPUNIT_TEST(BsUseNullForBsA8);
+    //CPPUNIT_TEST(BsUseNullForBsA8);
     CPPUNIT_TEST(BsUseInvalidForBsA8);
     CPPUNIT_TEST(BsUseInvalid2ForBsA8);
     CPPUNIT_TEST(BsCacheModeLruStoreCacheOnlyA9);
