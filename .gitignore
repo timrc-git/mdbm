@@ -13,3 +13,8 @@ src/java/object
 src/java/.classpath
 src/java/.project
 src/java/.settings
+
+src/test/unit-test/mdbm_fcopy
+
+src/test/*/*.xml
+

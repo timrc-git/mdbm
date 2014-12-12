@@ -50,7 +50,9 @@ $(OBJDIR)/$(LIBNAME).$(LIBVER) : $(SOURCES:%.c=$(OBJDIR)/%.o) $(CPP_SOURCES:%.cc
 install:: default-make-target
 	$(INSTALL) -d $(LIB_DEST)
 	$(INSTALL) -D $(OBJDIR)/$(LIBNAME).$(LIBVER) $(LIB_DEST)
-	ln -s -f -r $(LIB_DEST)/$(LIBNAME).$(LIBVER) $(LIB_DEST)/$(LIBNAME)
+	#ln -s -f -r $(LIB_DEST)/$(LIBNAME).$(LIBVER) $(LIB_DEST)/$(LIBNAME)
+	# some systems don't support "ln -r" (relative links), emulate it...
+	pushd $(LIB_DEST); ln -s -f -r $(LIBNAME).$(LIBVER) $(LIBNAME); popd
 
 clean :: clean-objs
 
