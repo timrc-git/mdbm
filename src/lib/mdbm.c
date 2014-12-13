@@ -9656,7 +9656,7 @@ mdbm_sparsify_file(const char* filename, int blocksize)
   for (cur=0; cur<filesize; cur += blocksize) {
     /* mmap() would be faster, but system-page-size might not match blocksize */
     if (pread(fd, rbuf, blocksize, cur) < 0) {
-      mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() pread() error at offset %lu.\n", filename, cur);
+      mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() pread() error at offset %lu.\n", filename, (unsigned long)cur);
       errno=EINVAL;
       goto sparsify_exit;
     }
@@ -9665,7 +9665,7 @@ mdbm_sparsify_file(const char* filename, int blocksize)
       if (ret < 0) {
         mdbm_log(LOG_ERR, "%s: mdbm_sparsify_file() punch-hole failed at offset:%lu size:%d fd:%d "
             "errno:%d (%s).\n", 
-            filename, cur, blocksize, fd, errno, strerror(errno));
+            filename, (unsigned long)cur, blocksize, fd, errno, strerror(errno));
         errno=EINVAL;
         goto sparsify_exit;
       }
