@@ -39,7 +39,7 @@ install:: default-make-target
 	$(INSTALL) -D $(OBJDIR)/$(LIBNAME).$(LIBVER) $(LIB_DEST)
 	#ln -s -f -r $(LIB_DEST)/$(LIBNAME).$(LIBVER) $(LIB_DEST)/$(LIBNAME)
 	# some systems don't support "ln -r" (relative links), emulate it...
-	cd $(LIB_DEST); ln -s -f -r $(LIBNAME).$(LIBVER) $(LIBNAME)
+	cd $(LIB_DEST); ln -s -f $(LIBNAME).$(LIBVER) $(LIBNAME)
 
 clean :: clean-objs
 
