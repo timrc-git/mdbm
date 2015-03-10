@@ -4506,10 +4506,22 @@ mdbm_get_cachemode_name(int cachemode)
           "unknown"
         };
 
+    static char* s_cache_clean_modes[] =
+        { "CLEAN+none",
+          "CLEAN+LFU",
+          "CLEAN+LRU",
+          "CLEAN+GDSF",
+          "unknown"
+        };
+
+    int clean = cachemode & MDBM_CACHEMODE_EVICT_CLEAN_FIRST;
+    cachemode = MDBM_CACHEMODE(cachemode);
     assert(sizeof(s_cache_modes) / sizeof(s_cache_modes[0]) > MDBM_CACHEMODE_MAX);
-    return (cachemode > MDBM_CACHEMODE_MAX
-            ? s_cache_modes[MDBM_CACHEMODE_MAX + 1]
-            : s_cache_modes[cachemode]);
+    if (cachemode > MDBM_CACHEMODE_MAX) {
+      return s_cache_modes[MDBM_CACHEMODE_MAX + 1];
+    }
+    return (clean) ? s_cache_clean_modes[cachemode] : s_cache_modes[cachemode];
+
 }
 
 int

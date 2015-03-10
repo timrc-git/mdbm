@@ -31,6 +31,9 @@ print <<EOF
 MDBM Version 4 is a significant improvement to version 3 by optionally using
 pthreads instead of ylock.  Additionally, all y* package dependencies are gone.
 
+Version 4.11.2 (03/10/2015, crowdert)
+  - Support MDBM_CACHEMODE_EVICT_CLEAN_FIRST when printing cachemode.
+
 Version 4.11.1 (09/19/2014, crowdert)
   - Extend and unify locking flags in utilities.
 
