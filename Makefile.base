@@ -18,7 +18,7 @@ COMP_FLAGS += -DUSE_OPENSSL
 COMP_FLAGS += -DALLOW_MLOCK_RESET -DHAVE_ROBUST_PTHREADS
 # readline support is for mash only
 LINK_READLINE=-lreadline
-LDADD += -lm -lpthread -lcrypto
+LDADD += -lm -lpthread -lcrypto -lstdc++
 LIBDIR=/usr/local/lib64
 INCDIR=/usr/local/include
 PERL=perl
