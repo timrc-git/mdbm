@@ -23,8 +23,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include <syscall.h>
-
 #include <iostream>
 #include <vector>
 #include <algorithm>

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <syscall.h>
 #include "multi_lock.hh"
 
 #include "atomic.h"
@@ -236,8 +235,8 @@ bool PMutex::Init() {
     return false;
   }
 //#warning "USING ROBUST MUTEXES"
-#else
-#warning "ROBUST MUTEXES ARE NOT AVAILABLE"
+//#else
+//#warning "ROBUST MUTEXES ARE NOT AVAILABLE"
 #endif// HAVE_ROBUST_PTHREADS
 
   //if(0 != pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) {

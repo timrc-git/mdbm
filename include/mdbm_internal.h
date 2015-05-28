@@ -18,6 +18,7 @@
 #include <sys/queue.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 #include <syslog.h>
@@ -28,6 +29,15 @@
 
 #include "mdbm_shmem.h"
 #include "mdbm_stats.h"
+
+#ifdef __MACH__
+/* TODO use fcntl() and F_NOCACHE instead of O_DIRECT */
+#  define O_DIRECT 0
+#  define O_NOATIME 0
+#  define mincore_vec_type char*
+#else
+#define mincore_vec_type unsigned char*
+#endif
 
 
 /*

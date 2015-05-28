@@ -1275,7 +1275,7 @@ MdbmOpenUnitTest::getLargeObj(MDBM * mdbm, int key, int size)
         CPPUNIT_ASSERT_EQUAL(size, fetched1.dsize);
 }
 
-
+#ifdef __linux__
 int
 MdbmOpenUnitTest::remapIsLimited()
 {
@@ -1327,6 +1327,14 @@ MdbmOpenUnitTest::remapIsLimited()
     unlink(fnbuf);
     return ret;
 }
+#else
+int
+MdbmOpenUnitTest::remapIsLimited()
+{
+    return 0;
+}
+#endif
+
 
 // For use in threaded test code
 typedef struct ThreadInfo {

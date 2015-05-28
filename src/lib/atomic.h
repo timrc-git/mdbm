@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <syscall.h>
+#include <pthread.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <signal.h>
 

@@ -23,16 +23,10 @@
 #include <vector>
 #include <algorithm>
 
+#include "atomic.h"
 #include "mdbm.h"
 //#include "configstoryutil.hh"
 #include "TestBase.hh"
-
-#include <syscall.h>
-// returns (linux-specific) thread-id (for single-thread processes it's just PID)
-inline uint32_t gettid() {
-  //AUTO_TSC("gettid()");
-  return syscall(SYS_gettid);
-}
 
 
 //class LockBaseTestSuite : public CppUnit::TestFixture, public TestBase

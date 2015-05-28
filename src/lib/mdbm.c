@@ -28,7 +28,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <syscall.h>
 #include <signal.h>
 #include <sys/resource.h> /* used for rlimit */
 #include <execinfo.h>
@@ -4112,7 +4111,7 @@ mdbm_open_inner(const char *filename, int flags, int mode, int pagesize, int dbs
             return NULL;
         }
 
-#ifdef FREEBSD
+#ifndef __linux__ /* WINDOWED mode only supported on linux */
     if (flags & MDBM_OPEN_WINDOWED) {
         ERROR();
         close(fd);
@@ -8253,7 +8252,7 @@ get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t o
 }
 #endif
 
-#ifdef FREEBSD
+#ifndef __linux__ /* WINDOWED mode only supported on linux */
 static mdbm_page_t*
 get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t off, uint32_t len)
 {
@@ -9308,13 +9307,7 @@ int mdbm_unlock_smart(MDBM *db, const datum *key, int flags)
 }
 
 
-#ifdef FREEBSD
-int
-remap_is_limited(uint32_t sys_pagesize)
-{
-    return 1;   /* Windowed mode is not supported by FreeBSD */
-}
-#else    /* Not FreeBSD (RHEL) */
+#ifdef __linux__
 
 /* open_tmp_test_file is a helper used by remap_is_limited to open the test file. */
 /* Returns file descriptor if successful, -1 otherwise */
@@ -9434,7 +9427,14 @@ remap_is_limited(uint32_t sys_pagesize)
     return remap_limited_status;
 }
 
-#endif  /* not FREEBSD (RHEL) */
+#else
+int
+remap_is_limited(uint32_t sys_pagesize)
+{
+    return 1;   /* Windowed mode is not supported by FreeBSD, OSX, etc. */
+}
+
+#endif  /* not __linux__ */
 
 static int
 page_counter_func(void *user, const mdbm_chunk_info_t *info)
@@ -9603,7 +9603,7 @@ int mdbm_check_residency(MDBM* db, mdbm_ubig_t *pgs_in, mdbm_ubig_t *pgs_out)
         if (!page_bits) { page_bits = (unsigned char*)malloc(cur_pages); }
         memset(page_bits, 0, cur_pages);
 
-        if (0 != (ret = mincore(base, cur_pages*sys_pg, page_bits)) ) {
+        if (0 != (ret = mincore(base, cur_pages*sys_pg, (mincore_vec_type)page_bits)) ) {
             mdbm_logerror(LOG_ERR,0," mdbm_check_residency: mincore() failed %d : %s", 
                 errno, strerror(errno));
             goto resident_out;

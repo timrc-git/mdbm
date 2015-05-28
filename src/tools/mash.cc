@@ -47,6 +47,11 @@
 #include "mdbm_util.h"
 #include "mdbm_internal.h"
 
+#ifdef __MACH__
+int rl_completion_suppress_append;
+#endif
+
+
 extern "C" {
 extern void print_lock_state_inner(struct mdbm_locks *locks);
 extern struct mdbm_locks* open_locks_inner(const char *dbname, int flags, int doLock,
@@ -995,7 +1000,7 @@ char** mash_completion(const char* text, int start, int end)
 void initialize_readline()
 {
     // Allow conditional parsing of the ~/.inputrc file.
-    rl_readline_name = "mash";
+    rl_readline_name = strdup("mash");
     // Tell the completer that we want a crack first.
     rl_attempted_completion_function = mash_completion;
 }

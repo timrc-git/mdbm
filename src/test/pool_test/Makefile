@@ -1,6 +1,5 @@
 
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../../..)
+TOPDIR=$(shell cd ../../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 HEADERS=
@@ -17,7 +16,7 @@ TESTS=                       \
 
 
 MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
-MYLIBS += -lpthread -lrt -lstdc++ -lreadline -lcppunit 
+MYLIBS += -lpthread $(LIBRT) -lstdc++ -lreadline -lcppunit 
 LD_EXTRA += $(MYLIBS) -lcppunit $(LOCAL_LDADD)
 CXXFLAGS += -I$(TOPDIR)/src/lib
 

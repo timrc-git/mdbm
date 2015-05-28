@@ -22,7 +22,7 @@ SPHINXOPTS    =
 PAPER         =
 BUILDDIR      = _build
 
-TOPDIR=$(shell pwd)/..
+TOPDIR=$(shell cd .. && pwd)
 include $(TOPDIR)/Makefile.base
 default-make-target: all
 

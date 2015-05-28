@@ -1,6 +1,5 @@
 
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../../..)
+TOPDIR=$(shell cd ../../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 HEADERS=            \
@@ -30,7 +29,7 @@ TESTS=                       \
 
 
 MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
-MYLIBS += -lpthread -lrt -lstdc++ -lcppunit 
+MYLIBS += -lpthread $(LIBRT) -lstdc++ -lcppunit 
 LD_EXTRA += $(MYLIBS) -lcppunit $(LOCAL_LDADD)
 CXXFLAGS += -I$(TOPDIR)/src/lib
 
@@ -49,10 +48,10 @@ $(foreach test, $(TESTS), $(eval $(call CppExeTargetRules,$(test),,$(LD_EXTRA)))
 
 test:: $(TESTEXES)
 	@echo "RUNNING FUNC TESTS MODE=$(MODE), FAST=$(FAST) !!!!"
-	$(foreach test, $(TESTS), make run-$(test) && ) /bin/true
+	$(foreach test, $(TESTS), make run-$(test) && ) $(TRUECMD)
 
 valg:: $(TESTEXES)
-	$(foreach test, $(TESTS), make valg-$(test) && ) /bin/true
+	$(foreach test, $(TESTS), make valg-$(test) && ) $(TRUECMD)
 
 clean :: clean-objs $(foreach exe, $(TESTS), clean-exe-$(exe))
 

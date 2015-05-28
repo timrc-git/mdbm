@@ -863,16 +863,19 @@ bench (struct mdbm_bench_config* config)
     return 0;
 }
 
+static void 
+do_mlockall()
+{
+#ifdef __linux__
+    mlockall(MCL_FUTURE);
+#endif
+}
 
 static void*
 bench_thread (void* arg)
 {
     struct mdbm_bench_config* c = (struct mdbm_bench_config*)arg;
-#ifdef __linux__
-    if (lockall) {
-        mlockall(MCL_FUTURE);
-    }
-#endif
+    if (lockall) { do_mlockall(); }
     bench(c);
     return NULL;
 }
@@ -1253,11 +1256,9 @@ main (int argc, char** argv)
     {
         switch (opt) {
         case '0':
-#ifdef __linux__
             lockall = 1;
-#else
-            fputs("mdbm_bench: -0 not supported on FreeBSD\n",stderr);
-            exit(1);
+#ifndef __linux__
+            fputs("mdbm_bench: WARNING -0 only supported on Linux\n",stderr);
 #endif
             break;
 
@@ -1636,11 +1637,7 @@ main (int argc, char** argv)
                 read_diskstats(devname,&ds0);
             }
             t0 = get_time_usec();
-#ifdef __linux__
-            if (lockall) {
-                mlockall(MCL_FUTURE);
-            }
-#endif
+            if (lockall) { do_mlockall(); }
             fputc('\n',outfile);
             bench(&c);
             t1 = get_time_usec();
@@ -1680,11 +1677,7 @@ main (int argc, char** argv)
                         nforks++;
                     } else {
                         fprintf(outfile, " %d",getpid());
-#ifdef __linux__
-                        if (lockall) {
-                            mlockall(MCL_FUTURE);
-                        }
-#endif
+                        if (lockall) { do_mlockall(); }
                         bench(c);
                         exit(0);
                     }

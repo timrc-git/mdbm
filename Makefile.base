@@ -6,6 +6,7 @@ default: default-make-target
 ############################################################
 ##        Configuration section                           ##
 ############################################################
+UNAME := $(shell uname)
 # Uncomment to disable TSC (TimeStamp Counter) clock source.
 DISABLE_TSC=1
 # Enable 64-bit off_t
@@ -14,17 +15,29 @@ COMP_FLAGS += -D_FILE_OFFSET_BITS=64
 COMP_FLAGS += -DUSE_OPENSSL
 # To provide internal MD5 and SHA1 hash functions
 #COMP_FLAGS += -DPROVIDE_SSL_HASHES
+COMP_FLAGS += -DALLOW_MLOCK_RESET
+
+ifeq ($(UNAME), Linux)
 # NOTE: we need to check RHEL6 or greater for robust-pthreads
-COMP_FLAGS += -DALLOW_MLOCK_RESET -DHAVE_ROBUST_PTHREADS
+COMP_FLAGS += -DHAVE_ROBUST_PTHREADS
+# add real-time lib for clock_gettime
+LIBRT = -lrt
+endif
+
 # readline support is for mash only
 LINK_READLINE=-lreadline
 LDADD += -lm -lpthread -lcrypto -lstdc++
 LIBDIR=/usr/local/lib64
 INCDIR=/usr/local/include
 PERL=perl
+TRUECMD=true # not /bin/true on OSX
 # command for building reST documentation
 SPHINXBUILD   = /usr/bin/sphinx-build
 INSTALL=install
+ifeq ($(UNAME), Darwin) # homebrew
+INSTALL=ginstall
+endif
+
 # Uncomment to set rpath to LIBDIR
 #USE_RPATH=1
 
@@ -62,7 +75,7 @@ value_%:
 
 
 make-recursive-%::
-	$(foreach DIR,$(SUBDIRS), make -C $(DIR) $(patsubst make-recursive-%,%,$@) && ) /bin/true
+	$(foreach DIR,$(SUBDIRS), make -C $(DIR) $(patsubst make-recursive-%,%,$@) && ) $(TRUECMD)
 
 # automaticly perform some actions recursively
 default-make-target: make-recursive-default-make-target
@@ -109,6 +122,10 @@ PEDANTIC += -Wno-format-security -Wno-unused-result
 #PEDANTIC += -Wno-unused-value
 # stop dead on warnings...
 PEDANTIC += -Werror
+ifeq ($(UNAME), Darwin)
+PEDANTIC += -Wno-deprecated-declarations -Wno-unused-const-variable -Wno-format
+endif
+
 
 # why doesn't gcc turn -Wunreachable-code on from -Wall....
 #   it turns out that gcc 4.4.6 (RHEL6) has false positives, 4.8.2 works
