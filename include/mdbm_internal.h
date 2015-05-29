@@ -1063,20 +1063,31 @@ extern void resume_signals();
 #  define MDBM_SIG_DEFER        hold_signals()
 #  define MDBM_SIG_ACCEPT       resume_signals()
 
+#ifdef __MACH__
+static inline uint64_t fast_time_usec(void) {
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  return tp.tv_sec*1000000 + tp.tv_usec;
+}
+
+static inline time_t get_time_sec() {
+  return time(NULL);
+}
+#else /* linux */
 static inline uint64_t fast_time_usec(void) {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ((uint64_t)ts.tv_sec)*1000000 +ts.tv_nsec/1000;
 }
 
-#define get_time_usec() fast_time_usec()
-
 static inline time_t get_time_sec() {
-  /*return (time_t)(get_time_usec() / 1000000); */
   struct timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   return ts.tv_sec;
 }
+#endif
+
+#define get_time_usec() fast_time_usec()
 
 #define get_cpu_count()  sysconf(_SC_NPROCESSORS_CONF)
 
