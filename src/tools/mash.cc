@@ -999,8 +999,10 @@ char** mash_completion(const char* text, int start, int end)
 
 void initialize_readline()
 {
+    static char name[10];
+    strcpy(name, "mash");
     // Allow conditional parsing of the ~/.inputrc file.
-    rl_readline_name = strdup("mash");
+    rl_readline_name = name;
     // Tell the completer that we want a crack first.
     rl_attempted_completion_function = mash_completion;
 }

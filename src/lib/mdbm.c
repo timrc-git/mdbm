@@ -8025,7 +8025,7 @@ release_window_page(MDBM* db, void* p)
 }
 
 
-extern int
+int
 remap_window_bytes(MDBM* db, char* mem_base, int mem_offset, uint32_t len, uint64_t file_offset, int flags) {
     int sys_pg_sz = db->db_sys_pagesize;
     /* db page size in units of system pages */
@@ -8065,7 +8065,7 @@ remap_window_bytes(MDBM* db, char* mem_base, int mem_offset, uint32_t len, uint6
 }
 
 /* npages is in db_page_size */
-extern mdbm_page_t*
+mdbm_page_t*
 get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t off, uint32_t len)
 {
     int pnum;
@@ -8253,7 +8253,7 @@ get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t o
 #endif
 
 #ifndef __linux__ /* WINDOWED mode only supported on linux */
-static mdbm_page_t*
+mdbm_page_t*
 get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t off, uint32_t len)
 {
     return NULL;

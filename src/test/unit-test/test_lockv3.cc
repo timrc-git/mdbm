@@ -721,7 +721,7 @@ LockV3TestSuite::lockingAndThreading(string &prefix, int parOpenFlags, int child
 
         // yay! child acknowledged it got hold of the DB
         GetLogStream() << prefix
-                     << " parent: child=" << int(tid)
+                     << " parent: child=" << tid
                      << ": Child ACKnowledged it locked the DB: " << resp << endl;
     } catch (SelectError &serr) {
         // boo! child is blocked or something else went wrong
