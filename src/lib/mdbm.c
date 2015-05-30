@@ -3608,7 +3608,9 @@ check_hugetlbfs(const char *filename, int fd, int *hugep, uint32_t *page_size)
 #else
     rc = 1;
     *hugep = 0;
-    *page_size = 0;
+    if (page_size != NULL) {
+        *page_size = 0;
+    }
 #endif
     return rc;
 }
