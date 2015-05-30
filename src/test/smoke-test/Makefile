@@ -19,7 +19,7 @@ TESTS=                       \
   test_lock   
 
 
-MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
+MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm -L$(LIBDIR)
 MYLIBS += -lpthread $(LIBRT) -lstdc++ -lreadline -lcppunit 
 LD_EXTRA += $(MYLIBS) -lcppunit $(LOCAL_LDADD)
 CXXFLAGS += -I$(TOPDIR)/src/lib

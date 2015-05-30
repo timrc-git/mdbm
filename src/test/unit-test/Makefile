@@ -55,8 +55,8 @@ TESTS+=                       \
   test_lockv3                \
 
 
-MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
-MYLIBS += -lpthread $(LIBRT) -lstdc++ -lreadline -lcppunit 
+MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm -L$(LIBDIR)
+MYLIBS += -lpthread $(LIBRT) -lstdc++ -lreadline -lcppunit
 LD_EXTRA += $(MYLIBS) -lcppunit $(LOCAL_LDADD)
 CXXFLAGS += -I$(TOPDIR)/src/lib
 

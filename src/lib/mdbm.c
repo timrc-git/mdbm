@@ -129,7 +129,7 @@ static int mdbm_set_window_size_internal(MDBM* db, size_t wsize);
 
 extern int do_delete_lockfiles(const char* dbname);
 
-inline uint64_t
+static inline uint64_t
 get_gtod_usec()
 {
     struct timeval tv;
@@ -145,7 +145,7 @@ volatile static uint64_t tsc_per_usec;    /* TSC clock cycles per microsecond */
 
 /* Intel (and later model AMD) Fetch Time-StampCounter
  * WANRING:  This value may be affected by speedstep and may vary randomly across cores. */
-__inline__ uint64_t rdtsc(void)
+static inline uint64_t rdtsc(void)
 {
     uint32_t lo, hi;
     /* We cannot use "=A", since this would use %rax on x86_64 and

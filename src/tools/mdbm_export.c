@@ -62,7 +62,7 @@ static void do_cdbdump(MDBM *db, FILE *fp)
   fputc('\n', fp);
 }
 
-inline void dump_str(datum d, FILE *fp)
+static inline void dump_str(datum d, FILE *fp)
 {
   int i;
 
