@@ -98,7 +98,7 @@ static inline uint32_t gettid() {
   /* and some OS don't expose any other unique id. */
   /* xor-fold pthread_self() pointer down to 16-bits */
   uint32_t tid;
-  uint64_t pself = pthread_self();
+  uint64_t pself = (uint64_t)pthread_self();
   pself = pself ^ (pself >> 32);
   pself = pself ^ (pself >> 16);
   /* add in PID to help unique-ify */

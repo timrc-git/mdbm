@@ -27,7 +27,11 @@ endif
 # readline support is for mash only
 LINK_READLINE=-lreadline
 LDADD += -lm -lpthread -lcrypto -lstdc++
+ifeq ($(UNAME), Linux)
 LIBDIR=/usr/local/lib64
+else
+LIBDIR=/usr/local/lib
+endif
 INCDIR=/usr/local/include
 PERL=perl
 TRUECMD=true # not /bin/true on OSX
@@ -106,7 +110,7 @@ else
   OBJDIR=$(OBJDIR_BASE)
 endif
 LOCAL_LDADD = -L$(TOPDIR)/src/lib/$(OBJDIR)
-COMP_FLAGS +=  -g -O2 -I/usr/include -I$(INCDIR) -I$(TOPDIR)/include -I. -Wall -fPIC 
+COMP_FLAGS +=  -g -O2 -I/usr/include -I$(INCDIR) -I$(TOPDIR)/include -I. -Wall -fPIC
 
 # get gcc version (space-separated components)
 GCC_VER_SPC=$(shell gcc -dumpversion | tr '.' ' ')
