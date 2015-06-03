@@ -42,7 +42,9 @@ class MdbmUnitTestMash : public CppUnit::TestFixture, public TestBase
 
         CPPUNIT_TEST(initialSetup);
         CPPUNIT_TEST(TestCreate);
+#ifndef __MACH__
         CPPUNIT_TEST(TestCreate2);
+#endif
         CPPUNIT_TEST(TestCreateInitial);
         CPPUNIT_TEST(TestCreateFail);
         CPPUNIT_TEST(TestCreateFail2);

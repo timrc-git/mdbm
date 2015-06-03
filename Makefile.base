@@ -42,6 +42,13 @@ ifeq ($(UNAME), Darwin) # homebrew
 INSTALL=ginstall
 endif
 
+ifeq ($(UNAME), Darwin) # homebrew
+LD_LIB_PATH=DYLD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
+else
+LD_LIB_PATH=LD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
+endif
+
+
 # Uncomment to set rpath to LIBDIR
 #USE_RPATH=1
 

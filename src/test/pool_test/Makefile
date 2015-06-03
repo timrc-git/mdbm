@@ -22,9 +22,6 @@ CXXFLAGS += -I$(TOPDIR)/src/lib
 
 TESTEXES= $(patsubst %, $(OBJDIR)/%, $(TESTS))
 
-# include locally built libaries in search path...
-LD_LIB_PATH=LD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
-
 # generate xml test results...
 RUN_ARGS= -tall -x $(1).xml 
 
