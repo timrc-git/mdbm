@@ -209,8 +209,8 @@ void ImportTestBase::DoExportWithLocking(const string &lockmode) {
     TRACE_TEST_CASE(lockmode + "-DoExportWithLocking");
     { // export
       mdbm_delete_lockfiles(file1.c_str());
-      const char* args[] = { "foo", "-c", "-o", exfile.c_str(), file1.c_str(),
-                             "-L", lockmode.c_str(), NULL };
+      const char* args[] = { "foo", "-c", "-o", exfile.c_str(),
+                             "-L", lockmode.c_str(), file1.c_str(), NULL };
       ResetGetOpt();
       int ret = exp_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
       CPPUNIT_ASSERT(ret == 0);
