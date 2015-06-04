@@ -391,7 +391,7 @@ private:
 };
 
 static MDBM *getMdbmPointer(JNIEnv *jenv, jobject thisObject) {
-    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object");
+    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object in getMdbmPointer");
 
     GET_CACHED_CLASS(jenv, nativeMdbmImplementationClass);
     RETURN_NULL_IF_EXCEPTION_OR_NULL (nativeMdbmImplementationClass);
@@ -409,7 +409,7 @@ static MDBM *getMdbmPointer(JNIEnv *jenv, jobject thisObject) {
 }
 
 static MDBM *getPooledMdbmPointer(JNIEnv *jenv, jobject thisObject) {
-    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object");
+    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object in getPooledMdbmPointer");
 
     GET_CACHED_CLASS(jenv, pooledMdbmHandleClass);
     RETURN_NULL_IF_EXCEPTION_OR_NULL (pooledMdbmHandleClass);
@@ -428,7 +428,7 @@ static MDBM *getPooledMdbmPointer(JNIEnv *jenv, jobject thisObject) {
 static MDBM_ITER *getIterPointer(JNIEnv *jenv, jobject thisObject) {
 
     if (NULL == thisObject) {
-        ThrowException(jenv, NULL_POINTER_EXCEPTION, "null thisObject object");
+        // it's perfectly valid to have a null iterator
         return NULL;
     }
 
@@ -450,7 +450,7 @@ static MDBM_ITER *getIterPointer(JNIEnv *jenv, jobject thisObject) {
 static mdbm_pool_t *getPoolPointer(JNIEnv *jenv, jobject thisObject) {
 
     if (NULL == thisObject) {
-        ThrowException(jenv, NULL_POINTER_EXCEPTION, "null thisObject object");
+        ThrowException(jenv, NULL_POINTER_EXCEPTION, "null thisObject object in getPoolPointer");
         return NULL;
     }
 
