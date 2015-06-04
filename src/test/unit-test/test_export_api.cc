@@ -87,10 +87,6 @@ class MdbmUnitTestDump : public CppUnit::TestFixture, public TestBase
 
     void testImportAPI(const string &prefix, bool cdbFormat, bool binary, bool header = false);
 
-  protected:
-
-    void ResetGetOpt();
-
   private:
 
     int testFlags;
@@ -309,7 +305,7 @@ MdbmUnitTestDump::exportImportCompare(const string &prefix, bool cdbFormat, bool
     }
 
     const char* args[] = { "mdbm_import", arg1, "-i", datafile.c_str(), outfile.c_str(), NULL };
-    ResetGetOpt();
+    reset_getopt();
     int ret = import_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
     CPPUNIT_ASSERT_EQUAL(0, ret);
 
@@ -319,12 +315,6 @@ MdbmUnitTestDump::exportImportCompare(const string &prefix, bool cdbFormat, bool
 
     mdbm_close(db1);
     unlink(datafile.c_str());
-}
-
-void
-MdbmUnitTestDump::ResetGetOpt()
-{
-    optind=1; // reset getopt()
 }
 
 string

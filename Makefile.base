@@ -20,8 +20,14 @@ COMP_FLAGS += -DALLOW_MLOCK_RESET
 ifeq ($(UNAME), Linux)
 # NOTE: we need to check RHEL6 or greater for robust-pthreads
 COMP_FLAGS += -DHAVE_ROBUST_PTHREADS
+# NOTE: windowed mode depends on linux-only remap_file_pages()
+COMP_FLAGS += -DHAVE_WINDOWED_MODE
 # add real-time lib for clock_gettime
 LIBRT = -lrt
+endif
+ifneq ($(UNAME), Darwin) 
+# OSX doesn't have /proc, TODO check BSD
+COMP_FLAGS += -DHAVE_PROC_FILESYS
 endif
 
 # readline support is for mash only
@@ -42,11 +48,9 @@ ifeq ($(UNAME), Darwin) # homebrew
 INSTALL=ginstall
 endif
 
-ifeq ($(UNAME), Darwin) # homebrew
-LD_LIB_PATH=DYLD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
-else
 LD_LIB_PATH=LD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
-endif
+# OSX, homebrew
+DYLD_LIBRARY_PATH=$(LD_LIB_PATH) 
 
 
 # Uncomment to set rpath to LIBDIR

@@ -75,8 +75,7 @@ class WindowingFuncTest : public WindowingFuncTestSuite {
 
     CPPUNIT_TEST(setEnv);
 
-#ifdef __linux__
-// windowed mode not supported on non-linux
+#ifdef HAVE_WINDOWED_MODE
     CPPUNIT_TEST(test_window_func_01);
     CPPUNIT_TEST(test_window_func_02);
     CPPUNIT_TEST(test_window_func_03);

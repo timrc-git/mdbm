@@ -143,13 +143,9 @@ class TestMiscFunc : public TestMiscFuncSuit {
   CPPUNIT_TEST(test_misc_func_31);
   CPPUNIT_TEST(test_misc_func_32);
   CPPUNIT_TEST(test_misc_func_33);
-#ifdef __linux__
-// windowed mode not supported on non-linux
-  CPPUNIT_TEST(test_misc_func_34);
-#endif
   CPPUNIT_TEST(test_misc_func_35);
-#ifdef __linux__
-// windowed mode not supported on non-linux
+#ifdef HAVE_WINDOWED_MODE
+  CPPUNIT_TEST(test_misc_func_34);
   CPPUNIT_TEST(test_misc_func_36);
 #endif
 

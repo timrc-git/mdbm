@@ -112,8 +112,7 @@ void ImportTestBase::MakeTestMdbm(const string& fname) {
 }
 
 void ImportTestBase::ResetGetOpt() {
-    optind=1; // reset getopt()
-    // TODO some platforms may require additional steps
+    reset_getopt();
 }
 
 void ImportTestBase::TestValues(const string& fname, bool doDelete) {
@@ -291,10 +290,7 @@ class ImportTestV3 : public ImportTestBase
     CPPUNIT_TEST(TestImportWithDelete);
     CPPUNIT_TEST(TestImportNoDelete);
     CPPUNIT_TEST(TestSmallDbPageSize);
-#ifndef __MACH__
-// TODO: Why doesn't this work on non-linux? Potential getopt differences?
     CPPUNIT_TEST(TestAllLocking);
-#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:

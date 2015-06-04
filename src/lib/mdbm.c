@@ -1714,7 +1714,7 @@ mdbm_internal_remap(MDBM *db, size_t dbsize, int flags)
     }
 
     if (MDBM_IS_WINDOWED(db)) {
-#ifdef __linux__
+#ifdef HAVE_WINDOWED_MODE
         int syspagesz = db->db_sys_pagesize;
         int dbpagesz = hdr.h_pagesize;
         /*int ndbpages = hdr.h_num_pages; // db-sized pages */
@@ -4113,7 +4113,7 @@ mdbm_open_inner(const char *filename, int flags, int mode, int pagesize, int dbs
             return NULL;
         }
 
-#ifndef __linux__ /* WINDOWED mode only supported on linux */
+#ifndef HAVE_WINDOWED_MODE /* WINDOWED mode only supported on linux */
     if (flags & MDBM_OPEN_WINDOWED) {
         ERROR();
         close(fd);
@@ -7901,7 +7901,7 @@ mdbm_get_window_stats(MDBM* db, mdbm_window_stats_t* s, size_t s_size)
 }
 
 
-#ifdef __linux__
+#ifdef HAVE_WINDOWED_MODE
 
 #ifndef TAILQ_FOREACH
 
@@ -8252,21 +8252,147 @@ get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t o
 #endif
     return (mdbm_page_t*)p;
 }
-#endif
 
-#ifndef __linux__ /* WINDOWED mode only supported on linux */
+/* open_tmp_test_file is a helper used by remap_is_limited to open the test file. */
+/* Returns file descriptor if successful, -1 otherwise */
+
+int
+open_tmp_test_file(const char *file, uint32_t siz, char *buf)
+{
+    int created = 0, fd = -1;
+
+    snprintf(buf, MAXPATHLEN, "%s%d.map", file, gettid()); /* assuming buf is big enough */
+
+    fd = open(buf, O_RDWR|O_NOATIME);
+    if (fd < 0) {
+        created = 1;
+        fd = open(buf, O_RDWR|O_CREAT|O_TRUNC|O_NOATIME, 0664);
+        if (fd < 0) {
+            return -1;
+        }
+    }
+
+    /* expand the file to the proper size: write a "\0" byte to force the expansion */
+    if (created) {
+        if ((lseek(fd, siz-1, SEEK_SET) < 0) || (write(fd, "", 1) != 1)) {
+            mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot expand",buf);
+            close(fd);
+            return -1;
+        }
+    }
+    return fd;
+}
+
+
+static inline void
+close_unmap_unlink(uint8_t *map, uint32_t size, int fd, char *fname)
+{
+    if ((map != NULL) && (munmap(map, size) != 0)) {
+        mdbm_logerror(LOG_ERR,0,"%s: Could not munmap", fname);
+    }
+    if (close(fd) != 0) {
+        mdbm_logerror(LOG_ERR,0,"%s: Could not close", fname);
+    }
+    if (unlink(fname) != 0) {
+        mdbm_logerror(LOG_ERR,0,"%s: Could not unlink", fname);
+    }
+}
+
+/* for use by remap_is_limited().
+ * -1 means unknown, 0 means not limited (RHEL4), 1 means limited(RHEL6)
+ */
+static sig_atomic_t remap_limited_status = -1;
+
+
+/* remap_is_limited() - for internal use by mdbm_open_internal
+ *
+ * Tests whether MDBM V3 is running on RHEL 6 (in a 4-on-6 yroot).
+ * Needed because we have to fail mdbm_open if opened with WINDOWED_MODE on RHEL6.
+ *
+ * Returns 1 if remap_file_pages is limited (RHEL6), or 0 if not (RHEL4).
+ *
+ * remap_limited_status: -1 means unknown, 0 means not limited (RHEL4), 1 means limited(RHEL6)
+ */
+
+int
+remap_is_limited(uint32_t sys_pagesize)
+{
+    int ret, fd = -1;
+    uint8_t* map = NULL;
+    char *fname = "/tmp/remaptest";
+    uint32_t size = sys_pagesize + sys_pagesize; /* 2 pages needed in total */
+    char fnbuf[MAXPATHLEN];  /* File name buffer */
+
+    if (remap_limited_status >= 0) {
+        return remap_limited_status;   /* remap test previously performed: return result */
+    }
+
+    /* remap_limited_status < 0 - create test file */
+
+    if ((fd = open_tmp_test_file(fname, size, fnbuf)) < 0) {
+        fname = "/tmp/remaptest2";
+        if ((fd = open_tmp_test_file(fname, size, fnbuf)) < 0) {
+            mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot open", fname);
+            return 0;   /* Things are probably very broken, so something else will fail soon */
+        }
+    }
+
+    map = (uint8_t*)mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    if (map == MAP_FAILED) {
+        mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot mmap (%d)", fnbuf, errno);
+        close_unmap_unlink(NULL, 0, fd, fnbuf);
+        return 1;  /* shouldn't fail: return "limited" but don't update remap_limited_status */
+    }
+
+    /*int remap_file_pages(void *addr, size_t size, int prot, ssize_t pgoff, int flags); */
+    if (remap_file_pages((void*)map, size, 0, 0, 0) != 0) {   /* map 2 pages first */
+        mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot remap first 2 pages",
+                      fnbuf);
+        close_unmap_unlink(map, size, fd, fnbuf);
+        return 1;  /* return "limited" but don't update remap_limited_status */
+    }
+
+    /* map 2nd file-page to offset 0 */
+    if (remap_file_pages((void*)map, sys_pagesize, 0, 1, 0) != 0) {
+        mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot remap second page",
+                      fnbuf);
+        close_unmap_unlink(map, size, fd, fnbuf);
+        return 1;  /* return "limited" but don't update remap_limited_status */
+    }
+
+    /* Now try remapping both pages again - fails under RHEL6 but not RHEL4 */
+    ret = remap_file_pages((void*)map, size, 0, 0, 0);
+
+    remap_limited_status = (ret == 0) ?
+        0 : /* Success means ret=0 (RHEL4) - remap_file_pages is not limited */
+        1; /* RHEL6 - remap_file_pages is limited */
+
+    close_unmap_unlink(map, size, fd, fnbuf);
+    return remap_limited_status;
+}
+
+#else /* no HAVE_WINDOWED_MODE */
+
 mdbm_page_t*
 get_window_page(MDBM* db, mdbm_page_t* page, int pagenum, int npages, uint32_t off, uint32_t len)
 {
     return NULL;
 }
+
 void
 release_window_pages(MDBM* db)
 {
 }
+
 void
 release_window_page(MDBM* db, void* p)
 {
+}
+
+int
+remap_is_limited(uint32_t sys_pagesize)
+{
+    return 1;   /* Windowed mode is not supported by FreeBSD, OSX, etc. */
 }
 #endif
 
@@ -9308,135 +9434,6 @@ int mdbm_unlock_smart(MDBM *db, const datum *key, int flags)
     }
 }
 
-
-#ifdef __linux__
-
-/* open_tmp_test_file is a helper used by remap_is_limited to open the test file. */
-/* Returns file descriptor if successful, -1 otherwise */
-
-int
-open_tmp_test_file(const char *file, uint32_t siz, char *buf)
-{
-    int created = 0, fd = -1;
-
-    snprintf(buf, MAXPATHLEN, "%s%d.map", file, gettid()); /* assuming buf is big enough */
-
-    fd = open(buf, O_RDWR|O_NOATIME);
-    if (fd < 0) {
-        created = 1;
-        fd = open(buf, O_RDWR|O_CREAT|O_TRUNC|O_NOATIME, 0664);
-        if (fd < 0) {
-            return -1;
-        }
-    }
-
-    /* expand the file to the proper size: write a "\0" byte to force the expansion */
-    if (created) {
-        if ((lseek(fd, siz-1, SEEK_SET) < 0) || (write(fd, "", 1) != 1)) {
-            mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot expand",buf);
-            close(fd);
-            return -1;
-        }
-    }
-    return fd;
-}
-
-
-static inline void
-close_unmap_unlink(uint8_t *map, uint32_t size, int fd, char *fname)
-{
-    if ((map != NULL) && (munmap(map, size) != 0)) {
-        mdbm_logerror(LOG_ERR,0,"%s: Could not munmap", fname);
-    }
-    if (close(fd) != 0) {
-        mdbm_logerror(LOG_ERR,0,"%s: Could not close", fname);
-    }
-    if (unlink(fname) != 0) {
-        mdbm_logerror(LOG_ERR,0,"%s: Could not unlink", fname);
-    }
-}
-
-/* for use by remap_is_limited().
- * -1 means unknown, 0 means not limited (RHEL4), 1 means limited(RHEL6)
- */
-static sig_atomic_t remap_limited_status = -1;
-
-
-/* remap_is_limited() - for internal use by mdbm_open_internal
- *
- * Tests whether MDBM V3 is running on RHEL 6 (in a 4-on-6 yroot).
- * Needed because we have to fail mdbm_open if opened with WINDOWED_MODE on RHEL6.
- *
- * Returns 1 if remap_file_pages is limited (RHEL6), or 0 if not (RHEL4).
- *
- * remap_limited_status: -1 means unknown, 0 means not limited (RHEL4), 1 means limited(RHEL6)
- */
-
-int
-remap_is_limited(uint32_t sys_pagesize)
-{
-    int ret, fd = -1;
-    uint8_t* map = NULL;
-    char *fname = "/tmp/remaptest";
-    uint32_t size = sys_pagesize + sys_pagesize; /* 2 pages needed in total */
-    char fnbuf[MAXPATHLEN];  /* File name buffer */
-
-    if (remap_limited_status >= 0) {
-        return remap_limited_status;   /* remap test previously performed: return result */
-    }
-
-    /* remap_limited_status < 0 - create test file */
-
-    if ((fd = open_tmp_test_file(fname, size, fnbuf)) < 0) {
-        fname = "/tmp/remaptest2";
-        if ((fd = open_tmp_test_file(fname, size, fnbuf)) < 0) {
-            mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot open", fname);
-            return 0;   /* Things are probably very broken, so something else will fail soon */
-        }
-    }
-
-    map = (uint8_t*)mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-    if (map == MAP_FAILED) {
-        mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot mmap (%d)", fnbuf, errno);
-        close_unmap_unlink(NULL, 0, fd, fnbuf);
-        return 1;  /* shouldn't fail: return "limited" but don't update remap_limited_status */
-    }
-
-    /*int remap_file_pages(void *addr, size_t size, int prot, ssize_t pgoff, int flags); */
-    if (remap_file_pages((void*)map, size, 0, 0, 0) != 0) {   /* map 2 pages first */
-        mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot remap first 2 pages",
-                      fnbuf);
-        close_unmap_unlink(map, size, fd, fnbuf);
-        return 1;  /* return "limited" but don't update remap_limited_status */
-    }
-
-    /* map 2nd file-page to offset 0 */
-    if (remap_file_pages((void*)map, sys_pagesize, 0, 1, 0) != 0) {
-        mdbm_logerror(LOG_ERR,0,"%s: Windowing remap test, cannot remap second page",
-                      fnbuf);
-        close_unmap_unlink(map, size, fd, fnbuf);
-        return 1;  /* return "limited" but don't update remap_limited_status */
-    }
-
-    /* Now try remapping both pages again - fails under RHEL6 but not RHEL4 */
-    ret = remap_file_pages((void*)map, size, 0, 0, 0);
-
-    remap_limited_status = (ret == 0) ?
-        0 : /* Success means ret=0 (RHEL4) - remap_file_pages is not limited */
-        1; /* RHEL6 - remap_file_pages is limited */
-
-    close_unmap_unlink(map, size, fd, fnbuf);
-    return remap_limited_status;
-}
-
-#else
-int
-remap_is_limited(uint32_t sys_pagesize)
-{
-    return 1;   /* Windowed mode is not supported by FreeBSD, OSX, etc. */
-}
-
-#endif  /* not __linux__ */
 
 static int
 page_counter_func(void *user, const mdbm_chunk_info_t *info)

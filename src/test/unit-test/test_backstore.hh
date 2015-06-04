@@ -106,9 +106,6 @@ class BackStoreTsV3 : public BackStoreTestSuite
 {
     CPPUNIT_TEST_SUITE(BackStoreTsV3);
 
-#ifdef __linux__
-    CPPUNIT_TEST(TestWindowedMode);
-#endif
     CPPUNIT_TEST(BsSetWithNullParamA2);
     CPPUNIT_TEST(BsSetMdbmMultipleTimesThenCloseA3);
     // TODO BZ 5718172, invalid test, shouldn't allow cache and bs to be the same MDBM
@@ -123,8 +120,9 @@ class BackStoreTsV3 : public BackStoreTestSuite
     CPPUNIT_TEST(BsCacheModeLruStoreCacheOnlyA9);
     CPPUNIT_TEST(BsCacheModeNoneStoreCacheOnlyA10);
     CPPUNIT_TEST(BsCacheModeLruStoreModifyNewKeyA11);
-#ifdef __linux__
+#ifdef HAVE_WINDOWED_MODE
 // Windowed mode...
+    CPPUNIT_TEST(TestWindowedMode);
     CPPUNIT_TEST(BsCacheModeLruStoreModifyOldKeyA12);
     CPPUNIT_TEST(BsSameWindowSizeCacheAndBsA13);
     CPPUNIT_TEST(BsSmallWindSizeCacheAndBigWindSizeBsA14);
