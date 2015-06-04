@@ -60,9 +60,6 @@ MYLIBS += -lpthread $(LIBRT) -lstdc++ -lreadline -lcppunit
 LD_EXTRA += $(MYLIBS) -lcppunit $(LOCAL_LDADD)
 CXXFLAGS += -I$(TOPDIR)/src/lib
 
-# include locally built libaries in search path...
-LD_LIB_PATH=LD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
-
 TESTEXES= $(patsubst %, $(OBJDIR)/%, $(TESTS))
 #TESTTESTS= $(patsubst %, $(OBJDIR)/%, $(TESTS))
 

@@ -433,7 +433,9 @@ class MdbmCloseSyncUnitTestV3 : public MdbmCloseSyncUnitTestBase
     CPPUNIT_TEST(test_mdbm_fsync_error_cases);
     CPPUNIT_TEST(test_mdbm_replace_db_error_case_1);
     CPPUNIT_TEST(TestReplaceFileLarge);
+#ifdef __linux__
     CPPUNIT_TEST(TestMdbmReplaceMakeResident);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:

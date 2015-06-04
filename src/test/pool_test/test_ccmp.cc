@@ -26,10 +26,13 @@ class YccmpTest: public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE(YccmpTest);
    
+#ifndef __MACH__
+// uses /proc, does not exist on OSX
   CPPUNIT_TEST(test_mdbm_pool_parse);
   CPPUNIT_TEST(test_mdbm_pool_verify);
   CPPUNIT_TEST(test_mdbm_pool_pool_valid);
   CPPUNIT_TEST(test_mdbm_pool_pool_invalid);
+#endif
 
   CPPUNIT_TEST_SUITE_END();
 
