@@ -861,7 +861,7 @@ extern int mdbm_set_window_size(MDBM* db, size_t wsize);
  *   datum value;
  *   char *buffer = (char*)malloc(maxLength+1);  // Skip return code check.
  *   mdbm_lock(db);   // Skip return code check.
- *   value = mdbm_fetch(db, &key);
+ *   value = mdbm_fetch(db, key);
  *   if (value.dptr != NULL) {
  *     strncpy(buffer, value.dptr, maxLength);  // GOOD: copy-out done in locked context.
  *   } else {
