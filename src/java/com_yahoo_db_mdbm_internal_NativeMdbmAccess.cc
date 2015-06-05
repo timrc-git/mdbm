@@ -269,7 +269,7 @@ public:
         javaBytes.set(jenv, bytes);
         RETURN_FALSE_IF_EXCEPTION();
 
-        d.dptr = (char*) javaBytes.getBytes();
+        d.dptr = (char*) javaBytes.get();
 
         valid = true;
         mdbmDatum = pmdbmDatum;
