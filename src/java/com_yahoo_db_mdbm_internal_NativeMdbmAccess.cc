@@ -80,10 +80,6 @@ DECLARE_CACHED_METHOD_ID(mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId, 
 DECLARE_CACHED_CLASS(mdbmCreatePoolFailedExceptionClass, MDBM_CREATE_POOL_FAILED_EXCEPTION)
 DECLARE_CACHED_METHOD_ID(mdbmCreatePoolFailedExceptionClass, mdbmCreatePoolFailedExceptionCtorId, "<init>", "(Ljava/lang/String;)V")
 
-static void ThrowNullPointerException(JNIEnv *jenv, const char *mesg) {
-    ThrowException(jenv, NULL_POINTER_EXCEPTION, mesg);
-}
-
 static void zeroDatum(datum &d) {
     d.dptr = NULL;
     d.dsize = 0;
