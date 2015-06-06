@@ -18,7 +18,6 @@ public class TestPool {
 				MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
 				MdbmDatum value = handle.fetch(datum);
 				Assert.assertNotNull(value);
-				mdbmPool.returnMdbmHandle(handle);
 			}
 
 		} finally {

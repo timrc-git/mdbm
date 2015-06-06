@@ -49,9 +49,7 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
             return;
         }
 
-        // System.err.println("release at " + handlesInFlight.intValue() +
-        // " of "
-        // + totalSize);
+        //System.err.println("release at " + handlesInFlight.intValue() + " of " + totalSize);
 
         if (0 != handlesInFlight.intValue()) {
             throw new RuntimeException(new MdbmPoolAcquireHandleFailedException(
@@ -76,8 +74,8 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
                             + mdbm.getClass().getCanonicalName());
         }
 
-        // System.err.println("getMdbmHandle at "
-        // + handlesInFlight.incrementAndGet() + " of " + totalSize);
+        handlesInFlight.incrementAndGet();
+        //System.err.println("getMdbmHandle at " + handlesInFlight.get() + " of " + totalSize);
         return mdbm;
     }
 
@@ -99,8 +97,8 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
     }
 
     void internalReleaseHandle(MdbmInterface mdbm) {
-        // System.err.println("internalReleaseHandle at "
-        // + handlesInFlight.decrementAndGet() + " of " + totalSize);
+        handlesInFlight.decrementAndGet();
+        //System.err.println("internalReleaseHandle at " + handlesInFlight.get() + " of " + totalSize);
         NativeMdbmAccess.release_handle(this, mdbm);
     }
 
