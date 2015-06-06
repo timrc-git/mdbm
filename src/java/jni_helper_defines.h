@@ -38,23 +38,158 @@
 
 #include <stdlib.h>
 
+#ifdef JAVA_DEBUG_TYPEMAPS
+#undef NDEBUG
+#include <assert.h>
+#endif JAVA_DEBUG_TYPEMAPS
+
 #define POINTER_TO_CONTEXT(CTX_TYPE) CTX_TYPE* context= reinterpret_cast<CTX_TYPE*>(pointer);
 #define CONTEXT_TO_POINTER(CTX) jlong pointer = reinterpret_cast<jlong>(CTX);
 
-#define RETURN_NULL_IF_EXCEPTION() if (jenv->ExceptionCheck()) { return 0; }
-#define RETURN_NULL_IF_EXCEPTION_OR_NULL(p) if (NULL == p || jenv->ExceptionCheck()) { return 0; }
-#define POP_AND_RETURN_NULL_IF_EXCEPTION() if (jenv->ExceptionCheck()) { jenv->PopLocalFrame(NULL); return 0; }
-#define POP_AND_RETURN_NULL_IF_EXCEPTION_OR_NULL(p) if (NULL == p || jenv->ExceptionCheck()) { jenv->PopLocalFrame(NULL); return 0; }
-#define RETURN_NULL_IF_0_OR_EXCEPTION(p) { if (0 == p || jenv->ExceptionCheck()) { return 0; } }
-#define RETURN_NULL_IF_NOT_0_OR_EXCEPTION(p) { if (0 != p || jenv->ExceptionCheck()) { return 0; } }
-#define RETURN_IF_EXCEPTION_OR_NULL(p) { if (0 == p || jenv->ExceptionCheck()) { return; } }
-#define RETURN_NULL_AND_THROW_IF_NULL(p,mesg) { if (jenv->ExceptionCheck()) { return 0; } if (0==p) { ThrowNullPointerException(jenv, mesg); return 0; } }
-#define RETURN_FALSE_AND_THROW_IF_NULL(p,mesg) { if (jenv->ExceptionCheck()) { return JNI_FALSE; } if (0==p) { ThrowNullPointerException(jenv, mesg); return JNI_FALSE; } }
-#define RETURN_AND_THROW_IF_NULL(p,mesg) { if (jenv->ExceptionCheck()) { return; } if (0==p) { ThrowNullPointerException(jenv, mesg); return; } }
-#define RETURN_AND_THROW_IF_NOT_ZERO(p,mesg) { if (jenv->ExceptionCheck()) { return; } if (0!=p) { ThrowException(jenv,RUNTIME_EXCEPTION , mesg); return; } }
-#define RETURN_FALSE_IF_EXCEPTION() { if (jenv->ExceptionCheck()) { return false; } }
-#define RETURN_FALSE_IF_EXCEPTION_OR_NULL(p)  { if (NULL == p || jenv->ExceptionCheck()) { return false; } }
-#define RETURN_IF_EXCEPTION() { if (jenv->ExceptionCheck()) { return; } }
+#define RETURN_IF_EXCEPTION() {\
+        if (jenv->ExceptionCheck()) {\
+            return;\
+        }\
+    }
+
+#define RETURN_NULL_IF_EXCEPTION() {\
+        if (jenv->ExceptionCheck()) {\
+            return 0;\
+        }\
+    }
+
+#define RETURN_NULL_IF_CLASS_IS_NULL(p) {\
+    if (jenv->ExceptionCheck()) {\
+        return NULL;\
+    }\
+    if (NULL == p) {\
+       ThrowNullPointerException(jenv, "class was not found "#p);\
+       return 0;\
+    }\
+}
+
+#define RETURN_IF_CLASS_IS_NULL(p) {\
+    if (jenv->ExceptionCheck()) {\
+        return;\
+    }\
+    if (NULL == p) {\
+        ThrowNullPointerException(jenv, "class was not found "#p);\
+        return;\
+    }\
+}
+
+#define RETURN_NULL_IF_EXCEPTION_OR_NULL(p) {\
+    if (NULL == p || jenv->ExceptionCheck()) {\
+        return 0;\
+    }\
+}
+
+#define RETURN_NULL_IF_EXCEPTION_OR_NULL_AND_FREE(p, func, context) {\
+    if (NULL == p || jenv->ExceptionCheck()) {\
+        if (NULL != context) { \
+            (*func)(context); \
+        } \
+        return 0; \
+    } \
+}
+
+#define POP_AND_RETURN_NULL_IF_EXCEPTION() {\
+    if (jenv->ExceptionCheck()) {\
+        jenv->PopLocalFrame(NULL);\
+        return 0;\
+    }\
+}
+
+#define POP_AND_RETURN_NULL_IF_EXCEPTION_OR_NULL(p) {\
+    if (NULL == p || jenv->ExceptionCheck()) {\
+       jenv->PopLocalFrame(NULL);\
+       return 0;\
+    }\
+}
+
+#define RETURN_NULL_IF_NOT_0_OR_EXCEPTION(p) {\
+    if (0 != p || jenv->ExceptionCheck()) {\
+        return 0;\
+    }\
+}
+
+#define RETURN_IF_EXCEPTION_OR_NULL(p) {\
+    if (0 == p || jenv->ExceptionCheck()) {\
+        return;\
+    }\
+}
+
+#define RETURN_NULL_IF_0_OR_EXCEPTION(p) {\
+    if (0 == p || jenv->ExceptionCheck()) {\
+        return 0;\
+    }\
+}
+
+#define RETURN_NULL_AND_THROW_IF_NULL(p,mesg) {\
+    if (jenv->ExceptionCheck()) {\
+        return 0;\
+    }\
+    if (0==p) {\
+        ThrowNullPointerException(jenv, mesg);\
+        return 0;\
+    }\
+}
+
+#define RETURN_FALSE_AND_THROW_IF_NULL(p,mesg) {\
+    if (jenv->ExceptionCheck()) {\
+        return JNI_FALSE;\
+    }\
+    if (0==p) {\
+        ThrowNullPointerException(jenv, mesg);\
+        return JNI_FALSE;\
+    }\
+}
+
+#define RETURN_AND_THROW_IF_NULL(p,mesg) {\
+    if (jenv->ExceptionCheck()) {\
+        return;\
+    }\
+    if (0==p) {\
+        ThrowNullPointerException(jenv, mesg);\
+        return;\
+    }\
+}
+
+#define RETURN_AND_THROW_IF_NOT_ZERO(p,mesg) {\
+    if (jenv->ExceptionCheck()) {\
+        return;\
+    }\
+    if (0!=p) {\
+        ThrowException(jenv,RUNTIME_EXCEPTION , mesg);\
+        return;\
+    }\
+}
+
+#define RETURN_FALSE_IF_EXCEPTION() {\
+    if (jenv->ExceptionCheck()) {\
+        return false;\
+    }\
+}
+
+#define RETURN_FALSE_IF_EXCEPTION_OR_NULL(p) {\
+    if (NULL == p || jenv->ExceptionCheck()) {\
+        return false;\
+    }\
+}
+
+#define RETURN_NULL_AND_THROW_IF_NOT_INSTANCEOF(object, clazz, mesg) {\
+    if (JNI_FALSE == jenv->IsInstanceOf(object, clazz)) {\
+        ThrowException(jenv, CLASS_CAST_EXCEPTION , mesg#clazz);\
+        return 0;\
+    }\
+}
+
+#define RETURN_AND_THROW_IF_NOT_INSTANCEOF(object, clazz, mesg) {\
+    if (JNI_FALSE == jenv->IsInstanceOf(object, clazz)) {\
+        ThrowException(jenv, CLASS_CAST_EXCEPTION , mesg#clazz);\
+        return;\
+    }\
+}
 
 #define SETUP_OUTPUT_BUFFER() ScopedMemory toBuffer(scopedIn.getLength());
 #define SETUP_OUTPUT_BUFFER_FROM_LEN(len) ScopedMemory toBuffer(len);
@@ -117,15 +252,17 @@ static jfieldID get_ ## fieldid_var(JNIEnv *jenv) { \
 
 #define GET_CACHED_FIELD_ID(jenv, fieldid_var) get_##fieldid_var(jenv)
 
-
 DECLARE_CACHED_CLASS(stringBufferClass, "java/lang/StringBuffer")
-DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferCapacityID, "capacity", "()I")
-DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferSetLengthID, "setLength", "(I)V")
-DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferAppendStringID, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")
-DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferToStringID, "toString", "()Ljava/lang/String;")
+DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferCapacityID, "capacity",
+        "()I")
+DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferSetLengthID,
+        "setLength", "(I)V")
+DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferAppendStringID,
+        "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")
+DECLARE_CACHED_METHOD_ID(stringBufferClass, stringBufferToStringID, "toString",
+        "()Ljava/lang/String;")
 
 DECLARE_CACHED_CLASS(stringClass, "java/lang/String")
-
 
 #define OUT_OF_MEMORY_ERROR "java/lang/OutOfMemoryError"
 #define IO_EXCEPTION "java/io/IOException"
@@ -136,6 +273,7 @@ DECLARE_CACHED_CLASS(stringClass, "java/lang/String")
 #define NULL_POINTER_EXCEPTION "java/lang/NullPointerException"
 #define UNKNOWN_HOST_EXCEPTION "java/net/UnknownHostException"
 #define UNSUPPORTED_ENCODING_EXCEPTION "java/io/UnsupportedEncodingException"
+#define CLASS_CAST_EXCEPTION "java/lang/ClassCastException"
 
 static void ThrowException(JNIEnv *jenv, const char *exceptionClass,
         const char *message) {
@@ -163,31 +301,62 @@ static void ThrowNullPointerException(JNIEnv *jenv, const char *mesg) {
 }
 
 class ScopedMemory {
+#ifdef JAVA_DEBUG_TYPEMAPS
+    const static size_t beforeBytes = 32;
+    const static size_t afterBytes = 8192;
+#endif //JAVA_DEBUG_TYPEMAPS
+
 public:
-    ScopedMemory(size_t length) :
-            _memory(0), _length(length) {
-        _memory = calloc(length, 1);
+    ScopedMemory() {
+        set((size_t) 0);
     }
 
-    ScopedMemory(void *memory) :
-            _memory(memory), _length(0) {
+    ScopedMemory(size_t length) {
+        set(length);
     }
 
-    ScopedMemory(void *memory, size_t length) :
-            _memory(memory), _length(length) {
+    inline void set(size_t length, size_t size) {
+        set(length * size);
     }
 
-    ScopedMemory() :
-            _memory(0) {
-    }
+    inline void set(size_t length) {
+        _length = length;
+        if (0 == _length) {
+            _memory = 0;
+#ifdef JAVA_DEBUG_TYPEMAPS
+            _first = 0;
+            _last = 0;
+            _realPtr = _memory;
+#endif //JAVA_DEBUG_TYPEMAPS
+            return;
+        }
 
-    inline void set(void *memory) {
-        _memory = memory;
+#ifdef JAVA_DEBUG_TYPEMAPS
+        _realLen = beforeBytes + length + afterBytes;
+        _realPtr = calloc(_realLen, 1);
+        _first = (void*) ((char*) _realPtr + beforeBytes);
+        _last = (void*) ((char*) _first + length);
+
+        memset(_realPtr, 0xDD, _realLen);
+        memset(_realPtr, 0xBB, beforeBytes);
+        memset(_first, 0, length);
+        memset((void*) ((char*) _last), 0xAA, afterBytes);
+
+        _memory = _first;
+#else //JAVA_DEBUG_TYPEMAPS
+        _memory = calloc(_length + 1, 1);
+#endif //JAVA_DEBUG_TYPEMAPS
     }
 
     inline void set(void *memory, size_t length) {
         _memory = memory;
         _length = length;
+#ifdef JAVA_DEBUG_TYPEMAPS
+        _first = _memory;
+        _last = 0;
+        _realPtr = _memory;
+        _skipAssert = true;
+#endif //JAVA_DEBUG_TYPEMAPS
     }
 
     inline void *get() {
@@ -198,10 +367,33 @@ public:
         return _length;
     }
 
+#ifdef JAVA_DEBUG_TYPEMAPS
+    inline void check() {
+        assert(_memory == _first);
+        if (!_skipAssert) {
+            char expectedBefore[beforeBytes];
+            char expectedAfter[afterBytes];
+
+            memset(expectedBefore, 0xBB, beforeBytes);
+            memset(expectedAfter, 0xAA, afterBytes);
+
+            assert(memcmp(_realPtr, expectedBefore, beforeBytes) == 0);
+            assert(memcmp(_last, expectedAfter, afterBytes) == 0);
+        }
+    }
+#endif //JAVA_DEBUG_TYPEMAPS
+
     virtual ~ScopedMemory() {
         if (_memory) {
+#ifdef JAVA_DEBUG_TYPEMAPS
+            assert(_memory == _first);
+            check();
+            free(_realPtr);
+            _realPtr = NULL;
+#else //JAVA_DEBUG_TYPEMAPS
             free(_memory);
             _memory = NULL;
+#endif //JAVA_DEBUG_TYPEMAPS
         }
     }
 
@@ -210,8 +402,16 @@ private:
     ScopedMemory(const ScopedMemory &);
     void operator=(const ScopedMemory &);
 
-    void *_memory;
     size_t _length;
+#ifdef JAVA_DEBUG_TYPEMAPS
+    size_t _realLen;
+    void *_realPtr;
+    void *_first;
+    void *_last;
+    bool _skipAssert;
+#endif //JAVA_DEBUG_TYPEMAPS
+
+    void *_memory;
 };
 
 class ScopedStringUTFChars {
@@ -323,70 +523,92 @@ public:
 
     ScopedByteArray(JNIEnv* env, int len) :
             _jenv(env), javaArray(NULL), nativeArray(NULL) {
+
         this->javaArray = _jenv->NewByteArray(len);
+
+        if (NULL == this->javaArray) {
+            ThrowException(_jenv, NULL_POINTER_EXCEPTION,
+                    "Failed to allocate byte array");
+        }
+
+        setNative();
+    }
+
+    ScopedByteArray(JNIEnv* env, jbyteArray javaArray) :
+            _jenv(env), javaArray(javaArray), nativeArray(NULL) {
+
+        setNative();
+    }
+
+    ScopedByteArray(JNIEnv* env, void *copyFromNative, int start, int len) :
+            _jenv(env), javaArray(NULL), nativeArray(NULL) {
+        this->javaArray = _jenv->NewByteArray(len);
+
+        if (NULL == copyFromNative || len <= 0) {
+            return;
+        }
+
         if (NULL != this->javaArray) {
-            this->nativeArray = (this->_jenv)->GetByteArrayElements(
-                    this->javaArray, NULL);
+            (this->_jenv)->SetByteArrayRegion(this->javaArray, start, len,
+                    (jbyte*) copyFromNative);
         } else {
             ThrowException(_jenv, NULL_POINTER_EXCEPTION,
                     "Failed to allocate byte array");
         }
     }
 
-    ScopedByteArray(JNIEnv* env, jbyteArray javaArray) :
-            _jenv(env), javaArray(javaArray), nativeArray(NULL) {
-        if (NULL != this->javaArray) {
-            this->nativeArray = (this->_jenv)->GetByteArrayElements(
-                    this->javaArray, NULL);
-        }
-    }
-
-    ScopedByteArray(JNIEnv* env, void *copyFromNative, int start, int len) :
+    ScopedByteArray(JNIEnv* env, void *copyFromNative, int start, int copyLen, int totalLen) :
             _jenv(env), javaArray(NULL), nativeArray(NULL) {
-        if (NULL != copyFromNative) {
-            this->javaArray = _jenv->NewByteArray(len);
-            if (NULL != this->javaArray) {
-                (this->_jenv)->SetByteArrayRegion(this->javaArray, start, len,
-                        (jbyte*) copyFromNative);
-            } else {
-                ThrowException(_jenv, NULL_POINTER_EXCEPTION,
-                        "Failed to allocate byte array");
-            }
+        this->javaArray = _jenv->NewByteArray(totalLen);
+
+        if (NULL == copyFromNative || copyLen <= 0 || totalLen <= 0 || copyLen > totalLen) {
+            return;
+        }
+
+        if (NULL != this->javaArray) {
+            (this->_jenv)->SetByteArrayRegion(this->javaArray, start, copyLen,
+                    (jbyte*) copyFromNative);
+        } else {
+            ThrowException(_jenv, NULL_POINTER_EXCEPTION,
+                    "Failed to allocate byte array");
         }
     }
 
-    ScopedByteArray(JNIEnv* env, jbyteArray javaArray, void* nativeArray) :
+    ScopedByteArray(JNIEnv* env, jbyteArray javaArray, jbyte* nativeArray) :
             _jenv(env), javaArray(javaArray), nativeArray(nativeArray) {
     }
 
     ~ScopedByteArray() {
-        if ((this->_jenv != NULL) && (this->javaArray != NULL)
-                && (this->nativeArray != NULL)) {
-            (this->_jenv)->ReleaseByteArrayElements(this->javaArray,
-                    (jbyte *) this->nativeArray, 0);
+        if (NULL == this->_jenv) {
+            return;
         }
+
+        if (NULL == this->javaArray) {
+            return;
+        }
+
+        if (NULL == this->nativeArray) {
+            return;
+        }
+
+        (this->_jenv)->ReleaseByteArrayElements(this->javaArray,
+                this->nativeArray, 0);
     }
 
-    void set(JNIEnv* env, jbyteArray javaArray, void* nativeArray) {
-        this->_jenv = env;
-        this->javaArray = javaArray;
-        this->nativeArray = nativeArray;
-    }
+//    void set(JNIEnv* env, jbyteArray javaArray, void* nativeArray) {
+//        this->_jenv = env;
+//        this->javaArray = javaArray;
+//        this->nativeArray = nativeArray;
+//    }
 
     void set(JNIEnv* env, jbyteArray javaArray) {
         this->_jenv = env;
         this->javaArray = javaArray;
-        if (NULL != this->javaArray) {
-            this->nativeArray = (this->_jenv)->GetByteArrayElements(
-                    this->javaArray, NULL);
-        }
+
+        setNative();
     }
 
-    inline void * getBytes() {
-        return nativeArray;
-    }
-
-    inline void * get() {
+    inline jbyte* get() {
         return nativeArray;
     }
 
@@ -398,13 +620,23 @@ public:
         if (NULL == javaArray) {
             return 0;
         }
+
         return _jenv->GetArrayLength(javaArray);
+    }
+
+    inline void setNative() {
+        if (NULL == this->javaArray) {
+            return;
+        }
+
+        this->nativeArray = (this->_jenv)->GetByteArrayElements(this->javaArray,
+                NULL);
     }
 
 private:
     JNIEnv* _jenv;
     jbyteArray javaArray;
-    void* nativeArray;
+    jbyte* nativeArray;
 };
 
 #endif /* __JNI_HELPER_DEFINES_H__ */
