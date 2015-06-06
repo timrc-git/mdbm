@@ -332,7 +332,7 @@ public:
         }
 
 #ifdef JAVA_DEBUG_TYPEMAPS
-        _realLen = beforeBytes+ length + afterBytes;
+        _realLen = beforeBytes + length + afterBytes;
         _realPtr = calloc(_realLen, 1);
         _first = (void*) ((char*) _realPtr + beforeBytes);
         _last = (void*) ((char*) _first + length);
@@ -340,7 +340,7 @@ public:
         memset(_realPtr, 0xDD, _realLen);
         memset(_realPtr, 0xBB, beforeBytes);
         memset(_first, 0, length);
-        memset((void*) ((char*) _last), 0xAA, beforeBytes);
+        memset((void*) ((char*) _last), 0xAA, afterBytes);
 
         _memory = _first;
 #else //JAVA_DEBUG_TYPEMAPS
@@ -378,7 +378,7 @@ public:
             memset(expectedAfter, 0xAA, afterBytes);
 
             assert(memcmp(_realPtr, expectedBefore, beforeBytes) == 0);
-            assert(memcmp(_last, expectedAfter, beforeBytes) == 0);
+            assert(memcmp(_last, expectedAfter, afterBytes) == 0);
         }
     }
 #endif //JAVA_DEBUG_TYPEMAPS
