@@ -1235,7 +1235,7 @@ MdbmUnitTestStatsV3::test_new_mdbm_stat_HeaderOption()
     deleteEveryOther(mdbm, prefix);  // Set deletes counters
 
     const char *args[] = { "mdbm_stat", "-H", filename.c_str(), NULL };
-    optind = 1;
+    reset_getopt();
     CPPUNIT_ASSERT_EQUAL(0, mdbm_stat_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args));
 }
 
@@ -1250,7 +1250,7 @@ void MdbmUnitTestStatsV3::test_new_mdbm_stat_ResidentOption()
     deleteEveryOther(mdbm, prefix);  // Set deletes counters
 
     const char *args[] = { "mdbm_stat", "-i", "resident", filename.c_str(), NULL };
-    optind = 1;
+    reset_getopt();
     CPPUNIT_ASSERT_EQUAL(0, mdbm_stat_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args));
 }
 
@@ -1714,7 +1714,7 @@ MdbmUnitTestStatsV3::testMdbmStatOversized(const string &prefix,
     if (0 == pid) { // child
         redirectStdout(outfile);
         const char *args[] = { "mdbm_stat", "-o", filename.c_str(), NULL };
-        optind = 1;
+        reset_getopt();
         int retmain =
             mdbm_stat_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
         mdbm.Close();

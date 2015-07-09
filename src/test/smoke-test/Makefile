@@ -1,6 +1,5 @@
 
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../../..)
+TOPDIR=$(shell cd ../../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 HEADERS=            \
@@ -20,15 +19,12 @@ TESTS=                       \
   test_lock   
 
 
-MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
-MYLIBS += -lpthread -lrt -lstdc++ -lreadline -lcppunit 
+MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm -L$(LIBDIR)
+MYLIBS += -lpthread $(LIBRT) -lstdc++ -lreadline -lcppunit 
 LD_EXTRA += $(MYLIBS) -lcppunit $(LOCAL_LDADD)
 CXXFLAGS += -I$(TOPDIR)/src/lib
 
 TESTEXES= $(patsubst %, $(OBJDIR)/%, $(TESTS))
-
-# include locally built libaries in search path...
-LD_LIB_PATH=LD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
 
 # generate xml test results...
 RUN_ARGS= -tall -x $(1).xml 
@@ -40,10 +36,10 @@ $(foreach test, $(TESTS), $(eval $(call CppExeTargetRules,$(test),,$(LD_EXTRA)))
 
 test:: $(TESTEXES)
 	@echo "RUNNING SMOKE TESTS MODE=$(MODE), FAST=$(FAST) !!!!"
-	$(foreach test, $(TESTS), make run-$(test) && ) /bin/true
+	$(foreach test, $(TESTS), make run-$(test) && ) $(TRUECMD)
 
 valg:: $(TESTEXES)
-	$(foreach test, $(TESTS), make valg-$(test) && ) /bin/true
+	$(foreach test, $(TESTS), make valg-$(test) && ) $(TRUECMD)
 
 clean :: clean-objs $(foreach exe, $(TESTS), clean-exe-$(exe))
 #clean :

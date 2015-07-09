@@ -31,6 +31,7 @@
 
 #include <mdbm.h>
 
+#include "mdbm_util.h"
 #include "TestBase.hh"
 
 #define main mdbm_replace_main_wrapper
@@ -399,7 +400,7 @@ MdbmCloseSyncUnitTestBase::TestMdbmReplaceMakeResident()
     // Replace with the preload option
     const char *args[] = { "mdbm_replace", "--preload",
                            firstFile.c_str(), copyName.c_str(), NULL };
-    optind = 1;  // reset the command line arg pointer
+    reset_getopt();
     CPPUNIT_ASSERT_EQUAL(0,mdbm_replace_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args));
 
     struct rusage rusage1, rusage2;
@@ -433,7 +434,9 @@ class MdbmCloseSyncUnitTestV3 : public MdbmCloseSyncUnitTestBase
     CPPUNIT_TEST(test_mdbm_fsync_error_cases);
     CPPUNIT_TEST(test_mdbm_replace_db_error_case_1);
     CPPUNIT_TEST(TestReplaceFileLarge);
+#ifdef __linux__
     CPPUNIT_TEST(TestMdbmReplaceMakeResident);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:

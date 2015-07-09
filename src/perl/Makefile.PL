@@ -26,7 +26,7 @@ sub MY::post_initialize {
 sub MY::const_config {
   my $self = shift;
   my $string = << 'EOT';
-TOPDIR=$(shell pwd)/../..
+TOPDIR=$(shell cd ../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 default-make-target: makemakerdflt

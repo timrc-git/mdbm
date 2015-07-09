@@ -4,6 +4,8 @@
 #ifndef MDBM_UTIL_H_ONCE
 #define MDBM_UTIL_H_ONCE
 
+#include <stdint.h>
+
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -39,6 +41,9 @@ extern "C" {
 #define JSSUFFIX_G  "G"
 #define JSSUFFIX_M  "M"
 #define JSSUFFIX_K  "K"
+
+extern void
+reset_getopt();
 
 /* prints a message and calls exit() on error */
 extern uint64_t

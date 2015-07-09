@@ -21,6 +21,7 @@ function check_nones() {
 echo "-------------------------- setup ---------------------"
 
 export LD_LIBRARY_PATH=`pwd`/src/lib/object
+export DYLD_LIBRARY_PATH=`pwd`/src/lib/object
 export PATH=`pwd`/src/tools/object:$PATH
 
 #rm -rf /tmp/.mlock-named /tmp/flarg*

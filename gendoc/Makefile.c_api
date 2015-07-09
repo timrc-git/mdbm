@@ -7,7 +7,7 @@
 # doxygen must be invoked with the parent directory as the working
 # directory.
 
-TOPDIR=$(shell pwd)/..
+TOPDIR=$(shell cd .. && pwd)
 include $(TOPDIR)/Makefile.base
 default-make-target: all
 

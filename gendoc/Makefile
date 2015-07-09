@@ -1,6 +1,5 @@
 
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/..)
+TOPDIR=$(shell cd .. && pwd)
 include $(TOPDIR)/Makefile.base
 default-make-target: all
 

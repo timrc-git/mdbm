@@ -1,5 +1,4 @@
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../..)
+TOPDIR=$(shell cd ../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 #  bench_data_utils.hh 
@@ -36,7 +35,7 @@ EXE=                     \
 
 
 MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
-MYLIBS += -lpthread -lrt -lstdc++
+MYLIBS += -lpthread $(LIBRT) -lstdc++
 
 #include $(SOURCES:.c=.d)
 #include $(CPP_SOURCES:.cc=.d)
