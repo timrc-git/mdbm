@@ -62,7 +62,9 @@ endif
 
 # assume 64-bit, comment out for 32-bit
 # TODO auto-detect
+ifneq ($(UNAME), Darwin)
 ARCH_SUFFIX=64
+endif
 
 # where to install files:
 #PREFIX=/usr/local
