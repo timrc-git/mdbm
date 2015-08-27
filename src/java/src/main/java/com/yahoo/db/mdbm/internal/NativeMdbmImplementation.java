@@ -2,9 +2,6 @@
 /* Licensed under the terms of the 3-Clause BSD license. See LICENSE file in the project root for details. */
 package com.yahoo.db.mdbm.internal;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.yahoo.db.mdbm.HashFunctionCode;
 import com.yahoo.db.mdbm.MdbmDatum;
 import com.yahoo.db.mdbm.MdbmInterface;
@@ -41,14 +38,13 @@ public class NativeMdbmImplementation extends DeallocatingClosedBase implements 
                     throws MdbmException {
         // if we don't own the pointer, disable the deallocator.
         super(pointer, (ownPointer) ? DESTRUCTOR : null);
-        try {
-            if (null == path) {
-                throw new NullPointerException("path was null");
-            }
-            this.path = new File(path).getCanonicalPath();
-        } catch (IOException e) {
-            throw new MdbmException(e);
+
+        if (null == path) {
+            throw new NullPointerException("path was null");
         }
+        // JAVAPLATF-1882 this can contend badly
+        // this.path = new File(path).getCanonicalPath();
+        this.path = path;
 
         // set the shared flag so we can stop people with wayward axes.
         this.shared = (Open.MDBM_RW_LOCKS == (flags & Open.MDBM_RW_LOCKS));
