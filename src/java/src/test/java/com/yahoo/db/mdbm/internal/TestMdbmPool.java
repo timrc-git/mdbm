@@ -115,7 +115,7 @@ public class TestMdbmPool {
                     pool.returnMdbmHandle(mdbm);
                 }
 
-                Mockito.verify(pool, Mockito.never()).internalReleaseHandle(Matchers.any(MdbmInterface.class));
+                Mockito.verify(pool, Mockito.never()).internalReleaseHandle(Matchers.any(PooledMdbmHandle.class));
             }
 
         } finally {
