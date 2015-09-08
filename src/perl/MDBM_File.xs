@@ -1572,6 +1572,32 @@ mdbm_isowned(MDBM_File db)
 int     
 mdbm_unlock(MDBM_File db)
 
+int 
+mdbm_lock_smart(MDBM_File db, datum key, int flags) 
+    CODE:
+        RETVAL = mdbm_lock_smart(db, &key, flags);
+    OUTPUT:
+        RETVAL
+
+int 
+mdbm_trylock_smart(MDBM_File db, datum key, int flags)
+    CODE:
+        RETVAL = mdbm_trylock_smart(db, &key, flags);
+    OUTPUT:
+        RETVAL
+
+int 
+mdbm_unlock_smart(MDBM_File db, datum key, int flags)
+    CODE:
+        RETVAL = mdbm_unlock_smart(db, &key, flags);
+    OUTPUT:
+        RETVAL
+
+int
+mdbm_lock_shared(MDBM_File db)
+
+int
+mdbm_trylock_shared(MDBM_File db)
 
 int
 mdbm_plock(MDBM_File db, datum key, int flags)
