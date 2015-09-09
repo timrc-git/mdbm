@@ -15,6 +15,9 @@ Requirements:
     python-sphinx  (sphinx documentation generator)
     doxygen
 
+  To build RPMs you will need:
+    rpm-build
+
   To build the perl wrapper, you will need at least the following:
     Perl 5.14 or newer
     ExtUtils::MakeMaker

@@ -31,6 +31,11 @@ print <<EOF
 MDBM Version 4 is a significant improvement to version 3 by optionally using
 pthreads instead of ylock.  Additionally, all y* package dependencies are gone.
 
+Version 4.12.0 (09/08/2015, crowdert)
+  - Accept build number (BUILD_NUMBER) for RPM generation.
+  - Expose shared and smart locking functions from perl
+  - Added OSX build support (eam, areese)
+
 Version 4.11.2 (03/10/2015, crowdert)
   - Support MDBM_CACHEMODE_EVICT_CLEAN_FIRST when printing cachemode.
 
