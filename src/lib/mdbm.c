@@ -1669,6 +1669,8 @@ mdbm_internal_remap(MDBM *db, size_t dbsize, int flags)
         }
         /*fprintf(stderr, "remap::munmap(%p,%u)\n", db->db_base,(unsigned)db->db_base_len); */
         db->db_base = NULL;
+    } else {
+      memset(&page, 0, sizeof(page));
     }
 
     if (!dbsize || !got_hdr) {
