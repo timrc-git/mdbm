@@ -51,7 +51,7 @@ default-make-target: build-exes
 
 build-exes: $(EXES) $(CPPEXES) $(OBJDIR)/mdbm_bench $(OBJDIR)/mash
 # custom deps/types, handled explicitly
-$(eval $(call ExeTargetRules,mdbm_bench,bench_existing.cc))
+$(eval $(call CppExeTargetRules,mdbm_bench,,,))
 $(eval $(call CppExeTargetRules,mash,,$(LINK_READLINE)))
 
 # Build the per-command targets.

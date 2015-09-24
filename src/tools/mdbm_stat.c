@@ -65,9 +65,9 @@ usage(int exit_code)
 "Options:\n"
 "        -H            Show db header\n"
 "        -h            This help information\n"
-"        -i "FREE_PAGE_FLAG"     Show total number of free pages and free-list pages\n"
-"        -i "ENTRY_COUNT_FLAG"     Print the number of entries\n"
-"        -i "RESIDEN_COUNT_FLAG"   Print memory-resident page info\n"
+"        -i " FREE_PAGE_FLAG "     Show total number of free pages and free-list pages\n"
+"        -i " ENTRY_COUNT_FLAG "     Print the number of entries\n"
+"        -i " RESIDEN_COUNT_FLAG "   Print memory-resident page info\n"
 "        -l mode       Lock mode\n"
 lockstr_to_flags_usage("                          ")
 "        -L            Do not lock the DB\n"
