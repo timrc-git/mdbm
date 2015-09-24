@@ -1371,7 +1371,7 @@ main (int argc, char** argv)
 
         case 'p':
             tmp = mdbm_util_get_size(optarg,1);
-            if (tmp > MDBM_MAX_VALID_PAGESIZE) {
+            if (tmp > (unsigned)MDBM_MAX_VALID_PAGESIZE) {
                 fprintf(stderr,"mdbm_bench: Invalid page size: %s\n", optarg);
                 exit(1);
             }
