@@ -125,13 +125,13 @@ public:
 #define CHECKPOINTV(msg, ...) 
 
 //#define TRACE_LOCKS
-#define PRINT_LOCK_TRACE(msg) {                                                  \
-    char buf[512];                                                               \
-    snprintf(buf, 512,                                                           \
-        "rec:%p pid:%d self:"OWNER_FMT" %s count:%u owner:"OWNER_FMT" idx:%d\n", \
-        rec, getpid(), get_thread_id(), msg, rec->count,                         \
-        rec->owner, index);                                                      \
-    fprintf(stderr, buf);                                                        \
+#define PRINT_LOCK_TRACE(msg) {                                                      \
+    char buf[512];                                                                   \
+    snprintf(buf, 512,                                                               \
+        "rec:%p pid:%d self:" OWNER_FMT " %s count:%u owner:" OWNER_FMT " idx:%d\n", \
+        rec, getpid(), get_thread_id(), msg, rec->count,                             \
+        rec->owner, index);                                                          \
+    fprintf(stderr, buf);                                                            \
   }
 
 #endif /* DONT_MULTI_INCLUDE_MDBM_UTIL_HH */

@@ -13,7 +13,7 @@
 #include <sys/param.h>
 #include <unistd.h>
 
-#include <algorithm>
+//#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -43,8 +43,6 @@ enum {
 extern "C" {
 void post_open_callback(MDBM *db) { }
 }
-
-using namespace std;
 
 int
 benchmarkExisting(const char *filename, double percentWrites, int lockmode, 
@@ -80,16 +78,16 @@ benchmarkExisting(const char *filename, double percentWrites, int lockmode,
         return -1;
     }
 
-    string curfile(filename);
-    vector<string> datafiles;
+    std::string curfile(filename);
+    std::vector<std::string> datafiles;
     FileStorage writer(curfile);
     {
         RandomKeyBatch keyBatch(curfile);
-        vector<datum> keys;
+        std::vector<datum> keys;
         bool doContinue;
         do {
             doContinue = keyBatch.getKeyBatch(keys);
-            string dfile(writer.writeData(keys));
+            std::string dfile(writer.writeData(keys));
             if (dfile.empty()) {
                 if (ofile != NULL) {
                     fprintf(ofile, "BENCH ERROR: Unable to write to %s\n", dfile.c_str());
@@ -145,7 +143,7 @@ benchmarkExisting(const char *filename, double percentWrites, int lockmode,
     }
     uint readcount = 0, writecount = 0, failcount = 0;
     for (uint i = 0; i < datafiles.size() && failcount < 2; ++i) {
-        vector<datum> keys;
+        std::vector<datum> keys;
         writer.readData(datafiles[i], keys);  // Read key data
         for (uint j = 0; j < TotalOpsCount && failcount < 2; ++j) {
             datum value;

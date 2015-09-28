@@ -162,6 +162,11 @@ endif
 CFLAGS += $(COMP_FLAGS)
 CXXFLAGS += $(COMP_FLAGS)
 
+ifeq ($(CC),clang)
+  # allow for empty macro args, etc. under clang compiler
+  CFLAGS += -std=gnu99
+  CXXFLAGS += -std=c++11
+endif
 
 # implicit rules to make object files from source
 $(OBJDIR)/%.o: %.c
@@ -170,7 +175,7 @@ $(OBJDIR)/%.o: %.c
 
 $(OBJDIR)/%.o: %.cc
 	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) $(PEDANTIC) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(PEDANTIC) -c $< -o $@
 
 #$(OBJDIR)/%.o: %.cpp
 #	@mkdir -p $(OBJDIR)

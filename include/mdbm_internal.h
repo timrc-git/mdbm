@@ -1232,8 +1232,8 @@ extern int fcopy_body(MDBM* db, int fd, int flags);
 
 extern char mdbm_internal_hex_to_byte(int c1, int c2);
 
-#define ERROR() fprintf(stderr, "ERROR (%d %s) in %s() %s:%d\n", errno, strerror(errno), __FUNCTION__, __FILE__, __LINE__);
-#define NOTE(desc) fprintf(stderr, "NOTICE %s in %s() %s:%d\n", desc, __FUNCTION__, __FILE__, __LINE__);
+#define ERROR() fprintf(stderr, "ERROR (%d %s) in %s() %s:%d\n", errno, strerror(errno), __func__, __FILE__, __LINE__);
+#define NOTE(desc) fprintf(stderr, "NOTICE %s in %s() %s:%d\n", desc, __func__, __FILE__, __LINE__);
 
 
 #ifdef  __cplusplus

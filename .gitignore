@@ -17,6 +17,8 @@ src/java/.classpath
 src/java/.project
 src/java/.settings
 
+gendoc/man
+
 *.swp
 *.swo
 

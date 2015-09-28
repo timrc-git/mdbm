@@ -40,6 +40,8 @@ typedef pthread_cond_t cond_t;
 #define mutex_init     init_pthread_mutex
 #define cond_init      init_pthread_cond
 
+#include "bench_existing.cc"
+
 int init_pthread_mutex(mutex_t *mutex)  {
   int ret = -1;
   pthread_mutexattr_t attr;
@@ -152,12 +154,12 @@ static FILE *outfile = NULL;
 
 mdbm_stats_t stats;
 
-enum {
-    MDBM_NO_LOCK,
-    MDBM_LOCK,
-    MDBM_PLOCK,
-    MDBM_RWLOCK
-};
+//enum {
+//    MDBM_NO_LOCK,
+//    MDBM_LOCK,
+//    MDBM_PLOCK,
+//    MDBM_RWLOCK
+//};
 
 static int lockmode = MDBM_LOCK;
 static int lockarch = 0;
@@ -474,9 +476,8 @@ static void
 get_seq_key (int key, char* buf)
 {
     static const char HEX[] = "0123456789abcdef";
-    int off;
+    uint64_t off = 0;
 
-    off = 0;
     while (off < keysize) {
         unsigned int k = key;
         int i, len;
@@ -579,7 +580,7 @@ bench (struct mdbm_bench_config* config)
     MDBM* db;
 
     int proc = config->proc;
-    int numprocs = config->numprocs;
+    unsigned int numprocs = config->numprocs;
     int mode = config->mode;
     char* gkeys = config->gkeys;
 
@@ -716,9 +717,7 @@ bench (struct mdbm_bench_config* config)
                             }
                         }
                     } else if (op == MDBM_FETCH_BUF) {
-                        if ((
-                                mdbm_fetch_buf(db,&k,&v,&b,0)) < 0)
-                        {
+                        if ((mdbm_fetch_buf(db,&k,&v,&b,0)) < 0) {
                             mdbm_logerror(LOG_ERR,0,
                                           "mdbm_fetch_buf (index=%d key=%u)",
                                           j,key);
@@ -731,16 +730,17 @@ bench (struct mdbm_bench_config* config)
                             }
                         } else {
                             if (checkvals) {
-                                if (v.dsize != valsize) {
+                                if ((unsigned)v.dsize != valsize) {
                                     mdbm_log(LOG_ALERT,
                                              "value size check failure (key=%u)",key);
                                 }
-                                if (*((uint32_t*)v.dptr) != key) {
+                                if (*((uint32_t*)v.dptr) != (uint32_t)key) {
                                     mdbm_log(LOG_ALERT,
                                              "value (l) check failure (key=%u)",key);
                                 }
                                 if (checkvals > 1) {
-                                    if (*((uint32_t*)(v.dptr + valsize - sizeof(uint32_t))) != -key)
+                                    /* FIXME XXX clang flagged this, and it looks broken */
+                                    if (*((uint32_t*)(v.dptr + valsize - sizeof(uint32_t))) != (uint32_t)-key)
                                     {
                                         mdbm_log(LOG_ALERT,
                                                  "value (h) check failure (key=%u)",key);
@@ -773,16 +773,17 @@ bench (struct mdbm_bench_config* config)
                             mdbm_logerror(LOG_EMERG,0,"mdbm_fetch_r");
                         }
                         if (checkvals) {
-                            if (v.dsize != valsize) {
+                            if ((unsigned)v.dsize != valsize) {
                                 mdbm_log(LOG_ALERT,
                                          "value size check failure (key=%u)",key);
                             }
-                            if (*((uint32_t*)v.dptr) != key) {
+                            if (*((uint32_t*)v.dptr) != (unsigned)key) {
                                 mdbm_log(LOG_ALERT,
                                          "value (l) check failure (key=%u)",key);
                             }
                             if (checkvals > 1) {
-                                if (*((uint32_t*)(v.dptr + valsize - sizeof(uint32_t))) != -key)
+                                /* FIXME XXX clang flagged this, and it looks broken */
+                                if (*((uint32_t*)(v.dptr + valsize - sizeof(uint32_t))) != (uint32_t)-key)
                                 {
                                     mdbm_log(LOG_ALERT,
                                              "value (h) check failure (key=%u)",key);
@@ -1149,7 +1150,7 @@ set_pagesize()
             pagesize = (MDBM_MAX_VALID_PAGESIZE / syspagesize) * syspagesize;
         }
         fprintf(outfile, "Using page size of %d\n", pagesize);
-    } else if ((pagesize * 3 / 4) < valsize) {
+    } else if ((unsigned)(pagesize * 3 / 4) < valsize) {
         fprintf(stderr,
                 "mdbm_bench: value size %d must be less than 3/4 of page size %d.\n",
                  valsize, pagesize);
@@ -1170,7 +1171,7 @@ populate_db(int reopen, int find_size, char *gkeys)
     if (find_size) {
         cur_size = BENCH_FIND_SIZE_MIN;
         end_size = BENCH_FIND_SIZE_MAX;
-        if (pagesize < (10 * valsize)) {
+        if ((unsigned)pagesize < (10 * valsize)) {
             fprintf(outfile, "Page size of %d seems small compared to value size of %d\n",
                     pagesize, valsize);
         }
@@ -1370,7 +1371,7 @@ main (int argc, char** argv)
 
         case 'p':
             tmp = mdbm_util_get_size(optarg,1);
-            if (tmp > MDBM_MAX_VALID_PAGESIZE) {
+            if (tmp > (unsigned)MDBM_MAX_VALID_PAGESIZE) {
                 fprintf(stderr,"mdbm_bench: Invalid page size: %s\n", optarg);
                 exit(1);
             }
@@ -1688,7 +1689,7 @@ main (int argc, char** argv)
                 pause();
                 abort();
             }
-            while (bench_stats->nstart < numprocs) {
+            while (bench_stats->nstart < (unsigned)numprocs) {
                 cond_wait(&bench_stats->cv,&bench_stats->lock);
             }
             mutex_unlock(&bench_stats->lock);
@@ -1727,7 +1728,7 @@ main (int argc, char** argv)
                 pause();
                 abort();
             }
-            while (bench_stats->nfinish < numprocs) {
+            while (bench_stats->nfinish < (unsigned)numprocs) {
                 cond_wait(&bench_stats->cv,&bench_stats->lock);
             }
             mutex_unlock(&bench_stats->lock);
