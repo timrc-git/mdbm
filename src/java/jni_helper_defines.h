@@ -1,3 +1,5 @@
+/* Copyright 2014 Yahoo! Inc. */
+/* Licensed under the terms of the 3-Clause BSD license. See LICENSE file in the project root for details. */
 #ifndef __JNI_HELPER_DEFINES_H__
 #define __JNI_HELPER_DEFINES_H__
 
