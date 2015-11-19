@@ -31,7 +31,10 @@ print <<EOF
 MDBM Version 4 is a significant improvement to version 3 by optionally using
 pthreads instead of ylock.  Additionally, all y* package dependencies are gone.
 
-Version 4.12.0 (09/10/2015, crowdert)
+Version 4.12.2 (11/19/2015, carney)
+  - Fix mdbm_create documentation.
+
+Version 4.12.1 (09/10/2015, crowdert)
   - Use realpath() to resolve mdbm path in mdbm_lock tool.
 
 Version 4.12.0 (09/08/2015, crowdert)
