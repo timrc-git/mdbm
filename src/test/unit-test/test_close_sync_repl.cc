@@ -411,7 +411,11 @@ MdbmCloseSyncUnitTestBase::TestMdbmReplaceMakeResident()
     getrusage(who,&rusage2);
     // The value below is arbitrary, and depends on VM pressure and settings. At 5, it still
     // intermittently fails (and we can't control what other tasks co-run on CI machines).
-    CPPUNIT_ASSERT(10 >= (rusage2.ru_majflt - rusage1.ru_majflt));
+    //CPPUNIT_ASSERT(10 >= (rusage2.ru_majflt - rusage1.ru_majflt));
+    if (10 < (rusage2.ru_majflt - rusage1.ru_majflt)) {
+      fprintf(stderr, "NOTE: mdbm_preload was less effective than expected (%d vs %ld)\n", 
+          10, (long)(rusage2.ru_majflt - rusage1.ru_majflt));
+    }
     mdbm_close(mdbm);
 }
 
