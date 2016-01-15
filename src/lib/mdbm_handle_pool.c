@@ -509,7 +509,6 @@ int mdbm_pool_parse_pool_size(const char *value) {
 void mdbm_pool_verify_pool_size(int *vals, int count) {
   int i;
   int bCheck = 0;
-  int new_size;
   rlim_t current_size;
   struct rlimit open_files_limit = {0,0};
   struct rlimit processes_or_threads_limit = {0,0};
@@ -540,44 +539,38 @@ void mdbm_pool_verify_pool_size(int *vals, int count) {
   if (getrlimit(RLIMIT_NPROC, &processes_or_threads_limit) != 0) {
     return;
   }
+
+  /* Each handle uses 2 fd's: the DB and the lockfile. */
+  rlim_t file_limit = open_files_limit.rlim_cur / 2;
+  /* Arbitrary overhead allowance of three-quarters. */
+  rlim_t proc_limit = processes_or_threads_limit.rlim_cur * 3 / 4;
       
   /* reset the max size to be 3/4 of the configured system max */
   
   for (i = 0; i < count; i++) {
       if (vals[i] <= 0) { continue; }
+      current_size = vals[i];
       
       if (open_files_limit.rlim_cur != RLIM_INFINITY) {
-	  current_size = vals[i] * 2;
-	  if (open_files_limit.rlim_cur < current_size) {
-	      new_size = open_files_limit.rlim_cur * 3 / 4;
-
-	      /* might be unncessary checks but let's be absolutely
-	       * sure that we're decreasing the limit and not setting
-	       * to some invalid value */
-
-	      if (new_size > 0 && new_size < vals[i]) {
-		vals[i] = new_size;
-              }
+          if (current_size > file_limit) {
+              current_size = file_limit;
               mdbm_log(LOG_DEBUG, "resetting yahoo db pool handle size to %d, NOFILE limit %lu",
                     vals[i], (unsigned long) open_files_limit.rlim_cur);
           }
       }
 
       if (processes_or_threads_limit.rlim_cur != RLIM_INFINITY) {
-	  current_size = vals[i];
-	  if (processes_or_threads_limit.rlim_cur < current_size) {
-	      new_size = processes_or_threads_limit.rlim_cur * 3 / 4;
-
-	      /* might be unncessary checks but let's be absolutely
-	       * sure that we're decreasing the limit and not setting
-	       * to some invalid value */
-
-	      if (new_size > 0 && new_size < vals[i]) {
-		vals[i] = new_size;
-              }
+	  if (proc_limit < current_size) {
+              current_size = proc_limit;
               mdbm_log(LOG_DEBUG, "resetting yahoo db pool handle size to %d, NPROC limit %lu",
                     vals[i], (long unsigned) processes_or_threads_limit.rlim_cur);
           }
+      }
+      /* might be unncessary checks but let's be absolutely
+       * sure that we're decreasing the limit and not setting
+       * to some invalid value */
+      if (current_size > 0 && current_size < vals[i]) {
+        vals[i] = current_size;
       }
   }
 }
