@@ -509,7 +509,7 @@ int mdbm_pool_parse_pool_size(const char *value) {
 void mdbm_pool_verify_pool_size(int *vals, int count) {
   int i;
   int bCheck = 0;
-  rlim_t current_size;
+  rlim_t current_size, proc_limit, file_limit;
   struct rlimit open_files_limit = {0,0};
   struct rlimit processes_or_threads_limit = {0,0};
 
@@ -541,9 +541,9 @@ void mdbm_pool_verify_pool_size(int *vals, int count) {
   }
 
   /* Each handle uses 2 fd's: the DB and the lockfile. */
-  rlim_t file_limit = open_files_limit.rlim_cur / 2;
+  file_limit = open_files_limit.rlim_cur / 2;
   /* Arbitrary overhead allowance of three-quarters. */
-  rlim_t proc_limit = processes_or_threads_limit.rlim_cur * 3 / 4;
+  proc_limit = processes_or_threads_limit.rlim_cur * 3 / 4;
       
   /* reset the max size to be 3/4 of the configured system max */
   
