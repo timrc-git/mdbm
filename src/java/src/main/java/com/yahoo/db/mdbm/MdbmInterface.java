@@ -138,29 +138,27 @@ public interface MdbmInterface extends Closeable {
 
     /**
      * Fetches the record specified by the <em>key</em> argument. If such a record exists in the database, the size and
-     * location are stored in the datum pointed to by val. If no matching record exists, a null datum (dsize==0,
-     * dptr==NULL) is returned. <br>
-     * 
-     * <b> Unlike the underlying mdbm_fetch function, this will lock the mdbm using mdbm_smart_lock while copying the
-     * data out</b>
-     * 
+     * location are stored in the datum pointed to by val. If no matching record exists, a MdbmNoEntryException is thrown.
+     * <br>
      * <b> Unlike the underlying mdbm_fetch function, this does not allow in place updates of the data.</b>
      * 
-     * @param key ptr to @see datum used as the index key
+     * @param key ptr to @see MdbmDatum used as the index key
      * @param iter MDBM Iterator (see @see MdbmIterator)
-     * @return null when not found
+     * @return MdbmDatum stored value.
+     * @throws MdbmNoEntryException no matching recoed exists.
      * @throws MdbmException upon error.
      */
     MdbmDatum fetch(MdbmDatum key, MdbmIterator iter) throws MdbmException;
 
     /**
      * fetches the record specified by the <em>key</em> argument. If such a record exists in the database, the size and
-     * location are stored in the datum pointed to by val. If no matching record exists, a null datum (dsize==0,
-     * dptr==NULL) is returned. <br>
+     * location are stored in the datum pointed to by val. If no matching record exists, a MdbmNoEntryException is thrown.
+     * <br>
      * <b> Unlike the underlying mdbm_fetch function, this does not allow in place updates of the data.</b>
      * 
      * @param key ptr to @see datum used as the index key
-     * @return null when not found
+     * @return MdbmDatum stored value.
+     * @throws MdbmNoEntryException no matching recoed exists.
      * @throws MdbmException upon error.
      */
     MdbmDatum fetch(MdbmDatum key) throws MdbmException;

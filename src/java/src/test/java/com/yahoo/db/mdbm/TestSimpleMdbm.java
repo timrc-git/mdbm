@@ -165,6 +165,21 @@ public abstract class TestSimpleMdbm {
         }
     }
 
+    @Test(expectedExceptions = { MdbmNoEntryException.class })
+    public void testFetchNoEntry() throws MdbmException, UnsupportedEncodingException {
+        String key = "nothere";
+        MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
+        MdbmInterface mdbm = null;
+        try {
+            mdbm = MdbmProvider.open(fetchMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
+                                            | Open.MDBM_O_CREAT, 0755, 0, 0);
+            MdbmDatum data = mdbm.fetch(datum, mdbm.iterator());
+        } finally {
+            if (null != mdbm)
+                mdbm.close();
+        }
+    }
+
     @Test
     public void testFetchWithoutIterator() throws MdbmException, UnsupportedEncodingException {
         String key = "testkey";

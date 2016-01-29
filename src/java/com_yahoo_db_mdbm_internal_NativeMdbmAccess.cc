@@ -579,20 +579,18 @@ static jobject mdbm_fetch_wrapper(JNIEnv *jenv, jclass thisClass,
     datum value = { 0, };
     int ret = (*mdbm_function)(mdbm, keyDatum.getDatum(), &value, iter);
 
-    // deal with errors first.
-    if (false
-            == checkZeroIsOkReturn(jenv, ret, thisObject, MDBM_FETCH_EXCEPTION,
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    mdbm_function_name, 0, iter);
+            return NULL;
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_FETCH_EXCEPTION,
                     mdbmFetchExceptionClass, mdbmFetchExceptionCtorId,
-                    mdbm_function_name, 0, iter)) {
-        return NULL;
-    }
-
-    // deal with missing entry
-    if (0 == value.dsize && NULL == value.dptr) {
-        checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
-                mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
-                mdbm_function_name, 0, iter);
-        return NULL;
+                    mdbm_function_name, 0, iter);
+            return NULL;
+        }
     }
 
     // deal with success.
