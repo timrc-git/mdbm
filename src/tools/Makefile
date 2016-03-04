@@ -1,5 +1,4 @@
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../..)
+TOPDIR=$(shell cd ../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 #  bench_data_utils.hh 
@@ -36,7 +35,7 @@ EXE=                     \
 
 
 MYLIBS =  -L$(TOPDIR)/src/lib/$(OBJDIR) -lmdbm
-MYLIBS += -lpthread -lrt -lstdc++
+MYLIBS += -lpthread $(LIBRT) -lstdc++
 
 #include $(SOURCES:.c=.d)
 #include $(CPP_SOURCES:.cc=.d)
@@ -52,7 +51,7 @@ default-make-target: build-exes
 
 build-exes: $(EXES) $(CPPEXES) $(OBJDIR)/mdbm_bench $(OBJDIR)/mash
 # custom deps/types, handled explicitly
-$(eval $(call ExeTargetRules,mdbm_bench,bench_existing.cc))
+$(eval $(call CppExeTargetRules,mdbm_bench,,,))
 $(eval $(call CppExeTargetRules,mash,,$(LINK_READLINE)))
 
 # Build the per-command targets.

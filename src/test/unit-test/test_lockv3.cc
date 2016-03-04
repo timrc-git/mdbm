@@ -23,8 +23,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include <syscall.h>
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -723,7 +721,7 @@ LockV3TestSuite::lockingAndThreading(string &prefix, int parOpenFlags, int child
 
         // yay! child acknowledged it got hold of the DB
         GetLogStream() << prefix
-                     << " parent: child=" << int(tid)
+                     << " parent: child=" << tid
                      << ": Child ACKnowledged it locked the DB: " << resp << endl;
     } catch (SelectError &serr) {
         // boo! child is blocked or something else went wrong
@@ -3341,7 +3339,7 @@ LockV3TestSuite::deleteLockfiles(bool useAPI, const string &fname)
         CPPUNIT_ASSERT_EQUAL(0, mdbm_delete_lockfiles(fname.c_str()));
     } else {
       const char* args[] = { "foo", fname.c_str(), NULL };
-      optind = 1;
+      reset_getopt();
       int ret = delete_lockfiles_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
       CPPUNIT_ASSERT(ret == 0);
     }

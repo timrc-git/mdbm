@@ -48,7 +48,11 @@ lockstr_to_flags_usage("                  ")
 "                Suffix k/m/g may be used to override the default of bytes.\n"
 "    -s <mbytes> Specify size of main db (remainder is large-object/overflow space).\n"
 "                Suffix k/m/g may be used to override default of m.\n"
+"                mbytes must evaluate to be a power-of-2 number of pages.\n"
 "    -z          Truncate db if it already exists\n"
+"\n"
+"Do not use both options -d and -D on a command line.  If you use both, the last value\n"
+"will be used for the mbytes value.  If -D is present, it will set the maximum db size.\n"
     );
     exit(1);
 }

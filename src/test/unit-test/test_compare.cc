@@ -24,7 +24,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-//#include "configstoryutil.hh"
+#include "mdbm_util.h"
 #include "TestBase.hh"
 
 #define main comp_main_wrapper
@@ -57,7 +57,6 @@ public:
 protected:
   string file1, file2, difname;
   void MakeTestMdbms(const string& fname1, const string& fname2);
-  void ResetGetOpt();
 };
 
 void CompareTestBase::setUp()
@@ -127,19 +126,11 @@ void CompareTestBase::MakeTestMdbms(const string& fname1, const string& fname2) 
     }
 }
 
-void CompareTestBase::ResetGetOpt() {
-    optind=1; // reset getopt()
-#ifdef FREEBSD
-    // NOTE: on FreeBSD, getopt needs to be told to "reset"
-    optreset=1;
-#endif
-}
-
 void CompareTestBase::CompareSame()
 { // compare MDBM against itself
     TRACE_TEST_CASE("CompareSame");
     const char* args[] = { "foo", file1.c_str(), file1.c_str(), NULL };
-    ResetGetOpt();
+    reset_getopt();
     int ret = comp_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
     CPPUNIT_ASSERT(ret == 0);
 }
@@ -148,7 +139,7 @@ void CompareTestBase::CompareDifferent()
 { // compare different MDBMs
     TRACE_TEST_CASE("CompareDifferent");
     const char* args[] = { "foo", file1.c_str(), file2.c_str(), NULL };
-    ResetGetOpt();
+    reset_getopt();
     int ret = comp_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
     CPPUNIT_ASSERT(ret != 0);
 }
@@ -175,14 +166,14 @@ void CompareTestBase::PatchMissing()
       // NOTE: on FreeBSD, getopt works differently, so filenames *must* be last
       const char* args[] = { "foo", "-m", "-F", "cdb",
         "-f", difname.c_str(), file1.c_str(), file2.c_str(), NULL };
-      ResetGetOpt();
+      reset_getopt();
       int ret = comp_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
       CPPUNIT_ASSERT(ret > 0);
     }
 
     { // import changes to the second db
       const char* args[] = { "foo", "-c", "-S", "1", "-i", difname.c_str(), file2.c_str(), NULL };
-      ResetGetOpt();
+      reset_getopt();
       int ret = imp_main_wrapper_c(sizeof(args)/sizeof(args[0])-1, (char**)args);
       //fprintf(stderr, "import return code is %d\n", ret);
       CPPUNIT_ASSERT(ret == 0);
@@ -208,14 +199,14 @@ void CompareTestBase::PatchCommon()
       // NOTE: on FreeBSD, getopt works differently, so filenames *must* be last
       const char* args[] = { "foo", "-M", "-F", "cdb",
         "-f", difname.c_str(), file1.c_str(), file2.c_str(), NULL };
-      ResetGetOpt();
+      reset_getopt();
       int ret = comp_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
       CPPUNIT_ASSERT(ret > 0);
     }
 
     { // import changes to the second db
       const char* args[] = { "foo", "-c", "-S", "1", "-i", difname.c_str(), file2.c_str(), NULL };
-      ResetGetOpt();
+      reset_getopt();
       int ret = imp_main_wrapper_c(sizeof(args)/sizeof(args[0])-1, (char**)args);
       //fprintf(stderr, "import return code is %d\n", ret);
       CPPUNIT_ASSERT(ret == 0);

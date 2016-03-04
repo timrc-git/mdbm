@@ -8,7 +8,7 @@
 #include <stdio.h>
 /* #include <stddef.h> */
 #include <stdint.h>
-#include <linux/types.h>
+/*#include <linux/types.h>*/
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>

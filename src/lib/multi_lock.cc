@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <syscall.h>
 #include "multi_lock.hh"
 
 #include "atomic.h"
@@ -236,8 +235,8 @@ bool PMutex::Init() {
     return false;
   }
 //#warning "USING ROBUST MUTEXES"
-#else
-#warning "ROBUST MUTEXES ARE NOT AVAILABLE"
+//#else
+//#warning "ROBUST MUTEXES ARE NOT AVAILABLE"
 #endif// HAVE_ROBUST_PTHREADS
 
   //if(0 != pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) {
@@ -301,7 +300,7 @@ inline int PMutex::Lock(bool blocking, owner_t tid) {
 //#ifdef TRACE_LOCKS
 //  PRINT_LOCK_TRACE(blocking?"TRY Lock(BLOCK)":"TRY Lock(ASYNC)");
 //#endif
-//  CHECKPOINTV("  Lock(%s) any:%u owner:"OWNER_FMT" %p", blocking?"BLOCK":"ASYNC", rec->count, rec->owner, rec);
+//  CHECKPOINTV("  Lock(%s) any:%u owner:" OWNER_FMT " %p", blocking?"BLOCK":"ASYNC", rec->count, rec->owner, rec);
   //uint32_t tid = gettid();
   //owner_t tid = get_thread_id();
   int ret = -1;
@@ -365,13 +364,13 @@ inline int PMutex::Unlock(owner_t tid) {
 //#endif
 //  CHECKPOINTV("  Unlock() %p", rec);
   if (unlikely(rec->count<0)) {
-    mdbm_log(LOG_ERR, "Unlock() (count<0) locking MutexPthread %p idx:%u count:%d owner:"OWNER_FMT"\n", (void*)this, index, rec->count, rec->owner);
+    mdbm_log(LOG_ERR, "Unlock() (count<0) locking MutexPthread %p idx:%u count:%d owner:" OWNER_FMT "\n", (void*)this, index, rec->count, rec->owner);
     errno = EPERM;
     return -1;
   }
   //assert(rec->count>=0);
   if (unlikely(tid!=rec->owner || !rec->count)) {
-    mdbm_log(LOG_ERR, "Error unlocking UN-OWNED MutexPthread %p idx:%u rec:%p any:%d owner:"OWNER_FMT" self:"OWNER_FMT" pid:%d\n", (void*)this, index, (void*)rec, rec->count, rec->owner, get_thread_id(), getpid());
+    mdbm_log(LOG_ERR, "Error unlocking UN-OWNED MutexPthread %p idx:%u rec:%p any:%d owner:" OWNER_FMT " self:" OWNER_FMT " pid:%d\n", (void*)this, index, (void*)rec, rec->count, rec->owner, get_thread_id(), getpid());
     print_trace();
     errno = EPERM;
     return -1;
@@ -391,7 +390,7 @@ inline int PMutex::Unlock(owner_t tid) {
 //#endif
     return 0;
   } else {
-    mdbm_log(LOG_ERR, "Error (ret:%d:%s, err:%d:%s:%s) unlocking MutexPthread %p idx:%u thread:"OWNER_FMT"\n", ret, ErrToStr(ret), errno, ErrToStr(errno), strerror(errno), (void*)this, index, get_thread_id());
+    mdbm_log(LOG_ERR, "Error (ret:%d:%s, err:%d:%s:%s) unlocking MutexPthread %p idx:%u thread:" OWNER_FMT "\n", ret, ErrToStr(ret), errno, ErrToStr(errno), strerror(errno), (void*)this, index, get_thread_id());
     errno = e; // reset after print
     if (ret == EPERM) {
       errno = EPERM;
@@ -781,7 +780,7 @@ int PLockFile::Expand(int newLockCount) {
   }
 
 #ifdef TRACE_LOCKS
-  mdbm_log(LOG_ERR, "PLockFile::Expand remapping base from %p to %p pid:%d self:"OWNER_FMT"\n", base, newBase, getpid(), get_thread_id());
+  mdbm_log(LOG_ERR, "PLockFile::Expand remapping base from %p to %p pid:%d self:" OWNER_FMT "\n", base, newBase, getpid(), get_thread_id());
 #endif
   // expand/contract locks array
   newLocks = new PMutex*[newLockCount];
@@ -1096,7 +1095,7 @@ int MLock::Unlock(int index) {
            }
         }
       }
-      mdbm_log(LOG_ERR, "MLock: Unlock(MLOCK_ANY) not-found index: %d / %d self:"OWNER_FMT" pid:%d\n", index, parts, get_thread_id(), getpid());
+      mdbm_log(LOG_ERR, "MLock: Unlock(MLOCK_ANY) not-found index: %d / %d self:" OWNER_FMT " pid:%d\n", index, parts, get_thread_id(), getpid());
       print_trace();
       DumpLockState(stderr);
       errno = EPERM; // no parts owned by this process
@@ -1508,14 +1507,14 @@ void MLock::DumpLockState(FILE* file) {
   if (!file) {
     file = stderr;
   }
-  fprintf(file, "Begin Lock state (for non-zero locks) (pid:%d, tid:%d self:%llx uuid:"OWNER_FMT" ):\n", getpid(), gettid(), (long long unsigned)pthread_self(), get_thread_id());
+  fprintf(file, "Begin Lock state (for non-zero locks) (pid:%d, tid:%d self:%llx uuid:" OWNER_FMT " ):\n", getpid(), gettid(), (long long unsigned)pthread_self(), get_thread_id());
   fprintf(file, "  BaseLocks:%d Core:%d Shared/Partitioned:%d mode:%s (%d)\n", base, 1, parts, MLockTypeToStr(GetLockType()), GetLockType());
   for (int i=0; i<base; ++i) {
     local = locks.locks[i]->GetLocalCount();
     lock = locks.locks[i]->GetLockCount();
     owner = locks.locks[i]->GetOwnerId();
     if (local || lock || owner) {
-      fprintf(file, "  base[%d] local:%d any:%d, owner:"OWNER_FMT" \n", i, local, lock, owner);
+      fprintf(file, "  base[%d] local:%d any:%d, owner:" OWNER_FMT " \n", i, local, lock, owner);
     }
   }
   {
@@ -1523,7 +1522,7 @@ void MLock::DumpLockState(FILE* file) {
     lock = locks.locks[base]->GetLockCount();
     owner = locks.locks[base]->GetOwnerId();
     if (local || lock || owner) {
-      fprintf(file, "  core[] local:%d any:%d, owner:"OWNER_FMT" \n", local, lock, owner);
+      fprintf(file, "  core[] local:%d any:%d, owner:" OWNER_FMT " \n", local, lock, owner);
     }
   }
   int j;
@@ -1539,10 +1538,10 @@ void MLock::DumpLockState(FILE* file) {
       }
       --j;
       if (i!=j) {
-        fprintf(file, "  part[%d-%d] local:%d any:%d, owner:"OWNER_FMT" \n", i, j, local, lock, owner);
+        fprintf(file, "  part[%d-%d] local:%d any:%d, owner:" OWNER_FMT " \n", i, j, local, lock, owner);
         i=j+1;
       } else {
-        fprintf(file, "  part[%d] local:%d any:%d, owner:"OWNER_FMT" \n", i, local, lock, owner);
+        fprintf(file, "  part[%d] local:%d any:%d, owner:" OWNER_FMT " \n", i, local, lock, owner);
       }
     }
   }

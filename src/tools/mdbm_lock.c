@@ -48,6 +48,7 @@ int main (int argc, char** argv) {
     int interval = 1;
     int need_check = 0;
     const char* dbname = NULL;
+    char pathname[MAXPATHLEN+1];
 
     /*mdbm_log(LOG_ERR, "This is a log message!!!\n"); */
 
@@ -70,6 +71,11 @@ int main (int argc, char** argv) {
     }
 
     dbname=argv[optind];
+    if (!realpath(dbname,pathname)) {
+      fprintf(stderr,"Unable to resolve real path for mdbm: %s\n",dbname);
+      exit(2);
+    }
+    dbname = pathname;
 
     /* TODO enforce pthreads-only at a higher level */
     locks=open_locks_inner(dbname, flags|MDBM_ANY_LOCKS, 0, &need_check);

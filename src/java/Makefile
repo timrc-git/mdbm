@@ -1,5 +1,4 @@
-CANONICALIZE=readlink -m -n -q
-TOPDIR=$(shell $(CANONICALIZE) $(shell pwd)/../..)
+TOPDIR=$(shell cd ../.. && pwd)
 include $(TOPDIR)/Makefile.base
 
 HEADERS=            \
@@ -17,7 +16,7 @@ SONAME=-Wl,-soname,$(LIBNAME).$(LIBVER)
 
 # TODO: Fix this to not be rh specific
 INCDIR += -I/usr/lib/jvm/java/include -I/usr/lib/jvm/java/include/linux
-LIB_BUILD_FLAGS +=  -L/usr/lib/jvm/java/jre/lib/amd64/ -ljsig -lrt  -L$(TOPDIR)/src/lib/$(OBJDIR)  -lmdbm -Wall  -fno-strict-aliasing -Wno-unused-function -D_FILE_OFFSET_BITS=64
+LIB_BUILD_FLAGS +=  -L/usr/lib/jvm/java/jre/lib/amd64/ -ljsig $(LIBRT)  -L$(TOPDIR)/src/lib/$(OBJDIR)  -lmdbm -Wall  -fno-strict-aliasing -Wno-unused-function -D_FILE_OFFSET_BITS=64
 
 LIB_DEST=$(PREFIX)/lib$(ARCH_SUFFIX)
 ifeq ($(SET_RPATH),1)
@@ -37,7 +36,9 @@ $(OBJDIR)/$(LIBNAME).$(LIBVER) : $(SOURCES:%.c=$(OBJDIR)/%.o) $(CPP_SOURCES:%.cc
 install:: default-make-target
 	$(INSTALL) -d $(LIB_DEST)
 	$(INSTALL) -D $(OBJDIR)/$(LIBNAME).$(LIBVER) $(LIB_DEST)
-	ln -s -f -r $(LIB_DEST)/$(LIBNAME).$(LIBVER) $(LIB_DEST)/$(LIBNAME)
+	#ln -s -f -r $(LIB_DEST)/$(LIBNAME).$(LIBVER) $(LIB_DEST)/$(LIBNAME)
+	# some systems don't support "ln -r" (relative links), emulate it...
+	cd $(LIB_DEST); ln -s -f $(LIBNAME).$(LIBVER) $(LIBNAME)
 
 clean :: clean-objs
 

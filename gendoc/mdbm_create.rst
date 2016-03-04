@@ -40,6 +40,8 @@ OPTIONS
     ==========  ================================
 
     The default is not to enable cache mode.
+-D mbytes
+    Specify initial/maximum size of db (default: no size limit).
 -d mbytes
     Specify initial size of db (default: minimum).
     Suffix k/m/g may be used to override default of m.
@@ -76,7 +78,14 @@ OPTIONS
     Specify size of main db (remainder is large-object/overflow space).
     Suffix k/m/g may be used to override default of m.
 -s mbytes
+    Specify size of main db (remainder is large-object/overflow space).
+    Suffix k/m/g may be used to override default of m.
+    mbytes must evaluate to be a power-of-2 number of pages.
+-z
     Truncate db if it already exists.
+
+Do not use both options -d and -D on a command line.  If you use both, the last value
+will be used for the mbytes value.  If -D is present, it will set the maximum db size.
 
 RETURN VALUE
 ------------

@@ -75,6 +75,7 @@ class WindowingFuncTest : public WindowingFuncTestSuite {
 
     CPPUNIT_TEST(setEnv);
 
+#ifdef HAVE_WINDOWED_MODE
     CPPUNIT_TEST(test_window_func_01);
     CPPUNIT_TEST(test_window_func_02);
     CPPUNIT_TEST(test_window_func_03);
@@ -95,6 +96,7 @@ class WindowingFuncTest : public WindowingFuncTestSuite {
     CPPUNIT_TEST(test_window_func_18);
     CPPUNIT_TEST(test_window_func_19);
     CPPUNIT_TEST(test_window_func_20);
+#endif
 
     CPPUNIT_TEST_SUITE_END();
 

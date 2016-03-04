@@ -2,6 +2,9 @@
 /* Licensed under the terms of the 3-Clause BSD license. See LICENSE file in the project root for details. */
 package com.yahoo.db.mdbm.internal;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.yahoo.db.mdbm.MdbmInterface;
@@ -49,9 +52,7 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
             return;
         }
 
-        // System.err.println("release at " + handlesInFlight.intValue() +
-        // " of "
-        // + totalSize);
+        // System.err.println("release at " + handlesInFlight.intValue() + " of " + totalSize);
 
         if (0 != handlesInFlight.intValue()) {
             throw new RuntimeException(new MdbmPoolAcquireHandleFailedException(
@@ -72,12 +73,13 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
 
         MdbmInterface mdbm = NativeMdbmAccess.acquire_handle(this);
         if (!(mdbm instanceof PooledMdbmHandle)) {
-            throw new MdbmInvalidStateException("can only return instances of PooledMdbmHandle to a pool, got "
+            throw new MdbmInvalidStateException("got a non PooledMdbmHandle  from the pool"
                             + mdbm.getClass().getCanonicalName());
         }
 
-        // System.err.println("getMdbmHandle at "
-        // + handlesInFlight.incrementAndGet() + " of " + totalSize);
+        ((PooledMdbmHandle) mdbm).setCheckedOut(true);
+        handlesInFlight.incrementAndGet();
+        // System.err.println("getMdbmHandle at " + handlesInFlight.get() + " of " + totalSize);
         return mdbm;
     }
 
@@ -94,13 +96,23 @@ class NativeMdbmPoolImplementation extends DeallocatingClosedBase implements Mdb
         }
 
         if (!mdbm.isClosed()) {
-            internalReleaseHandle(mdbm);
+            internalReleaseHandle((PooledMdbmHandle) mdbm);
         }
     }
 
-    void internalReleaseHandle(MdbmInterface mdbm) {
-        // System.err.println("internalReleaseHandle at "
-        // + handlesInFlight.decrementAndGet() + " of " + totalSize);
+    void internalReleaseHandle(PooledMdbmHandle mdbm) {
+        if (mdbm.isClosed() || !mdbm.isCheckedOut()) {
+            return;
+        }
+
+        handlesInFlight.decrementAndGet();
+        mdbm.setCheckedOut(false);
+        // try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw);) {
+        // new Exception().printStackTrace(pw);
+        // System.err.println("internalReleaseHandle at " + handlesInFlight.get() + " of " + totalSize + " at "
+        // + sw.toString());
+        // } catch (IOException e) {
+        // }
         NativeMdbmAccess.release_handle(this, mdbm);
     }
 

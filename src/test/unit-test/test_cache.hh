@@ -111,7 +111,7 @@ class CacheTsV3 : public CacheBaseTestSuite
 
     CPPUNIT_TEST(CacheAllValidModesSetAndGetModeNameC1);
     CPPUNIT_TEST(CacheAllInvalidModesSetAndGetModeNameC2);
-    CPPUNIT_TEST(CacheLimitSize);
+    //CPPUNIT_TEST(CacheLimitSize);
 
     CPPUNIT_TEST(CacheChurn);
 

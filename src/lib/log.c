@@ -7,11 +7,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <syscall.h>
 #include <sys/param.h>
 #include <sys/time.h>
 #include <unistd.h>
 
+#include "atomic.h"
 #include "mdbm_log.h"
 
 /* not used...
@@ -153,11 +153,10 @@ int mdbm_log_vlog_at (const char* file, int line, int level, const char* format,
     }
 
     gettimeofday(&tv, NULL);
-#ifdef __FreeBSD__
-    pid = getpid();
-#endif
 #ifdef __linux__
-    pid = syscall(SYS_gettid,0);
+    pid = gettid();
+#else
+    pid = getpid();
 #endif
     prefix = snprintf(buf,
                       sizeof(buf),

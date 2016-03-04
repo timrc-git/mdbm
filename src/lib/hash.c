@@ -22,7 +22,9 @@
 
 #include "mdbm.h"
 
-WHATSTR("@(#)hash.c 1.4");
+/* #define  WHATSTR(X)      static const char what[] = X
+   WHATSTR("@(#)hash.c 1.4"); 
+ */
 
 static uint32_t  crc32_table[256] = {
     0x0,        0x4c11db7,  0x9823b6e,  0xd4326d9,

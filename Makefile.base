@@ -6,6 +6,7 @@ default: default-make-target
 ############################################################
 ##        Configuration section                           ##
 ############################################################
+UNAME := $(shell uname)
 # Uncomment to disable TSC (TimeStamp Counter) clock source.
 DISABLE_TSC=1
 # Enable 64-bit off_t
@@ -14,23 +15,56 @@ COMP_FLAGS += -D_FILE_OFFSET_BITS=64
 COMP_FLAGS += -DUSE_OPENSSL
 # To provide internal MD5 and SHA1 hash functions
 #COMP_FLAGS += -DPROVIDE_SSL_HASHES
+COMP_FLAGS += -DALLOW_MLOCK_RESET
+
+ifeq ($(UNAME), Linux)
 # NOTE: we need to check RHEL6 or greater for robust-pthreads
-COMP_FLAGS += -DALLOW_MLOCK_RESET -DHAVE_ROBUST_PTHREADS
+COMP_FLAGS += -DHAVE_ROBUST_PTHREADS
+# NOTE: windowed mode depends on linux-only remap_file_pages()
+COMP_FLAGS += -DHAVE_WINDOWED_MODE
+# add real-time lib for clock_gettime
+LIBRT = -lrt
+endif
+ifneq ($(UNAME), Darwin) 
+# OSX doesn't have /proc, TODO check BSD
+COMP_FLAGS += -DHAVE_PROC_FILESYS
+endif
+
 # readline support is for mash only
 LINK_READLINE=-lreadline
-LDADD += -lm -lpthread -lcrypto
+LDADD += -lm -lpthread -lcrypto -lstdc++
+ifeq ($(UNAME), Linux)
 LIBDIR=/usr/local/lib64
+else
+LIBDIR=/usr/local/lib
+endif
 INCDIR=/usr/local/include
 PERL=perl
+TRUECMD=true # not /bin/true on OSX
 # command for building reST documentation
 SPHINXBUILD   = /usr/bin/sphinx-build
 INSTALL=install
+ifeq ($(UNAME), Darwin) # homebrew
+INSTALL=ginstall
+endif
+
+# NOTE: This is not double assignment. It creates an expression that the 
+# unit tests (e.g.) can evaulate to dynamically set LD_LIBRARY_PATH or 
+# DYLD_LIBRARY_PATH to use the locally build libs as they run the tests.
+ifeq ($(UNAME), Darwin) # homebrew
+LD_LIB_PATH=DYLD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
+else
+LD_LIB_PATH=LD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
+endif
+
 # Uncomment to set rpath to LIBDIR
 #USE_RPATH=1
 
 # assume 64-bit, comment out for 32-bit
 # TODO auto-detect
+ifneq ($(UNAME), Darwin)
 ARCH_SUFFIX=64
+endif
 
 # where to install files:
 #PREFIX=/usr/local
@@ -62,7 +96,7 @@ value_%:
 
 
 make-recursive-%::
-	$(foreach DIR,$(SUBDIRS), make -C $(DIR) $(patsubst make-recursive-%,%,$@) && ) /bin/true
+	$(foreach DIR,$(SUBDIRS), $(MAKE) -C $(DIR) $(patsubst make-recursive-%,%,$@) && ) $(TRUECMD)
 
 # automaticly perform some actions recursively
 default-make-target: make-recursive-default-make-target
@@ -70,15 +104,15 @@ clean:: make-recursive-clean
 test:: make-recursive-test
 valg:: make-recursive-valg
 profile::
-	make MODE=profile make-recursive-default-make-target
+	$(MAKE) MODE=profile make-recursive-default-make-target
 test-prof::
-	make MODE=profile make-recursive-test
+	$(MAKE) MODE=profile make-recursive-test
 test-fast:: 
-	make FAST=1 make-recursive-test
+	$(MAKE) FAST=1 make-recursive-test
 valg-fast::
-	make FAST=1 make-recursive-valg
+	$(MAKE) FAST=1 make-recursive-valg
 test-prof-fast::
-	make MODE=profile FAST=1  make-recursive-test
+	$(MAKE) MODE=profile FAST=1  make-recursive-test
 
 
 install:: default-make-target make-recursive-install
@@ -93,7 +127,7 @@ else
   OBJDIR=$(OBJDIR_BASE)
 endif
 LOCAL_LDADD = -L$(TOPDIR)/src/lib/$(OBJDIR)
-COMP_FLAGS +=  -g -O2 -I/usr/include -I$(INCDIR) -I$(TOPDIR)/include -I. -Wall -fPIC 
+COMP_FLAGS +=  -g -O2 -I/usr/include -I$(INCDIR) -I$(TOPDIR)/include -I. -Wall -fPIC
 
 # get gcc version (space-separated components)
 GCC_VER_SPC=$(shell gcc -dumpversion | tr '.' ' ')
@@ -109,6 +143,10 @@ PEDANTIC += -Wno-format-security -Wno-unused-result
 #PEDANTIC += -Wno-unused-value
 # stop dead on warnings...
 PEDANTIC += -Werror
+ifeq ($(UNAME), Darwin)
+PEDANTIC += -Wno-deprecated-declarations -Wno-unused-const-variable -Wno-format
+endif
+
 
 # why doesn't gcc turn -Wunreachable-code on from -Wall....
 #   it turns out that gcc 4.4.6 (RHEL6) has false positives, 4.8.2 works
@@ -124,6 +162,11 @@ endif
 CFLAGS += $(COMP_FLAGS)
 CXXFLAGS += $(COMP_FLAGS)
 
+ifeq ($(CC),clang)
+  # allow for empty macro args, etc. under clang compiler
+  CFLAGS += -std=gnu99
+  CXXFLAGS += -std=c++11
+endif
 
 # implicit rules to make object files from source
 $(OBJDIR)/%.o: %.c
@@ -132,7 +175,7 @@ $(OBJDIR)/%.o: %.c
 
 $(OBJDIR)/%.o: %.cc
 	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) $(PEDANTIC) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(PEDANTIC) -c $< -o $@
 
 #$(OBJDIR)/%.o: %.cpp
 #	@mkdir -p $(OBJDIR)

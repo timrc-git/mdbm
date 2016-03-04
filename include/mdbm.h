@@ -861,7 +861,7 @@ extern int mdbm_set_window_size(MDBM* db, size_t wsize);
  *   datum value;
  *   char *buffer = (char*)malloc(maxLength+1);  // Skip return code check.
  *   mdbm_lock(db);   // Skip return code check.
- *   value = mdbm_fetch(db, &key);
+ *   value = mdbm_fetch(db, key);
  *   if (value.dptr != NULL) {
  *     strncpy(buffer, value.dptr, maxLength);  // GOOD: copy-out done in locked context.
  *   } else {
@@ -2806,14 +2806,6 @@ extern  void    mdbm_lock_dump(MDBM* db);
 int mdbm_get_db_stats(MDBM* db, mdbm_db_info_t* dbinfo, mdbm_stat_info_t* dbstats, int flags);
 
 
-
-#ifdef  LINT
-#       define  WHATSTR(X)      pid_t   getpid(void)
-#else
-#       define  WHATSTR(X)      static const char what[] = X
-#endif
-
-
 /* If we're using OpenSSL, map the FreeBSD symbol names (used
 * within mdbm) to match the OpenSSL symbol names. */
 #ifdef USE_OPENSSL
@@ -2821,7 +2813,6 @@ int mdbm_get_db_stats(MDBM* db, mdbm_db_info_t* dbinfo, mdbm_stat_info_t* dbstat
 # define MD5Final  MD5_Final
 # define MD5Update MD5_Update
 #endif /* USE_OPENSSL */
-
 
 
 typedef mdbm_ubig_t ((* mdbm_hash_t)(const uint8_t *buf, int len));

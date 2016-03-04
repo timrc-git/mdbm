@@ -26,10 +26,12 @@ class YccmpTest: public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE(YccmpTest);
    
+#ifdef HAVE_PROC_FILESYS
   CPPUNIT_TEST(test_mdbm_pool_parse);
   CPPUNIT_TEST(test_mdbm_pool_verify);
   CPPUNIT_TEST(test_mdbm_pool_pool_valid);
   CPPUNIT_TEST(test_mdbm_pool_pool_invalid);
+#endif
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -116,8 +118,14 @@ void YccmpTest::test_mdbm_pool_verify() {
   struct rlimit open_files_limit = {0,0};
   struct rlimit processes_or_threads_limit = {0,0};
 
-  getrlimit(RLIMIT_NOFILE, &open_files_limit);
-  getrlimit(RLIMIT_NPROC, &processes_or_threads_limit);
+  if (getrlimit(RLIMIT_NOFILE, &open_files_limit)) {
+    fprintf(stderr, "getrlimit(RLIMIT_NOFILE) failed, skipping test!\n");
+    return;
+  }
+  if (getrlimit(RLIMIT_NPROC, &processes_or_threads_limit)) {
+    fprintf(stderr, "getrlimit(RLIMIT_NPROC) failed, skipping test!\n");
+    return;
+  }
 
   values[0] = 2;
   values[1] = -1;
@@ -129,12 +137,18 @@ void YccmpTest::test_mdbm_pool_verify() {
   CPPUNIT_ASSERT(values[0] == 2);
   CPPUNIT_ASSERT(values[1] == 0);
 
-  min_val = open_files_limit.rlim_cur * 3 / 4;
-  if ((int) (processes_or_threads_limit.rlim_cur * 3 / 4) < min_val)
+  min_val = open_files_limit.rlim_cur / 2;
+  if ((int) (processes_or_threads_limit.rlim_cur * 3 / 4) < min_val) {
     min_val = processes_or_threads_limit.rlim_cur * 3 / 4;
+  }
 
-  CPPUNIT_ASSERT(values[2] == min_val);
-  CPPUNIT_ASSERT(values[3] == min_val);  
+  fprintf(stderr, "values [%d, %d, %d, %d] min_val:%d\n", 
+      values[0], values[1], values[2], values[3], min_val);
+
+  CPPUNIT_ASSERT(values[2] > 0);
+  CPPUNIT_ASSERT(values[2] <= min_val);
+  CPPUNIT_ASSERT(values[3] > 0);  
+  CPPUNIT_ASSERT(values[3] <= min_val);  
 }
 
 void YccmpTest::test_mdbm_pool_pool_valid() {

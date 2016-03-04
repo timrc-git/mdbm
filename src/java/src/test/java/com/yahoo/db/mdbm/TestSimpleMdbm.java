@@ -125,7 +125,7 @@ public abstract class TestSimpleMdbm {
 
     @Test
     public void testFetchString() throws MdbmException, UnsupportedEncodingException {
-        String key = new String("testkey");
+        String key = "testkey";
         MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
         MdbmInterface mdbm = null;
         try {
@@ -144,7 +144,7 @@ public abstract class TestSimpleMdbm {
 
     @Test
     public void testFetch() throws MdbmException, UnsupportedEncodingException {
-        String key = new String("testkey");
+        String key = "testkey";
         MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
         MdbmInterface mdbm = null;
         try {
@@ -156,6 +156,44 @@ public abstract class TestSimpleMdbm {
             mdbm.punlock(datum, 0);
             System.err.println("Calling fetch");
             MdbmDatum data = mdbm.fetch(datum, mdbm.iterator());
+            Assert.assertNotNull(data);
+            Assert.assertNotNull(data.getData());
+            Assert.assertEquals(new String(data.getData()), key);
+        } finally {
+            if (null != mdbm)
+                mdbm.close();
+        }
+    }
+
+    @Test(expectedExceptions = { MdbmNoEntryException.class })
+    public void testFetchNoEntry() throws MdbmException, UnsupportedEncodingException {
+        String key = "nothere";
+        MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
+        MdbmInterface mdbm = null;
+        try {
+            mdbm = MdbmProvider.open(fetchMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
+                                            | Open.MDBM_O_CREAT, 0755, 0, 0);
+            MdbmDatum data = mdbm.fetch(datum, mdbm.iterator());
+        } finally {
+            if (null != mdbm)
+                mdbm.close();
+        }
+    }
+
+    @Test
+    public void testFetchWithoutIterator() throws MdbmException, UnsupportedEncodingException {
+        String key = "testkey";
+        MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
+        MdbmInterface mdbm = null;
+        try {
+            mdbm =
+                            MdbmProvider.open(fetchMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
+                                            | Open.MDBM_O_CREAT, 0755, 0, 0);
+            mdbm.plock(datum, 0);
+            mdbm.store(datum, datum, Constants.MDBM_REPLACE, mdbm.iterator());
+            mdbm.punlock(datum, 0);
+            System.err.println("Calling fetch");
+            MdbmDatum data = mdbm.fetch(datum);
             Assert.assertNotNull(data);
             Assert.assertNotNull(data.getData());
             Assert.assertEquals(new String(data.getData()), key);

@@ -42,7 +42,9 @@ class MdbmUnitTestMash : public CppUnit::TestFixture, public TestBase
 
         CPPUNIT_TEST(initialSetup);
         CPPUNIT_TEST(TestCreate);
+#ifdef HAVE_WINDOWED_MODE
         CPPUNIT_TEST(TestCreate2);
+#endif
         CPPUNIT_TEST(TestCreateInitial);
         CPPUNIT_TEST(TestCreateFail);
         CPPUNIT_TEST(TestCreateFail2);
@@ -161,8 +163,6 @@ public:
     string GetHexDatum(const datum &dt);
 
 protected:
-    void ResetGetOpt();
-
     static const int NUMBER_TEST_OFFSET = 1050;
 
 private:
@@ -170,11 +170,6 @@ private:
     string outputFile;
 };
 
-void
-MdbmUnitTestMash::ResetGetOpt()
-{
-    optind = 1;   // Reset getopt
-}
 
 int
 MdbmUnitTestMash::insertSomeData(MDBM *db)
@@ -292,7 +287,7 @@ MdbmUnitTestMash::RunMashScript(FILE *fp, string outFileName = "")
         outFileName = outputFile;
     }
     const char* args[] = { "mash", "-i", scriptFile.c_str(), "-o", outFileName.c_str(), NULL };
-    ResetGetOpt();
+    reset_getopt();
     int ret = mash_main_wrapper(sizeof(args)/sizeof(args[0])-1, (char**)args);
     CPPUNIT_ASSERT_EQUAL(0, ret);
 

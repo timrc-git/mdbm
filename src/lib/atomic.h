@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <syscall.h>
+#include <pthread.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <signal.h>
 
@@ -86,10 +87,25 @@ static inline void atomic_pause() {
   __asm__ __volatile__ ("pause");
 }
 
+
 /* returns (linux-specific) thread-id (for single-thread processes it's just PID) */
 static inline uint32_t gettid() {
   /* AUTO_TSC("gettid()"); */
+#ifdef __linux__
   return syscall(SYS_gettid);
+#else
+  /* Horrible hack, but pthread_self is not unique across processes, */
+  /* and some OS don't expose any other unique id. */
+  /* xor-fold pthread_self() pointer down to 16-bits */
+  uint32_t tid;
+  uint64_t pself = (uint64_t)pthread_self();
+  pself = pself ^ (pself >> 32);
+  pself = pself ^ (pself >> 16);
+  /* add in PID to help unique-ify */
+  /* NOTE: tiger and later OSX have PID #s up to 10k. */
+  tid = ((pself & 0xffff) << 16) + getpid();
+  return tid;
+#endif
 }
 
 #ifdef __cplusplus

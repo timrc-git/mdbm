@@ -72,7 +72,11 @@ int do_delete_lockfiles(const char* dbname) {
     char fn[MAXPATHLEN+1];
 
     if (dbname[0] == '/') {
-        strncpy(realname, dbname, sizeof(realname));
+        if (realpath(dbname, realname) == NULL) {
+            mdbm_logerror(LOG_ERR, 0, "Unable to get realpath for %s", dbname);
+            errno = ENOENT;
+            return -1;
+        }
         realname[MAXPATHLEN] = '\0';
     } else if (realpath(dbname, realname) == NULL) {
         int len;

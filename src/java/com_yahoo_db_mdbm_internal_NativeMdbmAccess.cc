@@ -80,10 +80,6 @@ DECLARE_CACHED_METHOD_ID(mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId, 
 DECLARE_CACHED_CLASS(mdbmCreatePoolFailedExceptionClass, MDBM_CREATE_POOL_FAILED_EXCEPTION)
 DECLARE_CACHED_METHOD_ID(mdbmCreatePoolFailedExceptionClass, mdbmCreatePoolFailedExceptionCtorId, "<init>", "(Ljava/lang/String;)V")
 
-static void ThrowNullPointerException(JNIEnv *jenv, const char *mesg) {
-    ThrowException(jenv, NULL_POINTER_EXCEPTION, mesg);
-}
-
 static void zeroDatum(datum &d) {
     d.dptr = NULL;
     d.dsize = 0;
@@ -273,7 +269,7 @@ public:
         javaBytes.set(jenv, bytes);
         RETURN_FALSE_IF_EXCEPTION();
 
-        d.dptr = (char*) javaBytes.getBytes();
+        d.dptr = (char*) javaBytes.get();
 
         valid = true;
         mdbmDatum = pmdbmDatum;
@@ -391,7 +387,7 @@ private:
 };
 
 static MDBM *getMdbmPointer(JNIEnv *jenv, jobject thisObject) {
-    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object");
+    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object in getMdbmPointer");
 
     GET_CACHED_CLASS(jenv, nativeMdbmImplementationClass);
     RETURN_NULL_IF_EXCEPTION_OR_NULL (nativeMdbmImplementationClass);
@@ -409,7 +405,7 @@ static MDBM *getMdbmPointer(JNIEnv *jenv, jobject thisObject) {
 }
 
 static MDBM *getPooledMdbmPointer(JNIEnv *jenv, jobject thisObject) {
-    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object");
+    RETURN_NULL_AND_THROW_IF_NULL(thisObject, "null thisObject object in getPooledMdbmPointer");
 
     GET_CACHED_CLASS(jenv, pooledMdbmHandleClass);
     RETURN_NULL_IF_EXCEPTION_OR_NULL (pooledMdbmHandleClass);
@@ -428,7 +424,7 @@ static MDBM *getPooledMdbmPointer(JNIEnv *jenv, jobject thisObject) {
 static MDBM_ITER *getIterPointer(JNIEnv *jenv, jobject thisObject) {
 
     if (NULL == thisObject) {
-        ThrowException(jenv, NULL_POINTER_EXCEPTION, "null thisObject object");
+        // it's perfectly valid to have a null iterator
         return NULL;
     }
 
@@ -450,7 +446,7 @@ static MDBM_ITER *getIterPointer(JNIEnv *jenv, jobject thisObject) {
 static mdbm_pool_t *getPoolPointer(JNIEnv *jenv, jobject thisObject) {
 
     if (NULL == thisObject) {
-        ThrowException(jenv, NULL_POINTER_EXCEPTION, "null thisObject object");
+        ThrowException(jenv, NULL_POINTER_EXCEPTION, "null thisObject object in getPoolPointer");
         return NULL;
     }
 
@@ -583,20 +579,18 @@ static jobject mdbm_fetch_wrapper(JNIEnv *jenv, jclass thisClass,
     datum value = { 0, };
     int ret = (*mdbm_function)(mdbm, keyDatum.getDatum(), &value, iter);
 
-    // deal with errors first.
-    if (false
-            == checkZeroIsOkReturn(jenv, ret, thisObject, MDBM_FETCH_EXCEPTION,
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    mdbm_function_name, 0, iter);
+            return NULL;
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_FETCH_EXCEPTION,
                     mdbmFetchExceptionClass, mdbmFetchExceptionCtorId,
-                    mdbm_function_name, 0, iter)) {
-        return NULL;
-    }
-
-    // deal with missing entry
-    if (0 == value.dsize && NULL == value.dptr) {
-        checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
-                mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
-                mdbm_function_name, 0, iter);
-        return NULL;
+                    mdbm_function_name, 0, iter);
+            return NULL;
+        }
     }
 
     // deal with success.

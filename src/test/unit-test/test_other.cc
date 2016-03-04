@@ -2339,9 +2339,12 @@ class MdbmUnitTestOtherV3 : public MdbmUnitTestOther
     CPPUNIT_TEST(testRstatsChurn);
     CPPUNIT_TEST(testSaveRestore);
     CPPUNIT_TEST(testAtomic);
+#ifdef HAVE_ROBUST_PTHREADS
+// robust locks are linux only
     CPPUNIT_TEST(testRobustLocks);
     CPPUNIT_TEST(testRobustLocksShared);
     CPPUNIT_TEST(testRobustLocksPart);
+#endif
     CPPUNIT_TEST(testPLock);
     CPPUNIT_TEST(testMLock);
     CPPUNIT_TEST(testShmem);
@@ -2477,9 +2480,11 @@ class MdbmUnitTestOtherV3PLock : public MdbmUnitTestOther
     CPPUNIT_TEST(testRstatsChurn);
     CPPUNIT_TEST(testSaveRestore);
     CPPUNIT_TEST(testAtomic);
+#ifdef HAVE_ROBUST_PTHREADS
     CPPUNIT_TEST(testRobustLocks);
     CPPUNIT_TEST(testRobustLocksShared);
     CPPUNIT_TEST(testRobustLocksPart);
+#endif
     CPPUNIT_TEST(testMLock);
     CPPUNIT_TEST(testShmem);
 

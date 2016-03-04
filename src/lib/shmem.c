@@ -89,12 +89,11 @@ mdbm_shmem_open (const char* filename,
             f |= O_CREAT;
             if (!want_init) {
                 /* CREATE is set but not TRUNC.  Init only if we create. */
-#ifdef FREEBSD
+#ifdef __linux__
+                f |= O_EXCL;
+#else /* FREEBSD, __MACH__ */
                 f |= O_EXCL|O_EXLOCK;
                 init = 1;
-#endif
-#ifdef LINUX
-                f |= O_EXCL;
 #endif
             }
             fd = open(filename,f,0666);
@@ -104,7 +103,7 @@ mdbm_shmem_open (const char* filename,
                     return NULL;
                 }
             }
-#ifdef LINUX
+#ifdef __linux__
             if (!want_init) {
                 if (flock(f,LOCK_EX|LOCK_NB) < 0) {
                     close(f);

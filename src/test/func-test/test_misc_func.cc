@@ -143,9 +143,11 @@ class TestMiscFunc : public TestMiscFuncSuit {
   CPPUNIT_TEST(test_misc_func_31);
   CPPUNIT_TEST(test_misc_func_32);
   CPPUNIT_TEST(test_misc_func_33);
-  CPPUNIT_TEST(test_misc_func_34);
   CPPUNIT_TEST(test_misc_func_35);
+#ifdef HAVE_WINDOWED_MODE
+  CPPUNIT_TEST(test_misc_func_34);
   CPPUNIT_TEST(test_misc_func_36);
+#endif
 
   CPPUNIT_TEST_SUITE_END();
 

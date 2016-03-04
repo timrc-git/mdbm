@@ -24,18 +24,20 @@ help:
 
 
 doc:
-	make -C gendoc
+	$(MAKE) -C gendoc
 
 perl: default
-	(cd src/perl; $(PERL) Makefile.PL INSTALL_BASE=$(PERL_PREFIX) && make && make test)
+	(cd src/perl; $(PERL) Makefile.PL INSTALL_BASE=$(PERL_PREFIX) && $(MAKE) && $(MAKE) test)
 
 all: default perl doc
 
 install-all: all install
-	make -C gendoc install
-	make -C src/perl install
+	$(MAKE) -C gendoc install
+	$(MAKE) -C src/perl install
 
 clean::
-	make -C src/perl clean || /bin/true
-	make -C gendoc clean
+	$(MAKE) -C src/perl clean || $(TRUECMD)
+	$(MAKE) -C gendoc clean
+	rm -f src/perl/Makefile.old
+	rm -rf src/perl/object
 

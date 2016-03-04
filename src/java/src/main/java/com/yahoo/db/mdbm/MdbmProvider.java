@@ -2,9 +2,6 @@
 /* Licensed under the terms of the 3-Clause BSD license. See LICENSE file in the project root for details. */
 package com.yahoo.db.mdbm;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.yahoo.db.mdbm.exceptions.MdbmCreatePoolException;
 import com.yahoo.db.mdbm.exceptions.MdbmException;
 import com.yahoo.db.mdbm.internal.NativeMdbmImplementation;
@@ -12,7 +9,7 @@ import com.yahoo.db.mdbm.internal.SynchronizedMdbm;
 
 /**
  * Returns a registered implementation of the {@link MdbmInterface} interface.
- *
+ * 
  * The best way to use this is to call com.yahoo.db.mdbm.MdbmProvider.openPool(String, int, int, int, int, int) This
  * will open a pool of mdbm handles, and you can acquire and release a handle from the pool for use within a single
  * thread. Mdbm handles are not thread safe and must not be shared.
@@ -135,12 +132,6 @@ public final class MdbmProvider {
      *        "MDBM FAQ: ASYNC and FSYNC"
      */
     public static MdbmInterface open(String file, int flags, int mode, int psize, int presize) throws MdbmException {
-        try {
-            file = new File(file).getCanonicalPath();
-        } catch (IOException e) {
-            throw new MdbmException("Unable to get canonical path for " + file, e);
-        }
-
         try {
             /**
              * We need to be careful here, if a use is opening a v3, then we expect them to not share MdbmInterfaces

@@ -15,6 +15,17 @@
 #include "mdbm_internal.h"
 #include <mdbm_util.h>
 
+void reset_getopt()
+{
+    optind=1; // reset getopt()
+    // TODO some platforms may require additional steps
+#ifndef __linux__
+    // NOTE: on some platforms, getopt needs to be told to "reset"
+    optreset = 1;
+#endif
+
+}
+
 extern int
 mdbm_util_get_size_ref (const char* arg, int default_multiplier, uint64_t *sval)
 {

@@ -18,6 +18,7 @@ import com.yahoo.db.mdbm.exceptions.UncloseableMdbmException;
 public class PooledMdbmHandle extends ClosedBaseChecked implements MdbmInterface {
     protected final UncloseableMdbm proxy;
     protected final MdbmPoolInterface pool;
+    protected boolean checkedOut;
 
     PooledMdbmHandle(MdbmPoolInterface pool, UncloseableMdbm proxy) {
         // we don't want isClosed throwing and giving us greif!
@@ -29,6 +30,7 @@ public class PooledMdbmHandle extends ClosedBaseChecked implements MdbmInterface
 
         this.pool = pool;
         this.proxy = proxy;
+        this.checkedOut = false;
     }
 
     @Override
@@ -345,5 +347,13 @@ public class PooledMdbmHandle extends ClosedBaseChecked implements MdbmInterface
 
     long getPointer() {
         return proxy.getPointer();
+    }
+
+    public boolean isCheckedOut() {
+        return checkedOut;
+    }
+
+    public void setCheckedOut(boolean b) {
+        this.checkedOut = b;
     }
 }

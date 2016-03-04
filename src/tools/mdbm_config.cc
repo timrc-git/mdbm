@@ -857,7 +857,7 @@ importFile(uint optPagesize, int optHashfnid, uint64_t optDbsize, char *optInfil
     impArgs[curArg++] = (char *) outfile;
     impArgs[curArg] = NULL; // Last arg
 
-    optind = 1;  // Reset
+    reset_getopt();
     int errcode = imp_main_wrapper(curArg, (char **)impArgs);
 
     if (errcode) {

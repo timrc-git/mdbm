@@ -4,6 +4,9 @@ src/test/pool_test/object/
 src/test/smoke-test/object/
 src/test/unit-test/object/
 src/tools/object/
+src/test/*/*.xml
+src/test/unit-test/mdbm_fcopy
+
 redhat/build
 redhat/mdbm.spec
 redhat/mdbm*.tar
@@ -13,3 +16,9 @@ src/java/object
 src/java/.classpath
 src/java/.project
 src/java/.settings
+
+gendoc/man
+
+*.swp
+*.swo
+

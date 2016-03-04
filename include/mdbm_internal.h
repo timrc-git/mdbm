@@ -18,6 +18,7 @@
 #include <sys/queue.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 #include <syslog.h>
@@ -28,6 +29,15 @@
 
 #include "mdbm_shmem.h"
 #include "mdbm_stats.h"
+
+#ifdef __MACH__
+/* TODO use fcntl() and F_NOCACHE instead of O_DIRECT */
+#  define O_DIRECT 0
+#  define O_NOATIME 0
+#  define mincore_vec_type char*
+#else
+#define mincore_vec_type unsigned char*
+#endif
 
 
 /*
@@ -1053,20 +1063,31 @@ extern void resume_signals();
 #  define MDBM_SIG_DEFER        hold_signals()
 #  define MDBM_SIG_ACCEPT       resume_signals()
 
+#ifdef __MACH__
+static inline uint64_t fast_time_usec(void) {
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  return tp.tv_sec*1000000 + tp.tv_usec;
+}
+
+static inline time_t get_time_sec() {
+  return time(NULL);
+}
+#else /* linux */
 static inline uint64_t fast_time_usec(void) {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ((uint64_t)ts.tv_sec)*1000000 +ts.tv_nsec/1000;
 }
 
-#define get_time_usec() fast_time_usec()
-
 static inline time_t get_time_sec() {
-  /*return (time_t)(get_time_usec() / 1000000); */
   struct timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   return ts.tv_sec;
 }
+#endif
+
+#define get_time_usec() fast_time_usec()
 
 #define get_cpu_count()  sysconf(_SC_NPROCESSORS_CONF)
 
@@ -1211,8 +1232,8 @@ extern int fcopy_body(MDBM* db, int fd, int flags);
 
 extern char mdbm_internal_hex_to_byte(int c1, int c2);
 
-#define ERROR() fprintf(stderr, "ERROR (%d %s) in %s() %s:%d\n", errno, strerror(errno), __FUNCTION__, __FILE__, __LINE__);
-#define NOTE(desc) fprintf(stderr, "NOTICE %s in %s() %s:%d\n", desc, __FUNCTION__, __FILE__, __LINE__);
+#define ERROR() fprintf(stderr, "ERROR (%d %s) in %s() %s:%d\n", errno, strerror(errno), __func__, __FILE__, __LINE__);
+#define NOTE(desc) fprintf(stderr, "NOTICE %s in %s() %s:%d\n", desc, __func__, __FILE__, __LINE__);
 
 
 #ifdef  __cplusplus
