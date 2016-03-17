@@ -24,7 +24,7 @@ extern "C" {
 
 
   // Intel (and later model AMD) Fetch Time-StampCounter
-  // WANRING:  This value may be affected by speedstep and may vary randomly across cores.
+  // WARNING:  This value may be affected by speedstep and may vary randomly across cores.
   __inline__ uint64_t rdtsc(void) {
     uint32_t lo, hi;
     __asm__ __volatile__ (      // serialize
