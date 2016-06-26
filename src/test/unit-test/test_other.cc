@@ -2252,8 +2252,8 @@ MdbmUnitTestOther::test_CorruptPadding()
     struct mdbm *dbm = (struct mdbm *) mdbm;
     uint32_t tmp = dbm->guard_padding_1;
     dbm->guard_padding_1 = 0;
-    const datum ky =  { (char *) "key", strlen("key") };
-    const datum val = { (char *) "stuff", strlen("stuff") };
+    const datum ky  = { (char *)"key",   static_cast<int>(strlen("key"))   };
+    const datum val = { (char *)"stuff", static_cast<int>(strlen("stuff")) };
     CPPUNIT_ASSERT_EQUAL(-1, mdbm_store(mdbm, ky, val, MDBM_REPLACE));
     // Test second guard padding
     dbm->guard_padding_1 = tmp;
