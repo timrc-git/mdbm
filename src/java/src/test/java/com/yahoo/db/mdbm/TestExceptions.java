@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import com.yahoo.db.mdbm.exceptions.InvalidMdbmParametersException;
 import com.yahoo.db.mdbm.exceptions.MdbmException;
+import com.yahoo.db.mdbm.exceptions.MdbmDeleteException;
 import com.yahoo.db.mdbm.exceptions.MdbmFetchException;
 import com.yahoo.db.mdbm.exceptions.MdbmIllegalOperationException;
 import com.yahoo.db.mdbm.exceptions.MdbmInvalidStateException;
@@ -70,6 +71,9 @@ public class TestExceptions {
         e = new SharedLockViolationException("message");
         e = new SharedLockViolationException(e);
         e = new SharedLockViolationException("message", e);
+
+        e = new MdbmDeleteException();
+        e = new MdbmDeleteException("message");
 
         e = new MdbmFetchException();
         e = new MdbmFetchException("message");
