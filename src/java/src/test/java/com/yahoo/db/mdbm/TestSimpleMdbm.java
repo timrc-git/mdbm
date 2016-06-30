@@ -290,7 +290,7 @@ public abstract class TestSimpleMdbm {
         }
     }
 
-    @Test(expectedExceptions = { MdbmDeleteException.class })
+    @Test(expectedExceptions = { MdbmNoEntryException.class })
     public void testDeleteStringNoEntry() throws MdbmException, UnsupportedEncodingException {
         String key = "nothere";
         MdbmInterface mdbm = null;
@@ -304,7 +304,7 @@ public abstract class TestSimpleMdbm {
         }
     }
 
-    @Test(expectedExceptions = { MdbmDeleteException.class })
+    @Test(expectedExceptions = { MdbmNoEntryException.class })
     public void testDeleteNoEntry() throws MdbmException, UnsupportedEncodingException {
         String key = "nothere";
         MdbmDatum datum = new MdbmDatum(key.getBytes("UTF-8"));
@@ -319,14 +319,60 @@ public abstract class TestSimpleMdbm {
         }
     }
 
-    @Test(expectedExceptions = { MdbmDeleteException.class })
+    @Test(expectedExceptions = { MdbmNoEntryException.class })
     public void testDeleteIteratorNoEntry() throws MdbmException, UnsupportedEncodingException {
+        String key = "key_for_delete_iterator_noentry";
+        String value = "value_for_delete_iterator_noentry";
+        MdbmDatum kDatum = new MdbmDatum(key.getBytes("Utf-8"));
+        MdbmDatum vDatum = new MdbmDatum(value.getBytes("Utf-8"));
         MdbmInterface mdbm = null;
         try {
-            mdbm = MdbmProvider.open(emptyMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
+            mdbm = MdbmProvider.open(deleteMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
                     | Open.MDBM_O_CREAT, 0755, 0, 0);
 
+            mdbm.store(kDatum, vDatum, Store.MDBM_REPLACE, mdbm.iterator());
             MdbmIterator iter = mdbm.iterator();
+            MdbmDatum ret = mdbm.fetch(kDatum, iter);
+            Assert.assertNotNull(ret);
+            Assert.assertNotNull(ret.getData());
+            Assert.assertEquals(new String(ret.getData()), value);
+
+            mdbm.delete(iter); // success
+            mdbm.delete(iter); // throws MdbmNoEntryException
+
+            /*
+            MdbmIterator iter = mdbm.iterator();
+            mdbm.delete(iter);
+            */
+        } finally {
+            if (null != mdbm)
+                mdbm.close();
+        }
+    }
+
+    @Test(expectedExceptions = { MdbmDeleteException.class })
+    public void testDeleteInvalid() throws MdbmException, UnsupportedEncodingException {
+        MdbmDatum datum = new MdbmDatum(0);
+        MdbmInterface mdbm = null;
+        try {
+            mdbm = MdbmProvider.open(deleteMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
+                    | Open.MDBM_O_CREAT, 0755, 0, 0);
+            mdbm.delete(datum);
+        } finally {
+            if (null != mdbm)
+                mdbm.close();
+        }
+    }
+
+    @Test(expectedExceptions = { MdbmDeleteException.class })
+    public void testDeleteIteratorInvalid() throws MdbmException, UnsupportedEncodingException {
+        MdbmInterface mdbm = null;
+        try {
+            mdbm = MdbmProvider.open(deleteMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
+                    | Open.MDBM_O_CREAT, 0755, 0, 0);
+
+            // MdbmIterator iter = mdbm.iterator();
+            MdbmIterator iter = null;
             mdbm.delete(iter);
         } finally {
             if (null != mdbm)
