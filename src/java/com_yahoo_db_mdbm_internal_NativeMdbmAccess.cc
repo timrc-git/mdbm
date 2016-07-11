@@ -68,6 +68,9 @@ DECLARE_CACHED_METHOD_ID(mdbmExceptionClass, mdbmExceptionCtorId, "<init>", "(Lj
 DECLARE_CACHED_METHOD_ID(mdbmExceptionClass, mdbmExceptionSetPathId, "setPath", "(Ljava/lang/String;)V")
 DECLARE_CACHED_METHOD_ID(mdbmExceptionClass, mdbmExceptionSetInfoId, "setInfo", "(Ljava/lang/String;)V")
 
+DECLARE_CACHED_CLASS(mdbmDeleteExceptionClass, MDBM_DELETE_EXCEPTION)
+DECLARE_CACHED_METHOD_ID(mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId, "<init>", "(Ljava/lang/String;)V")
+
 DECLARE_CACHED_CLASS(mdbmFetchExceptionClass, MDBM_FETCH_EXCEPTION)
 DECLARE_CACHED_METHOD_ID(mdbmFetchExceptionClass, mdbmFetchExceptionCtorId, "<init>", "(Ljava/lang/String;)V")
 
@@ -806,9 +809,17 @@ JNIEXPORT void JNICALL Java_com_yahoo_db_mdbm_internal_NativeMdbmAccess_mdbm_1de
 
     int ret = mdbm_delete (mdbm, *keyDatum.getDatum());
 
-    // deal with errors first.
-    checkZeroIsOkReturn(jenv, ret, MDBM_DELETE_EXCEPTION, "mdbm_delete", 0,
-            NULL);
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    "mdbm_delete", 0, NULL);
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_DELETE_EXCEPTION,
+                    mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId,
+                    "mdbm_delete", 0, NULL);
+        }
+    }
 }
 
 /*
@@ -827,9 +838,17 @@ JNIEXPORT void JNICALL Java_com_yahoo_db_mdbm_internal_NativeMdbmAccess_mdbm_1de
 
     int ret = mdbm_delete_r (mdbm, iter);
 
-    // deal with errors first.
-    checkZeroIsOkReturn(jenv, ret, MDBM_DELETE_EXCEPTION, "mdbm_delete_r", 0,
-            iter);
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    "mdbm_delete_r", 0, iter);
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_DELETE_EXCEPTION,
+                    mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId,
+                    "mdbm_delete_r", 0, iter);
+        }
+    }
 }
 
 /*
@@ -1239,9 +1258,17 @@ JNIEXPORT void JNICALL Java_com_yahoo_db_mdbm_internal_NativeMdbmAccess_mdbm_1de
 
     int ret = mdbm_delete_str(mdbm, keyString.getChars());
 
-    // deal with errors first.
-    checkZeroIsOkReturn(jenv, ret, MDBM_DELETE_EXCEPTION,
-            "mdbm_delete_str", 0, NULL);
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    "mdbm_delete_str", 0, NULL);
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_DELETE_EXCEPTION,
+                    mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId,
+                    "mdbm_delete_str", 0, NULL);
+        }
+    }
 
 }
 
