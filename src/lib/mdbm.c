@@ -5148,7 +5148,7 @@ mdbm_store_r(MDBM *db, datum* key, datum* val, int flags, MDBM_ITER* iter)
                     pnum = hashval_to_pagenum(db,h);
                     p = pagenum_to_page(db,pnum,MDBM_PAGE_EXISTS,MDBM_PAGE_MAP);
                 }
-                if (free_bytes >= alloc_bytes) {
+                if (free_bytes >= alloc_bytes && ntries < MAX_TRIES) {
                     continue;
                 }
             }
