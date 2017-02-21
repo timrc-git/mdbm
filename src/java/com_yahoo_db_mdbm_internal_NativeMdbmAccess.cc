@@ -328,12 +328,12 @@ public:
     }
 
     // FETCH
-    ScopedKvPair(JNIEnv *jenv, kvpair &kv) :
+    ScopedKvPair(JNIEnv *jenv, kvpair &in_kv) :
             valid(false), mdbmKvPair(NULL) {
         zeroKv(kv);
 
-        if ((0 == kv.key.dsize || NULL == kv.key.dptr)
-                && (0 == kv.val.dsize || NULL == kv.val.dptr)) {
+        if ((0 == in_kv.key.dsize || NULL == in_kv.key.dptr)
+                && (0 == in_kv.val.dsize || NULL == in_kv.val.dptr)) {
             //nothing to do.
             return;
         }
@@ -346,10 +346,10 @@ public:
         }
 
         // now we need to create the datums to fill out.
-        key.setDatum(jenv, kv.key);
+        key.setDatum(jenv, in_kv.key);
         RETURN_IF_EXCEPTION_OR_NULL(key.getMdbmDatum());
 
-        val.setDatum(jenv, kv.val);
+        val.setDatum(jenv, in_kv.val);
         RETURN_IF_EXCEPTION_OR_NULL(val.getMdbmDatum());
 
         // now that key and val are setup, we can create the java object using them.
