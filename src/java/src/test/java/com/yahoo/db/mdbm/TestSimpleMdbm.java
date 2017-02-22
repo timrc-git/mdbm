@@ -134,6 +134,28 @@ public abstract class TestSimpleMdbm {
         }
     }
 
+    @Test
+    public void testEmptyFirstKey() throws MdbmException {
+        MdbmInterface mdbm = null;
+        MdbmIterator iter = null;
+        try {
+            mdbm = MdbmProvider.open(emptyMdbmV3Path, Open.MDBM_O_RDONLY, 0755, 0, 0);
+            iter = mdbm.iterator();
+
+            Assert.assertNotNull(iter);
+
+            MdbmDatum datum = mdbm.firstKey(iter);
+            Assert.assertNull(datum);
+            datum = mdbm.nextKey(iter);
+            Assert.assertNull(datum);
+        } finally {
+            if (null != mdbm)
+                mdbm.close();
+            if (null != iter)
+                iter.close();
+        }
+    }
+
     @Test(dataProvider = "iterateMdbms")
     public void testIterateKeys(String path, int flags)
             throws MdbmException, UnsupportedEncodingException {
