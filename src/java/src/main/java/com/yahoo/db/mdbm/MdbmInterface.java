@@ -538,11 +538,11 @@ public interface MdbmInterface extends Closeable {
     /**
      * fetch first record
      * 
-     * Initializes the iterator, and returns the first key/value pair from the db. Subsequent calls to mdbm_next_r() or
-     * mdbm_nextkey_r() with this iterator will loop through the entire db.
+     * Initializes the iterator, and returns the first key/value pair from the db. Subsequent calls to next() or
+     * nextKey() with this iterator will loop through the entire db.
      * 
      * @param iter MDBM Iterator (see @see MdbmIterator)
-     * @return kvpair. If db is empty, a null kvpair (key and value dsize==0, dptr==NULL).
+     * @return kvpair. If db is empty, NULL.
      */
     MdbmKvPair first(MdbmIterator iter) throws MdbmException;
 
@@ -552,29 +552,28 @@ public interface MdbmInterface extends Closeable {
      * Returns the next key/value pair from the db, based on the iterator.
      * 
      * @param iter MDBM Iterator (see @see MdbmIterator)
-     * @return kvpair. If end of db is reached, a null kvpair (key and value dsize==0, dptr==NULL).
+     * @return kvpair. If end of db is reached, NULL.
      */
     MdbmKvPair next(MdbmIterator iter) throws MdbmException;
 
     /**
      * fetch first key
      * 
-     * Initializes the iterator, and returns the first key from the db. Subsequent calls to mdbm_next_r() or
-     * mdbm_nextkey_r() with this iterator will loop through the entire db.
+     * Initializes the iterator, and returns the first key from the db. Subsequent calls to next() or
+     * nextKey() with this iterator will loop through the entire db.
      * 
      * @param iter MDBM Iterator (see @see MdbmIterator)
-     * @return datum. If db is empty, a null datum (dsize==0, dptr==NULL).
+     * @return datum. If db is empty, NULL.
      */
     MdbmDatum firstKey(MdbmIterator iter) throws MdbmException;
 
     /**
      * fetch next key
      * 
-     * returns the next key from the db. Subsequent calls to mdbm_next_r() or mdbm_nextkey_r() with this iterator will
-     * loop through the entire db.
-     * 
+     * returns the next key from the db, based on the iterator.
+     *
      * @param iter MDBM Iterator (see @see MdbmIterator)
-     * @return datum. If end of db is reached, a null datum (dsize==0, dptr==NULL).
+     * @return datum. If end of db is reached, NULL.
      * @throws MdbmException
      */
     MdbmDatum nextKey(MdbmIterator iter) throws MdbmException;

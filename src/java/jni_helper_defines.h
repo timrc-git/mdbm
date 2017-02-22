@@ -43,7 +43,7 @@
 #ifdef JAVA_DEBUG_TYPEMAPS
 #undef NDEBUG
 #include <assert.h>
-#endif JAVA_DEBUG_TYPEMAPS
+#endif //JAVA_DEBUG_TYPEMAPS
 
 #define POINTER_TO_CONTEXT(CTX_TYPE) CTX_TYPE* context= reinterpret_cast<CTX_TYPE*>(pointer);
 #define CONTEXT_TO_POINTER(CTX) jlong pointer = reinterpret_cast<jlong>(CTX);
