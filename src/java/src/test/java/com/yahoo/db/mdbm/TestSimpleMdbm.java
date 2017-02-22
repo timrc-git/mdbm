@@ -39,8 +39,8 @@ public abstract class TestSimpleMdbm {
     @BeforeClass
     public void initEmptyMdbm() throws MdbmException {
         MdbmInterface mdbm = null;
-        mdbm = MdbmProvider.open(emptyMdbmV3Path, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
-                        | Open.MDBM_O_CREAT, 0755, 0, 0);
+        mdbm = MdbmProvider.open(emptyMdbmV3Path,
+                Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR | Open.MDBM_O_CREAT, 0755, 0, 0);
         mdbm.close();
     }
 
@@ -49,8 +49,8 @@ public abstract class TestSimpleMdbm {
         MdbmInterface mdbm = null;
 
         try {
-            mdbm = MdbmProvider.open(iteratorMdbmV3PathA, Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR
-                    | Open.MDBM_O_CREAT, 0755, 0, 0);
+            mdbm = MdbmProvider.open(iteratorMdbmV3PathA,
+                    Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR | Open.MDBM_O_CREAT, 0755, 0, 0);
 
             for (int i = 0; i < iterationMax; i++) {
                 String kStr = Integer.toString(i);
@@ -110,12 +110,12 @@ public abstract class TestSimpleMdbm {
         }
     }
 
-    @Test
-    public void testEmptyFirst() throws MdbmException {
+    @Test(dataProvider = "emptyMdbms")
+    public void testEmptyFirst(String path, int flags) throws MdbmException {
         MdbmInterface mdbm = null;
         MdbmIterator iter = null;
         try {
-            mdbm = MdbmProvider.open(emptyMdbmV3Path, Open.MDBM_O_RDONLY, 0755, 0, 0);
+            mdbm = MdbmProvider.open(path, flags, 0755, 0, 0);
             iter = mdbm.iterator();
 
             Assert.assertNotNull(iter);
@@ -134,12 +134,12 @@ public abstract class TestSimpleMdbm {
         }
     }
 
-    @Test
-    public void testEmptyFirstKey() throws MdbmException {
+    @Test(dataProvider = "emptyMdbms")
+    public void testEmptyFirstKey(String path, int flags) throws MdbmException {
         MdbmInterface mdbm = null;
         MdbmIterator iter = null;
         try {
-            mdbm = MdbmProvider.open(emptyMdbmV3Path, Open.MDBM_O_RDONLY, 0755, 0, 0);
+            mdbm = MdbmProvider.open(path, flags, 0755, 0, 0);
             iter = mdbm.iterator();
 
             Assert.assertNotNull(iter);
