@@ -137,9 +137,15 @@ GCC_VER_INT=$(shell printf "%d%04d%04d" $(GCC_VER_SPC))
 GCC_GTE_48=$(shell expr $(GCC_VER_INT) \>= 400080000)
 
 PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings
-# New CLang/LLVM settings
-#PEDANTIC += -Wno-format-security -Wno-c99-extensions 
-PEDANTIC += -Wno-format-security -Wno-unused-result
+
+# For clang, we need to ignore c99 extensions warnings it seems ...
+ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
+    PEDANTIC += -Wno-format-security -Wno-c99-extensions
+else
+    PEDANTIC += -Wno-format-security -Wno-unused-result
+endif
+
+
 #PEDANTIC += -Wno-unused-value
 # stop dead on warnings...
 PEDANTIC += -Werror

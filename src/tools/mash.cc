@@ -135,7 +135,7 @@ void PrintDatum(FILE *outfile, const char *prefix, datum d)
     len = d.dsize;
     s = d.dptr;
     while (len > 0) {
-        fprintf(outfile, "%s%p  ", prefix, s);
+        fprintf(outfile, "%s%p  ", prefix, (void*)s);
         for (i = 0; i < 16; i++) {
             if (i == 8) {
                 fputc(' ', outfile);
