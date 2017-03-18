@@ -22,3 +22,6 @@ gendoc/man
 *.swp
 *.swo
 
+GPATH
+GRTAGS
+GTAGS
