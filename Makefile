@@ -31,9 +31,16 @@ perl: default
 
 all: default perl doc
 
-install-all: all install
+install-all: all install doc-install perl-install
+	@echo ===================== removing $(PERL_PREFIX)/lib/perl5/x86_64-linux-thread-multi/perllocal.pod
+	rm -f $(PERL_PREFIX)/lib/perl5/x86_64-linux-thread-multi/perllocal.pod
+
+doc-install:
 	$(MAKE) -C gendoc install
+
+perl-install:
 	$(MAKE) -C src/perl install
+	rm -f $(PERL_PREFIX)/lib/perl5/x86_64-linux-thread-multi/perllocal.pod
 
 clean::
 	$(MAKE) -C src/perl clean || $(TRUECMD)
