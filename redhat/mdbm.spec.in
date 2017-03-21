@@ -9,9 +9,12 @@ License:        BSD
 URL:            https://github.com/yahoo/mdbm
 Source0:        mdbm-VERSION-0.tgz
 
-BuildRequires:  readline-devel, cppunit-devel
+BuildRequires:  readline-devel, cppunit-devel, openssl-devel, perl-ExtUtils-MakeMaker
 Requires:       openssl
+AutoReqProv: yes
 
+# Without this, the mdbm rpm is uninstallable. Not sure why.
+Provides: libmdbm.so.4()(64bit), libmdbm.so()(64bit)
 
 %description
 
@@ -38,6 +41,8 @@ make %{?_smp_mflags} LIBDIR=/usr/lib64 INCDIR=/usr/include
 rm -rf %{buildroot}
 #mdbm installs directly to prefix, rpm looks for /usr
 make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install-all
+find %buildroot -type f \( -name '*.so' -o -name '*.so.*' \) -exec chmod 755 {} +
+
 
 %files
 %doc README LICENSE
