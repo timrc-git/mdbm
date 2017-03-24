@@ -27,7 +27,8 @@ doc:
 	$(MAKE) -C gendoc
 
 perl: default
-	(cd src/perl; $(PERL) Makefile.PL INSTALL_BASE=$(PERL_PREFIX) && $(MAKE) && $(MAKE) test)
+	# have to use PREFIX here so we can install into PREFIX/lib64 instead of PREFIX/lib
+	(cd src/perl; $(PERL) Makefile.PL PREFIX=$(PERL_PREFIX) LIB=$(PERL_PREFIX)/lib64 && $(MAKE) && $(MAKE) test)
 
 all: default perl doc
 
