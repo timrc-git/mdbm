@@ -40,25 +40,25 @@ make %{?_smp_mflags} LIBDIR=/usr/lib64 INCDIR=/usr/include
 %install
 rm -rf %{buildroot}
 #mdbm installs directly to prefix, rpm looks for /usr
-make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install-all
+make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr/lib64/perl5/site_perl/5.14/ LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install-all
 find %buildroot -type f \( -name '*.so' -o -name '*.so.*' \) -exec chmod 755 {} +
-
+find %buildroot -type f -name perllocal.pod -exec rm {} \;
+#mkdir -p %{buildroot}/%{_mandir}/man3/
+#mv %{buildroot}/usr/share/man/man3/* %{buildroot}/%{_mandir}/man3/
 
 %files
 %doc README LICENSE
 %{_bindir}/*
 %{_libdir}/*
 %{_mandir}/man1/*
-#%exclude %{_mandir}/man3/*
-%exclude /usr/lib/perl5/*
+%exclude /usr/lib64/perl5/*
 
 %files devel
 %{_includedir}/*
 
 %files perl
-/usr/man/man3/MDBM_File.3pm.gz
-/usr/lib/perl5/*
-%exclude /usr/lib/perl5/x86_64-linux-thread-multi/perllocal.pod
+/usr/lib64/perl5/*
+%{_mandir}/man3/*
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
