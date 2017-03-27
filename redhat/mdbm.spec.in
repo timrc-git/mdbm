@@ -43,8 +43,6 @@ rm -rf %{buildroot}
 make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr/lib64/perl5/site_perl/5.14/ LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install-all
 find %buildroot -type f \( -name '*.so' -o -name '*.so.*' \) -exec chmod 755 {} +
 find %buildroot -type f -name perllocal.pod -exec rm {} \;
-#mkdir -p %{buildroot}/%{_mandir}/man3/
-#mv %{buildroot}/usr/share/man/man3/* %{buildroot}/%{_mandir}/man3/
 
 %files
 %doc README LICENSE
@@ -59,6 +57,9 @@ find %buildroot -type f -name perllocal.pod -exec rm {} \;
 %files perl
 /usr/lib64/perl5/*
 %{_mandir}/man3/*
+/usr/share/perl5/vendor_perl/MDBM_File.pm
+/usr/share/perl5/vendor_perl/auto/MDBM_File/autosplit.ix
+
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
