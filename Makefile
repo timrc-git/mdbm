@@ -28,7 +28,7 @@ doc:
 
 perl: default
 	# have to use PREFIX here so we can install into PREFIX/lib64 instead of PREFIX/lib
-	(cd src/perl; $(PERL) Makefile.PL PREFIX=$(PERL_PREFIX) LIB=$(PERL_PREFIX)/lib64 && $(MAKE) && $(MAKE) test)
+	(cd src/perl; $(PERL) Makefile.PL INSTALLDIRS=vendor PREFIX=$(PERL_PREFIX) && $(MAKE) && $(MAKE) test)
 
 all: default perl doc
 
