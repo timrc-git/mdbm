@@ -22,3 +22,17 @@ gendoc/man
 *.swp
 *.swo
 
+GPATH
+GRTAGS
+GTAGS
+
+src/perl/*.o
+src/perl/MDBM_File.bs
+src/perl/MDBM_File.c
+src/perl/MYMETA.json
+src/perl/MYMETA.yml
+src/perl/Makefile
+src/perl/Makefile.old
+src/perl/blib/
+src/perl/object/
+src/perl/pm_to_blib
