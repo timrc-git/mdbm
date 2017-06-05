@@ -61,3 +61,8 @@ Based on:
        Bhagyashri Mahule, Yahoo!, Inc.
        Lakshmanan Suryanarayanan, Yahoo!, Inc.
 
+  Modifications for:
+       . Java JNI wrappers
+  By
+       Allen Reese, Yahoo!, Inc.
+       Manu Bassi, Yahoo!, Inc. (MdbmLocker code, bug fixes around iteration)
