@@ -340,7 +340,7 @@ public:
 
         GET_CACHED_CLASS(jenv, mdbmKvPairClass);
         GET_CACHED_METHOD_ID(jenv, mdbmKvPairDatumCtorId);
-        if (NULL == mdbmDatumClass || NULL == mdbmKvPairDatumCtorId) {
+        if (NULL == mdbmKvPairClass || NULL == mdbmKvPairDatumCtorId) {
             // valid is set to false so bail.
             return;
         }
