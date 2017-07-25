@@ -2,18 +2,19 @@ Name:           mdbm
 Version:        VERSION
 Release:        1%{?dist}
 Summary:        MDBM is a fast dbm clone originally based on Ozan Yigit's sdbm.
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 
 License:        BSD
 URL:            https://github.com/yahoo/mdbm
 Source0:        mdbm-VERSION-0.tgz
 
-BuildRequires:  readline-devel, cppunit-devel
+BuildRequires:  readline-devel, cppunit-devel, openssl-devel, perl-ExtUtils-MakeMaker
 Requires:       openssl
-# not sure this is correct.
+AutoReqProv: yes
+
+# Without this, the mdbm rpm is uninstallable. Not sure why.
 Provides: libmdbm.so.4()(64bit), libmdbm.so()(64bit)
-
-
 
 %description
 
@@ -23,6 +24,10 @@ Provides: libmdbm.so.4()(64bit), libmdbm.so()(64bit)
 Summary:        Mdbm header files.
 
 %description devel
+
+%package perl
+Summary:        Mdbm perl wrappers
+%description perl
 
 
 %prep
@@ -35,15 +40,26 @@ make %{?_smp_mflags} LIBDIR=/usr/lib64 INCDIR=/usr/include
 %install
 rm -rf %{buildroot}
 #mdbm installs directly to prefix, rpm looks for /usr
-make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install
+make PREFIX=%{buildroot}/usr PERL_PREFIX=%{buildroot}/usr/lib64/perl5/site_perl/5.14/ LIBDIR=%{buildroot}/usr/lib64 INCDIR=%{buildroot}/usr/include  install-all
+find %buildroot -type f \( -name '*.so' -o -name '*.so.*' \) -exec chmod 755 {} +
+find %buildroot -type f -name perllocal.pod -exec rm {} \;
 
 %files
 %doc README LICENSE
 %{_bindir}/*
 %{_libdir}/*
+%{_mandir}/man1/*
+%exclude /usr/lib64/perl5/*
 
 %files devel
 %{_includedir}/*
+
+%files perl
+/usr/lib64/perl5/*
+%{_mandir}/man3/*
+/usr/share/perl5/vendor_perl/MDBM_File.pm
+/usr/share/perl5/vendor_perl/auto/MDBM_File/autosplit.ix
+
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig

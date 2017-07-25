@@ -42,7 +42,6 @@ static uint SYS_PAGESIZE;    // system page size
 static uint CONFIG_MAXPAGE = 1 << 24;   // 16MB (subtract system page size later)
 static const int MBYT = 1024 * 1024;
 static const uint ENTRY_OVERHEAD  =   8;     // MDBM per-entry overhead is 8 bytes
-static const uint PAGE_OVERHEAD   =  16;     // MDBM per-page overhead
 static const uint INITIAL_SIZE_MDBM = 2000;  // Default to big MDBM to allow for fast growth
 
 // Spillsize is configurable, but assume it is a constant 75% for now

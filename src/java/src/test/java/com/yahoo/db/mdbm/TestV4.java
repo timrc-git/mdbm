@@ -28,6 +28,12 @@ public class TestV4 extends TestSimpleMdbm {
     }
 
     @DataProvider
+    public Object[][] emptyMdbms() {
+        return new Object[][] {new Object[] {emptyMdbmV3Path,
+                Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR | Open.MDBM_O_CREAT,},};
+    }
+
+    @DataProvider
     public Object[][] iterateMdbms() {
         return new Object[][] {new Object[] {iteratorMdbmV3PathA,
                         Open.MDBM_CREATE_V3 | Open.MDBM_O_RDWR | Open.MDBM_O_CREAT,},};

@@ -25,7 +25,10 @@
 #include <fstream>   // ofstream
 #include <string>
 #include <stdexcept> // exception, runtime_error
-#include <memory>    // auto_ptr
+#include <memory>    // unique_ptr
+#if __cplusplus <= 199711L
+  #define unique_ptr auto_ptr
+#endif
 
 using namespace std;
 
@@ -155,9 +158,9 @@ private:
     // XML file to write to.
     ofstream xmlFile;
     // Responsible for writing XML results to xmlFile.
-    auto_ptr<CppUnit::XmlOutputter> xmlOutputterPtr;
+    unique_ptr<CppUnit::XmlOutputter> xmlOutputterPtr;
     // Responsible for writing text results to stdout.
-    auto_ptr<CppUnit::TextOutputter> textOutputterPtr;
+    unique_ptr<CppUnit::TextOutputter> textOutputterPtr;
 
 // Construction
 public:

@@ -1040,7 +1040,7 @@ check_db_dir(MDBM* db, int verbose)
         if (verbose) {
             mdbm_log(LOG_CRIT,
                      "%s: db_dir (0x%p) out-of-sync with directory on page 0",
-                     db->db_filename,db->db_dir);
+                     db->db_filename,(void*)db->db_dir);
         }
         nerr++;
     }
@@ -1599,8 +1599,8 @@ protect_dir(MDBM* db, int protect)
                  " used=%d, total=%d, db_base=%p, db_base+used=%p, total - used=%d"
                  " mprotect start=%p, mprotect end=%p",
                  db->db_pagesize, db->db_sys_pagesize, dir_size,
-                 used, total, db->db_base, db->db_base + used, total - used,
-                 db->db_base + used, db->db_base + used + total - used - 1);
+                 used, total, (void*)db->db_base, (void*)(db->db_base + used), total - used,
+                 (void*)(db->db_base + used), (void*)(db->db_base + used + total - used - 1));
         if (mprotect(db->db_base + used,
                      total - used,
                      (protect
@@ -1665,7 +1665,7 @@ mdbm_internal_remap(MDBM *db, size_t dbsize, int flags)
         got_hdr = 1;
         if (munmap(db->db_base,db->db_base_len) < 0) {
             mdbm_logerror(LOG_ERR,0,"munmap(%p,%llu)",
-                          db->db_base,(unsigned long long)db->db_base_len);
+                          (void*)db->db_base,(unsigned long long)db->db_base_len);
         }
         /*fprintf(stderr, "remap::munmap(%p,%u)\n", db->db_base,(unsigned)db->db_base_len); */
         db->db_base = NULL;
@@ -2567,7 +2567,7 @@ resize(MDBM* db, int new_dirshift, int new_num_pages)
                  " old_ptable=%p, old_ptsize=%d,"
                  " new_ptable=%p, new_ptsize=%d,"
                  " directory size increase=%d\n",
-                 db->db_dir,
+                 (void*)db->db_dir,
                  old_dirsize,
                  new_dirsize,
                  (void*)db->db_ptable,
@@ -4319,7 +4319,7 @@ mdbm_open_inner(const char *filename, int flags, int mode, int pagesize, int dbs
         if (db->db_base) {
             if (munmap(db->db_base,db->db_base_len) < 0) {
                 mdbm_logerror(LOG_ERR,0,"munmap(%p,%llu)",
-                              db->db_base,(unsigned long long)db->db_base_len);
+                              (void*)db->db_base,(unsigned long long)db->db_base_len);
             }
             /*fprintf(stderr, "open_error::munmap(%p,%u)\n", db->db_base,(unsigned)db->db_base_len); */
         }
@@ -4432,7 +4432,7 @@ mdbm_close(MDBM *db)
         }
         if (munmap(db->db_base,db->db_base_len) < 0) {
             mdbm_logerror(LOG_ERR,0,"munmap(%p,%llu)",
-                          db->db_base,(unsigned long long)db->db_base_len);
+                          (void*)db->db_base,(unsigned long long)db->db_base_len);
         }
         /*fprintf(stderr, "close::munmap(%p,%u)\n", db->db_base,(unsigned)db->db_base_len); */
         db->db_base = NULL;
@@ -5148,7 +5148,7 @@ mdbm_store_r(MDBM *db, datum* key, datum* val, int flags, MDBM_ITER* iter)
                     pnum = hashval_to_pagenum(db,h);
                     p = pagenum_to_page(db,pnum,MDBM_PAGE_EXISTS,MDBM_PAGE_MAP);
                 }
-                if (free_bytes >= alloc_bytes) {
+                if (free_bytes >= alloc_bytes && ntries < MAX_TRIES) {
                     continue;
                 }
             }
@@ -5919,7 +5919,7 @@ compact_db(MDBM* db) {
         if (munmap(db->db_base+compact_size,db->db_base_len-compact_size) < 0) {
           mdbm_logerror(LOG_ERR,0,"%s: munmap() base:%p, len:%llu new:%llu "
               "failure in compact_db()",
-              db->db_filename, db->db_base,(unsigned long long)db->db_base_len,
+              db->db_filename, (void*)db->db_base,(unsigned long long)db->db_base_len,
               (unsigned long long)compact_size);
           ret = -1;
           /* fall thru to do damage control.. we've already truncated the file */
@@ -7830,7 +7830,7 @@ mdbm_set_window_size_internal(MDBM* db, size_t wsize)
     if (db->db_window.base) {
         if (munmap(db->db_window.base,db->db_window.base_len) < 0) {
             mdbm_logerror(LOG_ERR,0,"munmap(%p,%llu)",
-                          db->db_window.base,(unsigned long long)db->db_window.base_len);
+                          (void*)db->db_window.base,(unsigned long long)db->db_window.base_len);
         }
         /*fprintf(stderr, "set_window_size::munmap(%p,%u)\n", db->db_window.base,(unsigned)db->db_window.base_len); */
         db->db_window.base = NULL;
@@ -8060,7 +8060,7 @@ remap_window_bytes(MDBM* db, char* mem_base, int mem_offset, uint32_t len, uint6
         /*        mem_ptr,map_unit,(long long unsigned)pg_offset, i, db->db_base, db->db_window.base); */
         if (remap_file_pages(mem_ptr,map_unit,0,pg_offset,len ? 0 : MAP_NONBLOCK) < 0) {
             mdbm_logerror(LOG_ERR,0, "remap_file_pages(%p,%llu,0,%llu,0); ",
-                          mem_ptr,(unsigned long long)map_unit,(unsigned long long)pg_offset);
+                          (void*)mem_ptr,(unsigned long long)map_unit,(unsigned long long)pg_offset);
             errno = ENOMEM;
             return -1;
         }
@@ -8688,7 +8688,7 @@ mdbm_bsop_file_fetch(void* data, const datum* key, datum* val, datum* buf, int f
     }
     p = mdbm_bsop_file_align_ptr(buf->dptr);
     if (pread(d->fd,p,sz,0) < st.st_size) {
-        mdbm_logerror(LOG_ERR,0,"pread(%d,%p,%lld,0)",d->fd,p,(long long)sz);
+        mdbm_logerror(LOG_ERR,0,"pread(%d,%p,%lld,0)",d->fd,(void*)p,(long long)sz);
         return -1;
     }
     val->dptr = p;
@@ -8720,7 +8720,7 @@ mdbm_bsop_file_store(void* data, const datum* key, const datum* val, int flags)
     }
 
     if (pwrite(d->fd,p,sz,0) < sz) {
-        mdbm_logerror(LOG_ERR,0,"pwrite(%d,%p,%lld,0)",d->fd,p,(long long)sz);
+        mdbm_logerror(LOG_ERR,0,"pwrite(%d,%p,%lld,0)",d->fd,(void*)p,(long long)sz);
         return -1;
     }
 
@@ -9238,7 +9238,7 @@ dump_v3_page (void* user, const mdbm_iterate_info_t* info, const kvpair* kv)
   printf("  KEY[%u] sz=%-5u pg+off=%u+%u off=%-10ld",
          idx, key.dsize, pno, ei->key_offset, (long)(key.dptr-db->db_base));
   if (key.dsize) {
-      printf(" addr=%p = ", key.dptr);
+      printf(" addr=%p = ", (void*)key.dptr);
       print_data_bytes(key,0);
   /*} else if (PNO(db,pag) == 0 && i == -1) { */
   /*    printf(" [header]\n"); */
@@ -9250,7 +9250,7 @@ dump_v3_page (void* user, const mdbm_iterate_info_t* info, const kvpair* kv)
   }
 
   printf("  VAL[%u] sz=%-5u pg+off=%u+%u addr=%p = ",
-         idx, (deleted ? 0 : val.dsize), pno, ei->val_offset, (deleted ? NULL : val.dptr));
+         idx, (deleted ? 0 : val.dsize), pno, ei->val_offset, (void*)(deleted ? NULL : val.dptr));
   if (key.dsize) {
       print_data_bytes(val,0);
   } else if (ei->entry_flags & MDBM_ENTRY_DELETED) {
@@ -9719,7 +9719,7 @@ pin_pages(MDBM *db)
     hdr_size = MDBM_DB_NUM_DIR_BYTES(db);
     if (mlock(db->db_base, hdr_size) < 0) {
         mdbm_logerror(LOG_ERR, 0, "Cannot mlock header (%p,%llu)",
-                      db->db_base, (unsigned long long) hdr_size);
+                      (void*)db->db_base, (unsigned long long) hdr_size);
         return -1;
     }
 
@@ -9770,7 +9770,7 @@ unlock_pages(MDBM *db)
     hdr_size = MDBM_DB_NUM_DIR_BYTES(db);
     if ((ret = munlock(db->db_base, hdr_size)) < 0) {
         mdbm_logerror(LOG_ERR, 0, "Cannot munlock hdr(%p,%llu)",
-                      db->db_base, (unsigned long long) hdr_size);
+                      (void*)db->db_base, (unsigned long long) hdr_size);
     }
 
     /* Round hdr size to next MDBM pagesize */

@@ -49,12 +49,14 @@ public:
     void smoke_test_cache_09();  //        TC 09
     void smoke_test_cache_10();  //        TC 10
     void smoke_test_cache_11();  //        TC 11
+    void smoke_test_cache_12();  //        TC 12
 
     int  StoreCacheLargeObj(MDBM *cache_db, int xobjNum = 0);
     void FetchCacheLargeObj(MDBM *cache_db, int key);
     void DeleteCacheLargeObj(MDBM *cache_db, int key);
     void cache_common_tests(MDBM *cache_db, bool modify);
     MDBM* create_mdbm_cache(const string& cache_name, int openflags, int mode);
+    MDBM* create_mdbm_cache_40m(const string& cache_name, int openflags, int mode);
 private:
     static string _basePath;
     static int _pageSize;
@@ -282,6 +284,28 @@ void SmokeTestCacheSuite::smoke_test_cache_11() {
     CPPUNIT_ASSERT((ret = mdbm_set_cachemode(cache_db, MDBM_CACHEMODE_LRU)) != 0);
 }
 
+void SmokeTestCacheSuite::smoke_test_cache_12() {
+    string trprefix = "TC 12 : Smoke Test DB Caching: ";
+    TRACE_TEST_CASE(trprefix);
+    const string mdbm_name  = _basePath + "/smoke_test_cache_12.mdbm";
+    int ret = -1, i;
+    int openflags = MDBM_O_RDWR | MDBM_O_CREAT | MDBM_O_TRUNC | MDBM_CREATE_V3 | MDBM_CACHE_MODIFY | MDBM_LARGE_OBJECTS | MDBM_DBSIZE_MB;
+
+    //create mdbm as cache
+    MdbmHolder cache_db = create_mdbm_cache_40m(mdbm_name, openflags, MDBM_CACHEMODE_LRU);
+
+    //store large objects
+    for (i = 0; i < 1024; ++i) {
+       ret = StoreCacheLargeObj(cache_db, i);
+       if (ret == 0) {
+           CPPUNIT_ASSERT_EQUAL(0, ret);
+           FetchCacheLargeObj(cache_db, i);
+       } else {
+           CPPUNIT_ASSERT_EQUAL(-1, ret);
+       }
+    }
+}
+
 void SmokeTestCacheSuite::cache_common_tests(MDBM* cache_db, bool modify) {
     kvpair kv;
 
@@ -334,6 +358,27 @@ MDBM* SmokeTestCacheSuite::create_mdbm_cache(const string& cache_name, int openf
     return cache_db;
 }
 
+MDBM* SmokeTestCacheSuite::create_mdbm_cache_40m(const string& cache_name, int openflags, int mode) {
+    MDBM *cache_db = NULL;
+    int ret = -1;
+
+    CPPUNIT_ASSERT((cache_db = mdbm_open(cache_name.c_str(), openflags, 0644, 4096, 40)) != NULL);
+
+    if (!cache_db) {
+        stringstream msg;
+        msg << cache_name << " Failed to mdbm_open DB(errno=" << errno;
+        msg << endl;
+        cerr << msg.str();
+        assert(cache_db);
+        return NULL;
+    }
+
+    CPPUNIT_ASSERT((ret = mdbm_sethash(cache_db, MDBM_HASH_MD5)) == 1);
+    CPPUNIT_ASSERT((ret = mdbm_limit_size_v3(cache_db, mdbm_get_size(cache_db) / mdbm_get_page_size(cache_db), NULL, NULL)) == 0);
+    CPPUNIT_ASSERT((ret = mdbm_set_cachemode(cache_db, mode)) == 0);
+
+    return cache_db;
+}
 
 int SmokeTestCacheSuite::StoreCacheLargeObj(MDBM *cache_db, int objNum) {
     char kbuf[32], buf[256];
@@ -396,6 +441,7 @@ class MdbmSmokeTest : public SmokeTestCacheSuite {
       CPPUNIT_TEST(smoke_test_cache_09);   // TC 09
       CPPUNIT_TEST(smoke_test_cache_10);   // TC 10
       CPPUNIT_TEST(smoke_test_cache_11);   // TC 11
+      CPPUNIT_TEST(smoke_test_cache_12);   // TC 12
     CPPUNIT_TEST_SUITE_END();
 
 public:

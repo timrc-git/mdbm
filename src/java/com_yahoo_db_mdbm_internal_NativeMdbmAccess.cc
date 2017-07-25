@@ -68,6 +68,9 @@ DECLARE_CACHED_METHOD_ID(mdbmExceptionClass, mdbmExceptionCtorId, "<init>", "(Lj
 DECLARE_CACHED_METHOD_ID(mdbmExceptionClass, mdbmExceptionSetPathId, "setPath", "(Ljava/lang/String;)V")
 DECLARE_CACHED_METHOD_ID(mdbmExceptionClass, mdbmExceptionSetInfoId, "setInfo", "(Ljava/lang/String;)V")
 
+DECLARE_CACHED_CLASS(mdbmDeleteExceptionClass, MDBM_DELETE_EXCEPTION)
+DECLARE_CACHED_METHOD_ID(mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId, "<init>", "(Ljava/lang/String;)V")
+
 DECLARE_CACHED_CLASS(mdbmFetchExceptionClass, MDBM_FETCH_EXCEPTION)
 DECLARE_CACHED_METHOD_ID(mdbmFetchExceptionClass, mdbmFetchExceptionCtorId, "<init>", "(Ljava/lang/String;)V")
 
@@ -325,28 +328,28 @@ public:
     }
 
     // FETCH
-    ScopedKvPair(JNIEnv *jenv, kvpair &kv) :
+    ScopedKvPair(JNIEnv *jenv, kvpair &in_kv) :
             valid(false), mdbmKvPair(NULL) {
         zeroKv(kv);
 
-        if ((0 == kv.key.dsize || NULL == kv.key.dptr)
-                && (0 == kv.val.dsize || NULL == kv.val.dptr)) {
+        if ((0 == in_kv.key.dsize || NULL == in_kv.key.dptr)
+                && (0 == in_kv.val.dsize || NULL == in_kv.val.dptr)) {
             //nothing to do.
             return;
         }
 
         GET_CACHED_CLASS(jenv, mdbmKvPairClass);
         GET_CACHED_METHOD_ID(jenv, mdbmKvPairDatumCtorId);
-        if (NULL == mdbmDatumClass || NULL == mdbmKvPairDatumCtorId) {
+        if (NULL == mdbmKvPairClass || NULL == mdbmKvPairDatumCtorId) {
             // valid is set to false so bail.
             return;
         }
 
         // now we need to create the datums to fill out.
-        key.setDatum(jenv, kv.key);
+        key.setDatum(jenv, in_kv.key);
         RETURN_IF_EXCEPTION_OR_NULL(key.getMdbmDatum());
 
-        val.setDatum(jenv, kv.val);
+        val.setDatum(jenv, in_kv.val);
         RETURN_IF_EXCEPTION_OR_NULL(val.getMdbmDatum());
 
         // now that key and val are setup, we can create the java object using them.
@@ -806,9 +809,17 @@ JNIEXPORT void JNICALL Java_com_yahoo_db_mdbm_internal_NativeMdbmAccess_mdbm_1de
 
     int ret = mdbm_delete (mdbm, *keyDatum.getDatum());
 
-    // deal with errors first.
-    checkZeroIsOkReturn(jenv, ret, MDBM_DELETE_EXCEPTION, "mdbm_delete", 0,
-            NULL);
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    "mdbm_delete", 0, NULL);
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_DELETE_EXCEPTION,
+                    mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId,
+                    "mdbm_delete", 0, NULL);
+        }
+    }
 }
 
 /*
@@ -827,9 +838,17 @@ JNIEXPORT void JNICALL Java_com_yahoo_db_mdbm_internal_NativeMdbmAccess_mdbm_1de
 
     int ret = mdbm_delete_r (mdbm, iter);
 
-    // deal with errors first.
-    checkZeroIsOkReturn(jenv, ret, MDBM_DELETE_EXCEPTION, "mdbm_delete_r", 0,
-            iter);
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    "mdbm_delete_r", 0, iter);
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_DELETE_EXCEPTION,
+                    mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId,
+                    "mdbm_delete_r", 0, iter);
+        }
+    }
 }
 
 /*
@@ -1239,9 +1258,17 @@ JNIEXPORT void JNICALL Java_com_yahoo_db_mdbm_internal_NativeMdbmAccess_mdbm_1de
 
     int ret = mdbm_delete_str(mdbm, keyString.getChars());
 
-    // deal with errors first.
-    checkZeroIsOkReturn(jenv, ret, MDBM_DELETE_EXCEPTION,
-            "mdbm_delete_str", 0, NULL);
+    if ( ret == -1 ) {
+        if ( errno == ENOENT ) {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_NOENTRY_EXCEPTION,
+                    mdbmNoEntryExceptionClass, mdbmNoEntryExceptionCtorId,
+                    "mdbm_delete_str", 0, NULL);
+        } else {
+            checkZeroIsOkReturn(jenv, -1, thisObject, MDBM_DELETE_EXCEPTION,
+                    mdbmDeleteExceptionClass, mdbmDeleteExceptionCtorId,
+                    "mdbm_delete_str", 0, NULL);
+        }
+    }
 
 }
 

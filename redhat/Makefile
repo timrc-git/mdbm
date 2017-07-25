@@ -16,7 +16,7 @@ buildrpmdist: specfile buildtgz
 	rpmbuild -ta ./build/$(TARBALL)
 
 buildrpm: specfile buildtgz
-	rpmbuild --define "_rpmdir ./build/" --define "_sourcedir ./build/" --define "_srcrpmdir ./build/" -ta ./build/$(TARBALL).gz
+	rpmbuild --define "_rpmdir ./build/" --define "_sourcedir ./build/" --define "_srcrpmdir ./build/" -ta ./build/$(TARBALL)
 
 buildtgz: prepbuildtarball
 	tar czv -C ./build/ -f ./build/$(TARBALL) ${PACKAGE_WITH_VERSION}
