@@ -16,6 +16,12 @@ COMP_FLAGS += -DUSE_OPENSSL
 # To provide internal MD5 and SHA1 hash functions
 #COMP_FLAGS += -DPROVIDE_SSL_HASHES
 COMP_FLAGS += -DALLOW_MLOCK_RESET
+# if uncommented, scales partitioned lock-count by the number of CPUs
+#COMP_FLAGS += -DPARTITION_LOCK_CPU_MULTIPLIER=16
+# if uncommented, sets the exact number of partitioned locks
+# Overrides PARTITION_LOCK_CPU_MULTIPLIER
+#COMP_FLAGS += -DPARTITION_LOCK_COUNT=128
+
 
 ifeq ($(UNAME), Linux)
 # NOTE: we need to check RHEL6 or greater for robust-pthreads
