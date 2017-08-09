@@ -1163,7 +1163,7 @@ public:
         string arg = onearg;
         Utils.FinalizePath(arg);
         const int bufLen = 65536;
-        char buf[bufLen];
+        char buf[bufLen+1];
         int fd = open(arg.c_str(), O_RDONLY);
         if (fd < 0) {
             fprintf(OutputFilePtr, "Cat could not open [%s], %s\n", arg.c_str(), strerror(errno));
