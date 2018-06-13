@@ -1,8 +1,8 @@
 #!/bin/bash
 
 BIN_BASE=/usr/local/bin
-mlock=$(BIN_BASE)/mdbm_lock
-mlock64=$(BIN_BASE)64/mdbm_lock
+mlock=${BIN_BASE}/mdbm_lock
+mlock64=${BIN_BASE}64/mdbm_lock
 
 for l in `/usr/bin/find /tmp/.mlock-named -type f | /bin/grep "_int_$"`; do
   # extract mdbm name from lock name
@@ -14,9 +14,9 @@ for l in `/usr/bin/find /tmp/.mlock-named -type f | /bin/grep "_int_$"`; do
 
   # mutex size is 32-byte (20-hex) for 32-bit, 48-byte (30-hex) for 64-bit
   if [[ "x$sz" == "x20" ]]; then
-    $(mlock) -r $d
+    ${mlock} -r $d
   else
-    $(mlock64) -r $d
+    ${mlock64} -r $d
   fi
 done
 
