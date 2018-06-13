@@ -352,13 +352,13 @@ struct mdbm_locks* open_locks_inner(const char* dbname, int flags, int do_lock, 
     count = get_cpu_count() * 2;
   } else if (flags & MDBM_PARTITIONED_LOCKS) {
     type = MLOCK_INDEX;
-#ifdef PARTITION_LOCK_CPU_COUNT
-    count = PARTITION_LOCK_CPU_COUNT;
+#ifdef PARTITION_LOCK_COUNT
+    count = PARTITION_LOCK_COUNT;
 #elif defined(PARTITION_LOCK_CPU_MULTIPLIER)
     count = get_cpu_count() * PARTITION_LOCK_CPU_MULTIPLIER;
 #else
     count = 128;
-#endif // PARTITION_LOCK_CPU_COUNT
+#endif // PARTITION_LOCK_COUNT
   }
   if (locks->open(dbname, flags, type, count, do_lock, need_check)) {
     delete locks;
