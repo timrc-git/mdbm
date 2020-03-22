@@ -33,7 +33,7 @@ std::string getMdbmToolPath(const std::string& tool_name) {
   // TODO TODO TODO test for existence and complain if non-existent
   char* plat = getenv("OBJDIR");
   if (!plat) { plat = (char*)"object"; }
-  string path = string("../../tools/") + plat +string("/")+tool_name;
+  string path = string("../../../tools/") + plat +string("/")+tool_name;
   return path;
 }
 

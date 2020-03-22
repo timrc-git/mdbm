@@ -78,13 +78,19 @@ static inline void atomic_barrier() {
 static inline void atomic_read_barrier() {
 #ifdef __x86_64__
     __asm__ __volatile__ ("lfence" : : : "memory");
-#else
+#elif __ARM_ARCH_7A__
+    __asm__ __volatile__ ("dmb");
+#else	// X86
     __asm__ __volatile__ ("lock addl $0,0(%%esp)" : : : "memory");
 #endif
 }
 
 static inline void atomic_pause() {
+#ifdef __ARM_ARCH_7A__
+  __asm__ __volatile__ ("yield");
+#else	// X86 & X86_64
   __asm__ __volatile__ ("pause");
+#endif
 }
 
 

@@ -147,11 +147,15 @@ volatile static uint64_t tsc_per_usec;    /* TSC clock cycles per microsecond */
  * WANRING:  This value may be affected by speedstep and may vary randomly across cores. */
 static inline uint64_t rdtsc(void)
 {
+#ifdef __ARM_ARCH_7A__
+	return 0ul;
+#else
     uint32_t lo, hi;
     /* We cannot use "=A", since this would use %rax on x86_64 and
      * return only the lower 32bits of the TSC */
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return (((uint64_t)hi) << 32) | lo;
+#endif
 }
 
 uint64_t

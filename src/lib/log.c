@@ -127,7 +127,10 @@ int mdbm_log_vlogerror_at (const char* file, int line, int level, int error, con
     if (len < sizeof(buf)) {
         mdbm_strlcpy(buf+len,strerror(error),sizeof(buf)-len);
     }
-    return mdbm_log_vlog_at(file, line, level,buf,NULL);
+    {
+        va_list unused;
+        return mdbm_log_vlog_at(file, line, level,buf,unused);
+    }
 }
 
 
@@ -170,11 +173,11 @@ int mdbm_log_vlog_at (const char* file, int line, int level, const char* format,
         offset += sizeof(FATAL)-1;
     }
 
-    if (args) {
+    //if (args) {
         vsnprintf(buf+offset,sizeof(buf)-offset-2,format,args);
-    } else {
-        mdbm_strlcpy(buf+offset,format,sizeof(buf)-offset-2);
-    }
+    //} else {
+    //    mdbm_strlcpy(buf+offset,format,sizeof(buf)-offset-2);
+    //}
 
     buflen = strlen(buf);
     if (buf[buflen-1] != '\n') {

@@ -1531,7 +1531,7 @@ fprintf(stderr, "SETTING LIMIT SIZE SHAKE KEY to %s\n", (char*)shakerData);
         TRACE_TEST_CASE(trmsg.str())
     }
 
-    //fprintf(stderr, "------------ PRE-CLEAR setlimit:%lu gotlimit:%lu ----------------\n", 
+    //fprintf(stderr, "------------ PRE-CLEAR setlimit:%lu gotlimit:%lu ----------------\n",
     //    numPagesLimit, mdbm_get_limit_size(dbh));
     string trunc = "truncation";
     if (truncateDB) {
@@ -1564,7 +1564,7 @@ fprintf(stderr, "SETTING LIMIT SIZE SHAKE KEY to %s\n", (char*)shakerData);
     } else {
         cfgss << " Verifying defaults NOT reset after purge: " << endl;
     }
-    //fprintf(stderr, "------------ setlimit:%lu gotlimit:%lu ----------------\n", 
+    //fprintf(stderr, "------------ setlimit:%lu gotlimit:%lu ----------------\n",
     //    numPagesLimit, mdbm_get_limit_size(dbh));
 
     cfgss << " : Preset Page size=" << presetPageSize
@@ -1708,7 +1708,7 @@ static int shakerTC5(struct mdbm *dbh, const datum *key, const datum *val, mdbm_
             if (keytc5.find(toMatch) != string::npos) {
                 page_item->key.dsize = 0;
                 ret = 1;
-                //fprintf(stderr,  "Shaker-tc5: found matching (to delete) key=%s (vs %s)\n", 
+                //fprintf(stderr,  "Shaker-tc5: found matching (to delete) key=%s (vs %s)\n",
                 //    keytc5.c_str(), toMatch);
                 break;
             }
@@ -1950,8 +1950,13 @@ DataMgmtBaseTestSuite::FilledSinglePagedDbNonDefsAndShakeFuncPurgeG5()
     uint64_t size_post = mdbm_get_size(dbh);
     uint64_t count_post = mdbm_count_records(dbh);
 
-    fprintf(stderr, "MDBM SIZE went from %lu to %lu after %d entries (orig:%lu ent-prior:%lu post:%lu)\n", 
+#ifdef __ARM_ARCH_7A__
+    fprintf(stderr, "MDBM SIZE went from %llu to %llu after %d entries (orig:%llu ent-prior:%llu post:%llu)\n",
         size_prior, size_post, refillAddCnt, count_orig, count_prior, count_post);
+#else
+    fprintf(stderr, "MDBM SIZE went from %lu to %lu after %d entries (orig:%lu ent-prior:%lu post:%lu)\n",
+        size_prior, size_post, refillAddCnt, count_orig, count_prior, count_post);
+#endif
 
     // Should only be able to add twice the number of entries as first time
     // since verifyDefaultConfig performs mdbm_limit_size with twice the number of pages
@@ -2546,7 +2551,7 @@ DataMgmtBaseTestSuite::FillDbCleanerCleansNothingStoreDataI2()
     cleandata.user_data = 0;
     mdbm_set_cleanfunc(dbh, keycleanandquit, &cleandata);
 
-    // try and store some data 
+    // try and store some data
     int ret = store(dbh, keyBaseName, keyBaseName);
     stringstream errss;
     errss << SUITE_PREFIX()
