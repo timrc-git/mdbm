@@ -69,7 +69,9 @@ static void delete_helper(const char* name, int &ret, int &er) {
 int do_delete_lockfiles(const char* dbname) {
     int ret = 0, errcode=0;
     char realname[MAXPATHLEN+1];
-    char fn[MAXPATHLEN+1];
+    const char *lockfile_name_template = "/tmp/.mlock-named/%s._int_";
+    // FIXME This may violate the limitations on maximum path-length.
+    char fn[MAXPATHLEN+1+25/*sizeof(lockfile_name_template)*/];
 
     if (dbname[0] == '/') {
         if (realpath(dbname, realname) == NULL) {
@@ -97,7 +99,7 @@ int do_delete_lockfiles(const char* dbname) {
         realname[MAXPATHLEN] = '\0';
     }
 
-    snprintf(fn,sizeof(fn),"/tmp/.mlock-named/%s._int_", realname);
+    snprintf(fn, sizeof(fn), lockfile_name_template, realname);
     delete_helper(fn, ret, errcode);
 
     errno=errcode;
@@ -195,7 +197,7 @@ lock_error(MDBM* db, const char* what, ...)
 {
     MdbmLockBase* locks = CAST_LOCKS(db);
     int err = errno;
-    const char* fname = db ? db->db_filename : NULL;
+    const char* fname = db ? db->db_filename : "NULL";
     int flen = fname ? strlen(fname) : 0;
     int len = strlen(what) + flen + 4;
     va_list args;

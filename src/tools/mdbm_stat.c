@@ -553,7 +553,7 @@ main(int argc, char** argv)
 
     if (header) {
         char flags_buf[128];
-        int left = sizeof(flags_buf);
+        int left = sizeof(flags_buf)-1;
         const char* magic;
         int align = hdr->h_dbflags & MDBM_ALIGN_MASK;
         time_t fetch_last_val = 0;

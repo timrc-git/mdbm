@@ -1179,7 +1179,7 @@ public:
                 bytes = bufLen;
                 truncated = true;
             }
-            buf[bytes]='\0';
+            buf[bytes-1]='\0';
             fprintf(OutputFilePtr, "%s\n", buf);
             if (truncated) {
                 fprintf(OutputFilePtr, "<truncated>\n");
