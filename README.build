@@ -31,12 +31,18 @@ Compilation:
 NOTE:
   You may need to edit the "Configuration section" of Makefile.base
   for specific locations and options on your platform.
-  
+
 For building on RHEL7 the following will help:
   sudo yum install git gcc\* openssl-devel readline-devel cppunit-devel
 
   If you have yum groups configured correctly:
-  sudo yum group install "Development Tools" 
+  sudo yum group install "Development Tools"
   sudo yum install git openssl-devel readline-devel cppunit-devel rpm-build
 
+Troubleshooting:
+  If you see errors "mdbm_*: error while loading shared libraries: libmdbm.so:
+  cannot open shared object file: No such file or directory" while running MDBM
+  command line tools, define the shell variable LD_LIBRARY_PATH to include the
+  directory where the library is installed. For example, define
+  "LD_LIBRARY_PATH="/usr/local/lib64/" in ~/.bashrc.
 
