@@ -31,7 +31,7 @@ COMP_FLAGS += -DHAVE_WINDOWED_MODE
 # add real-time lib for clock_gettime
 LIBRT = -lrt
 endif
-ifneq ($(UNAME), Darwin) 
+ifneq ($(UNAME), Darwin)
 # OSX doesn't have /proc, TODO check BSD
 COMP_FLAGS += -DHAVE_PROC_FILESYS
 endif
@@ -54,8 +54,8 @@ ifeq ($(UNAME), Darwin) # homebrew
 INSTALL=ginstall
 endif
 
-# NOTE: This is not double assignment. It creates an expression that the 
-# unit tests (e.g.) can evaulate to dynamically set LD_LIBRARY_PATH or 
+# NOTE: This is not double assignment. It creates an expression that the
+# unit tests (e.g.) can evaulate to dynamically set LD_LIBRARY_PATH or
 # DYLD_LIBRARY_PATH to use the locally build libs as they run the tests.
 ifeq ($(UNAME), Darwin) # homebrew
 LD_LIB_PATH=DYLD_LIBRARY_PATH=$(TOPDIR)/src/lib/$(OBJDIR):$(LD_LIBRARY_PATH)
@@ -113,7 +113,7 @@ profile::
 	$(MAKE) MODE=profile make-recursive-default-make-target
 test-prof::
 	$(MAKE) MODE=profile make-recursive-test
-test-fast:: 
+test-fast::
 	$(MAKE) FAST=1 make-recursive-test
 valg-fast::
 	$(MAKE) FAST=1 make-recursive-valg
@@ -141,6 +141,7 @@ GCC_VER_SPC=$(shell gcc -dumpversion | tr '.' ' ')
 GCC_VER_INT=$(shell printf "%d%04d%04d" $(GCC_VER_SPC))
 # compare to minimum version 4.8.0
 GCC_GTE_48=$(shell expr $(GCC_VER_INT) \>= 400080000)
+GCC_GTE_80=$(shell expr $(GCC_VER_INT) \>= 800080000)
 
 PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings
 
@@ -166,7 +167,11 @@ ifeq ("$(GCC_GTE_48)", "1")
 PEDANTIC += -Wunreachable-code
 endif
 
-ifeq ($(DISABLE_TSC),1) 
+ifeq ("$(GCC_GTE_80)", "1")
+PEDANTIC += -Wno-format-truncation -Wno-stringop-truncation -Wno-stringop-overflow
+endif
+
+ifeq ($(DISABLE_TSC),1)
   COMP_FLAGS += -DDISABLE_TSC
 endif
 
@@ -226,7 +231,7 @@ run-$(1): $(OBJDIR)/$(1)
 	@echo; echo "###### Running " $(1) "######"; echo
 	$(LD_LIB_PATH) $(RUN_PREFIX) $(OBJDIR)/$(strip $1) $(RUN_ARGS)
 valg-$(1): $(OBJDIR)/$(1)
-	@echo; echo "###### Running " $(1) " (valgrind) ######"; echo 
+	@echo; echo "###### Running " $(1) " (valgrind) ######"; echo
 	$(LD_LIB_PATH) VALG=1 $(RUN_PREFIX) ./valgrind_runner.sh $(OBJDIR)/$(strip $1) $(RUN_ARGS)
 endef
 
@@ -246,7 +251,7 @@ run-$(1): $(OBJDIR)/$(1)
 	@echo; echo "###### Running " $(1) "######"; echo
 	$(LD_LIB_PATH) $(RUN_PREFIX) $(OBJDIR)/$(strip $1) $(RUN_ARGS)
 valg-$(1): $(OBJDIR)/$(1)
-	@echo; echo "###### Running " $(1) " (valgrind) ######"; echo 
+	@echo; echo "###### Running " $(1) " (valgrind) ######"; echo
 	$(LD_LIB_PATH) VALG=1 $(RUN_PREFIX) ./valgrind_runner.sh $(OBJDIR)/$(strip $1) $(RUN_ARGS)
 endef
 
