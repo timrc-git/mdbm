@@ -136,12 +136,12 @@ LOCAL_LDADD = -L$(TOPDIR)/src/lib/$(OBJDIR)
 COMP_FLAGS +=  -g -O2 -I/usr/include -I$(INCDIR) -I$(TOPDIR)/include -I. -Wall -fPIC
 
 # get gcc version (space-separated components)
-GCC_VER_SPC=$(shell gcc -dumpversion | tr '.' ' ')
+GCC_VER_SPC=$(shell $(CC) -dumpversion | tr '.' ' ')
 # turn it into an integer, zero-padding minor and patch versions to 4 digits
 GCC_VER_INT=$(shell printf "%d%04d%04d" $(GCC_VER_SPC))
 # compare to minimum version 4.8.0
 GCC_GTE_48=$(shell expr $(GCC_VER_INT) \>= 400080000)
-GCC_GTE_80=$(shell expr $(GCC_VER_INT) \>= 800080000)
+GCC_GTE_80=$(shell expr $(GCC_VER_INT) \>= 800000000)
 
 PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings
 
