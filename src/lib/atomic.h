@@ -94,23 +94,27 @@ static inline void atomic_pause() {
 }
 
 
-/* returns (linux-specific) thread-id (for single-thread processes it's just PID) */
-static inline uint32_t gettid() {
-  /* AUTO_TSC("gettid()"); */
+/*
+returns (linux-specific) thread-id (for single-thread processes it's just PID).
+Renamed to not conflict with glibc 2.30's gettid wrapper.
+On Linux gettid returns pid_t which is int32_t.
+*/
+static inline int32_t mdbm_gettid() {
+  /* AUTO_TSC("mdbm_gettid()"); */
 #ifdef __linux__
   return syscall(SYS_gettid);
 #else
   /* Horrible hack, but pthread_self is not unique across processes, */
   /* and some OS don't expose any other unique id. */
   /* xor-fold pthread_self() pointer down to 16-bits */
-  uint32_t tid;
+  uint32_t tid_unsigned;
   uint64_t pself = (uint64_t)pthread_self();
   pself = pself ^ (pself >> 32);
   pself = pself ^ (pself >> 16);
   /* add in PID to help unique-ify */
   /* NOTE: tiger and later OSX have PID #s up to 10k. */
   tid = ((pself & 0xffff) << 16) + getpid();
-  return tid;
+  return (int32_t) tid_unsigned;
 #endif
 }
 

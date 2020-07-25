@@ -157,7 +157,7 @@ int mdbm_log_vlog_at (const char* file, int line, int level, const char* format,
 
     gettimeofday(&tv, NULL);
 #ifdef __linux__
-    pid = gettid();
+    pid = mdbm_gettid();
 #else
     pid = getpid();
 #endif

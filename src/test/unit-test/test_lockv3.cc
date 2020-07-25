@@ -2228,7 +2228,7 @@ void* LockV3TestSuite::LockV3TestSuite::thrdIterates(void *arg)
 
     // iterate the DB - when done send an ACK to the parent
     MDBM_ITER iter;
-    //fprintf(stderr, "@@@ === child pid:%d tid:%d about to iterate\n", getpid(), gettid());
+    //fprintf(stderr, "@@@ === child pid:%d tid:%d about to iterate\n", getpid(), mdbm_gettid());
     //mdbm_lock_dump(params->dbh());
     datum     key = mdbm_firstkey_r(params->dbh(), &iter);
     while (key.dsize != 0) {
@@ -2281,7 +2281,7 @@ LockV3TestSuite::thrdLockAndChildIterates(CommonParams &parParams, int childOpen
         CPPUNIT_ASSERT_MESSAGE(errMsg.insert(0, prefix), (ret == parParams.expectedRet()));
     }
 
-    //fprintf(stderr, "@@@ === parent pid:%d tid:%d about to tell child to iterate\n", getpid(), gettid());
+    //fprintf(stderr, "@@@ === parent pid:%d tid:%d about to tell child to iterate\n", getpid(), mdbm_gettid());
     //mdbm_lock_dump(dbh);
     // tell child to iterate
     parSendFD.sendMsg(_Continue);
