@@ -8267,7 +8267,7 @@ open_tmp_test_file(const char *file, uint32_t siz, char *buf)
 {
     int created = 0, fd = -1;
 
-    snprintf(buf, MAXPATHLEN, "%s%d.map", file, gettid()); /* assuming buf is big enough */
+    snprintf(buf, MAXPATHLEN, "%s%d.map", file, mdbm_gettid()); /* assuming buf is big enough */
 
     fd = open(buf, O_RDWR|O_NOATIME);
     if (fd < 0) {
