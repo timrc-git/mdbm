@@ -473,7 +473,7 @@ do_lock_x(MDBM* db, int pageno, int nonblock, int check)
         int do_check = 0; /* If an integrity check needs to be done. */
         int upgraded = 0; /* If the lock was implicitly upgraded (prev EXCL owner died). */
         int part_num = -1;
-        //fprintf(stderr, "@@@ do_lock_x pid:%d tid:%d, excl_nest:%d part_nest:%d part_count:%d pageno:%d\n", getpid(), gettid(), exclusive_nest, part_nest, part_count, pageno); 
+        //fprintf(stderr, "@@@ do_lock_x pid:%d tid:%d, excl_nest:%d part_nest:%d part_count:%d pageno:%d\n", getpid(), mdbm_gettid(), exclusive_nest, part_nest, part_count, pageno);
         /*fprintf(stderr, "do_lock_x, part_count:%d\n", part_count); */
         if (part_count > 1) { /* shared/indexed locking (vs single-lock) */
             if (pageno == MDBM_LOCK_EXCLUSIVE || pageno == MDBM_LOCK_SHARED) {
@@ -485,11 +485,11 @@ do_lock_x(MDBM* db, int pageno, int nonblock, int check)
 
             if (pageno == MDBM_LOCK_EXCLUSIVE || exclusive_nest > 0) {
                 if (!exclusive_nest && part_nest>0) {
-                    //fprintf(stderr, "@@@ do_lock_x-upgrade pid:%d tid:%d, \n", getpid(), gettid()); 
+                    //fprintf(stderr, "@@@ do_lock_x-upgrade pid:%d tid:%d, \n", getpid(), mdbm_gettid());
                     /*NOTE("Upgrade(TRY)"); */
                     TRY_OR_LOCK_TIMED_ERR(MLOCK_UPGRADE, part_num, "mlock_upgrade()");
                 } else { /* exclusive lock already held, bump count */
-                    //fprintf(stderr, "@@@ do_lock_x-exclusive pid:%d tid:%d\n",getpid(), gettid());
+                    //fprintf(stderr, "@@@ do_lock_x-exclusive pid:%d tid:%d\n",getpid(), mdbm_gettid());
                     /*NOTE("Lock(ASYNC) EXCLUSIVE"); */
                     TRY_OR_LOCK_TIMED_ERR(MLOCK_EXCLUSIVE, part_num, "mlock_lock(exclusive)");
                     if (1 == locks->getHeldCount(MLOCK_EXCLUSIVE, true)) {
@@ -505,27 +505,27 @@ do_lock_x(MDBM* db, int pageno, int nonblock, int check)
                         exclusive_nest, part_nest, part_count);
                     return -1;
                 } else {
-                    /*fprintf(stderr, "@@@ do_lock_x-part pid:%d tid:%d, part_num:%d\n", getpid(), gettid(), part_num); */
+                    /*fprintf(stderr, "@@@ do_lock_x-part pid:%d tid:%d, part_num:%d\n", getpid(), mdbm_gettid(), part_num); */
                     /* don't worry about blocking... should already be held... */
                     locks->lock(MLOCK_INDEX, MLOCK_BLOCK, part_num, do_check, upgraded);
                 }
             } else {
                 if (pageno == MDBM_LOCK_SHARED) {
                     /*NOTE("Lock(ASYNC) ANY SHARED"); */
-                    //fprintf(stderr, "@@@ do_lock_x-shared pid:%d tid:%d, \n", getpid(), gettid()); 
+                    //fprintf(stderr, "@@@ do_lock_x-shared pid:%d tid:%d, \n", getpid(), mdbm_gettid());
                     TRY_OR_LOCK_TIMED_ERR(MLOCK_SHARED, MLOCK_ANY, "mlock_lock(shared)");
                 } else {
                     /*NOTE("Lock(ASYNC) PART"); */
                     /*lock_error(db,"Lock(ASYNC) Part (page:%d part:%d)",pageno,part_num); */
                     /*print_trace(); */
-                    /*fprintf(stderr, "@@@ do_lock_x-index pid:%d tid:%d part_num:%d, \n", getpid(), gettid(), part_num); */
+                    /*fprintf(stderr, "@@@ do_lock_x-index pid:%d tid:%d part_num:%d, \n", getpid(), mdbm_gettid(), part_num); */
                     TRY_OR_LOCK_TIMED_ERR(MLOCK_INDEX, part_num, "mlock_lock(index)");
                 }
                 prot = 1;
             }
         } else { /* Single lock (not partitioned/shared) */
             /*NOTE("Lock(ASYNC) SINGLE"); */
-            //fprintf(stderr, "@@@ do_lock_x-single pid:%d tid:%d, \n", getpid(), gettid()); 
+            //fprintf(stderr, "@@@ do_lock_x-single pid:%d tid:%d, \n", getpid(), mdbm_gettid());
             TRY_OR_LOCK_TIMED_ERR(MLOCK_EXCLUSIVE, part_num, "mlock_lock(single)");
             if (locks->getHeldCount(MLOCK_EXCLUSIVE, true) == 1) {
                 prot = 1;
@@ -777,7 +777,7 @@ do_unlock_x(MDBM* db)
       int exclusive_nest = locks->getHeldCount(MLOCK_EXCLUSIVE, true);
       int part_nest = locks->getHeldCount(MLOCK_INDEX, true);
       int share_nest = locks->getHeldCount(MLOCK_SHARED, true);
-      //fprintf(stderr, "@@@ do_unlock_x pid:%d tid:%d, excl_nest:%d part_nest:%d share_nest:%d\n", getpid(), gettid(), exclusive_nest, part_nest, share_nest);
+      //fprintf(stderr, "@@@ do_unlock_x pid:%d tid:%d, excl_nest:%d part_nest:%d share_nest:%d\n", getpid(), mdbm_gettid(), exclusive_nest, part_nest, share_nest);
       if (exclusive_nest > 0) {
         /* exclusive lock is held... release it */
         if (locks->unlock(MLOCK_EXCLUSIVE) < 0) {

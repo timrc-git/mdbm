@@ -964,7 +964,7 @@ LockBaseTestSuite::parChildLockPartitions(CommonParams &params, const string &db
                      << " child locker got ret="<<ret<< " expected=" << params.expectedRet()
                      << " dbName=" << dbName
                      << " pid=" << getpid()
-                     << " tid=" << gettid()
+                     << " tid=" << mdbm_gettid()
                      << endl << flush;
 
         if (ret == params.expectedRet()) {

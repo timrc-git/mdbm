@@ -1188,7 +1188,7 @@ void MdbmUnitTestOther::testMLock() {
   //    MDBM* db = (MDBM*)mdbm;
   //    struct mdbm_locks *db_locks = db->db_locks;
   //    mlock_t* locks = db_locks->db_mlocks;
-  //    uint32_t tid = gettid();
+  //    int32_t tid = mdbm_gettid();
 
       CPPUNIT_ASSERT(0 == db_part_owned(mdbm));
       CPPUNIT_ASSERT(0 == db_multi_part_locked(mdbm));

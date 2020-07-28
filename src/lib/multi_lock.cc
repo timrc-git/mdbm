@@ -93,7 +93,7 @@ public:
       TlsEntry *te = (TlsEntry*)pthread_getspecific(key_);
       if (!te) {
         te = new TlsEntry;
-        te->tid = gettid();
+        te->tid = mdbm_gettid();
         //fprintf(stderr, "TlsData tid:%llu \n", tid);
         install_atfork();
         pthread_setspecific(key_, (void*)te);
@@ -301,7 +301,7 @@ inline int PMutex::Lock(bool blocking, owner_t tid) {
 //  PRINT_LOCK_TRACE(blocking?"TRY Lock(BLOCK)":"TRY Lock(ASYNC)");
 //#endif
 //  CHECKPOINTV("  Lock(%s) any:%u owner:" OWNER_FMT " %p", blocking?"BLOCK":"ASYNC", rec->count, rec->owner, rec);
-  //uint32_t tid = gettid();
+  //int32_t tid = mdbm_gettid();
   //owner_t tid = get_thread_id();
   int ret = -1;
   if (tid == rec->owner) {
@@ -357,7 +357,7 @@ inline int PMutex::Lock(bool blocking, owner_t tid) {
 
 inline int PMutex::Unlock(owner_t tid) {
   AUTO_TSC("PMutex::Unlock()");
-  //uint32_t tid = gettid();
+  //int32_t tid = mdbm_gettid();
   //owner_t tid = get_thread_id();
 //#ifdef TRACE_LOCKS
 //  PRINT_LOCK_TRACE("TRY Unlock()");
@@ -1507,7 +1507,7 @@ void MLock::DumpLockState(FILE* file) {
   if (!file) {
     file = stderr;
   }
-  fprintf(file, "Begin Lock state (for non-zero locks) (pid:%d, tid:%d self:%llx uuid:" OWNER_FMT " ):\n", getpid(), gettid(), (long long unsigned)pthread_self(), get_thread_id());
+  fprintf(file, "Begin Lock state (for non-zero locks) (pid:%d, tid:%d self:%llx uuid:" OWNER_FMT " ):\n", getpid(), mdbm_gettid(), (long long unsigned)pthread_self(), get_thread_id());
   fprintf(file, "  BaseLocks:%d Core:%d Shared/Partitioned:%d mode:%s (%d)\n", base, 1, parts, MLockTypeToStr(GetLockType()), GetLockType());
   for (int i=0; i<base; ++i) {
     local = locks.locks[i]->GetLocalCount();
